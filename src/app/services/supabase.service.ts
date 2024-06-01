@@ -59,7 +59,10 @@ export class SupabaseService {
   }
 
   signIn(email: string) {
-    return this.client.auth.signInWithOtp({ email });
+    return this.client.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: 'https://peopletrak.netlify.app' },
+    });
   }
 
   signOut() {
