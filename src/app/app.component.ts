@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SupabaseService } from './services/supabase.service';
 
 @Component({
   standalone: true,
@@ -8,6 +9,11 @@ import { RouterOutlet } from '@angular/router';
   template: ` <router-outlet /> `,
   styles: ``,
 })
-export class AppComponent {
-  title = 'peopletrak';
+export class AppComponent implements OnInit {
+  private supabase = inject(SupabaseService);
+  session = this.supabase.session;
+
+  ngOnInit() {
+    this.supabase.authChanges((_, session) => (session = session));
+  }
 }

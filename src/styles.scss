@@ -1,4 +1,35 @@
+@use '@angular/material' as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@include mat.core();
+
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+$light-theme: mat.define-theme(
+                (
+                        color: (
+                                theme-type: light,
+                                primary: mat.$rose-palette,
+                                tertiary: mat.$magenta-palette,
+                        ),
+                )
+);
+
+html,
+body {
+  height: 100%;
+  @include mat.all-component-themes($light-theme);
+  @include mat.typography-hierarchy($light-theme);
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+mat-form-field {
+  width: 100%;
+}
