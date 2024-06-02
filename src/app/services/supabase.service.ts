@@ -59,9 +59,10 @@ export class SupabaseService {
   }
 
   signIn(email: string) {
+    console.log(environment.APP_URL);
     return this.client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: 'https://peopletrak.netlify.app' },
+      options: { emailRedirectTo: environment.APP_URL },
     });
   }
 
