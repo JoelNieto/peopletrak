@@ -37,6 +37,8 @@ export type Employee = {
   department?: Department;
   position_id: string;
   position?: Position;
+  email: string;
+  phone_number: string;
   address: string;
   end_date?: Date;
   created_at?: Date;

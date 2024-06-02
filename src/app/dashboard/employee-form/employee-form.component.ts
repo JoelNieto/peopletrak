@@ -73,6 +73,14 @@ import { DashboardStore } from '../dashboard.store';
             <input type="text" matInput formControlName="address" />
           </mat-form-field>
           <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input type="email" matInput formControlName="email" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Nro. Telefono</mat-label>
+            <input type="text" matInput formControlName="phone_number" />
+          </mat-form-field>
+          <mat-form-field>
             <mat-label>Sexo</mat-label>
             <mat-select formControlName="gender">
               <mat-option value="F">F</mat-option>
@@ -157,6 +165,13 @@ export class EmployeeFormComponent implements OnInit {
     document_id: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
+    }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.email],
+    }),
+    phone_number: new FormControl('', {
+      nonNullable: true,
     }),
     address: new FormControl('', { nonNullable: true }),
     birth_date: new FormControl<Date>(new Date(), { nonNullable: true }),

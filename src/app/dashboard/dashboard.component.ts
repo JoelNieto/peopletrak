@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
@@ -11,10 +11,17 @@ import { DashboardStore } from './dashboard.store';
     <mat-toolbar class="sticky top-0 z-10">
       <span routerLink="/home">Registro de empleados</span>
       <span class="example-spacer"></span>
-      <a mat-button routerLink="/employees"> Empleados </a>
-      <a mat-button routerLink="/branches"> Sucursales </a>
-      <a mat-button routerLink="/departments"> Areas </a
-      ><a mat-button routerLink="/positions"> Cargos </a>
+      <a mat-button routerLink="/employees" routerLinkActive="active">
+        Empleados
+      </a>
+      <a mat-button routerLink="/branches" routerLinkActive="active">
+        Sucursales
+      </a>
+      <a mat-button routerLink="/departments" routerLinkActive="active">
+        Areas </a
+      ><a mat-button routerLink="/positions" routerLinkActive="active">
+        Cargos
+      </a>
     </mat-toolbar>
     <main class="px-8 py-4">
       <router-outlet />
@@ -28,6 +35,10 @@ import { DashboardStore } from './dashboard.store';
       .example-spacer {
         flex: 1 1 auto;
       }
+
+      .active {
+        background-color: var(--mdc-filled-text-field-container-color)
+      }
     `,
   standalone: true,
   providers: [DashboardStore],
@@ -37,6 +48,7 @@ import { DashboardStore } from './dashboard.store';
     MatButtonModule,
     MatIconModule,
     RouterLink,
+    RouterLinkActive,
   ],
 })
 export class DashboardComponent {}

@@ -1,23 +1,29 @@
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   Injector,
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { debounceTime } from 'rxjs';
 import { Employee } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
@@ -35,6 +41,10 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
     MatIcon,
     MatMenuModule,
     DecimalPipe,
+    DatePipe,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatProgressBar,
   ],
   template: `
     <div class="w-full flex justify-between items-center">
@@ -44,8 +54,20 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
 
     <div class="w-full flex gap-4">
       <mat-form-field>
+        <mat-label>Buscar</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          type="text"
+          id="table-search"
+          matInput
+          [formControl]="searchControlText"
+          placeholder="Introduzca filtro"
+        />
+      </mat-form-field>
+      <mat-form-field>
         <mat-label>Sucursal</mat-label>
-        <mat-select>
+        <mat-select [formControl]="branchControl">
+          <mat-option>Todos</mat-option>
           @for (branch of state.branches(); track branch.id) {
           <mat-option [value]="branch.id">{{ branch.name }}</mat-option>
           }
@@ -53,7 +75,8 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
       </mat-form-field>
       <mat-form-field>
         <mat-label>Area</mat-label>
-        <mat-select>
+        <mat-select [formControl]="departmentControl">
+          <mat-option>Todos</mat-option>
           @for (department of state.departments(); track department.id) {
           <mat-option [value]="department.id">{{ department.name }}</mat-option>
           }
@@ -61,82 +84,178 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
       </mat-form-field>
       <mat-form-field>
         <mat-label>Cargo</mat-label>
-        <mat-select>
+        <mat-select [formControl]="positionControl">
+          <mat-option>Todos</mat-option>
           @for (position of state.positions(); track position.id) {
           <mat-option [value]="position.id">{{ position.name }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
     </div>
-    <table mat-table [dataSource]="dataSource" matSort>
-      <ng-container matColumnDef="name" sticky>
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.first_name }} {{ item.father_name }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="document">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Cedula</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.document_id }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="branch">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sucursal</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.branch.name }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="department">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Area</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.department.name }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Cargo</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.position.name }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="salary">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Salario</th>
-        <td mat-cell *matCellDef="let item">
-          {{ item.monthly_salary | number : '2.2' }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions" sticky>
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let item">
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="editEmployee(item)">Editar</button>
-            <button mat-menu-item>Borrar</button>
-          </mat-menu>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+    <div class="table-container">
+      @if (state.loading()) {
+      <mat-progress-bar mode="query" color="primary" />
+      }
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="first_name" sticky>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.first_name }} {{ item.father_name }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="document_id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cedula</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.document_id }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="branch">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sucursal</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.branch.name }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="department">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Area</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.department.name }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cargo</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.position.name }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="monthly_salary">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Salario</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.monthly_salary | number : '2.2' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.email }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="phone_number">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nro. Tel.</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.phone_number }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="start_date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Fecha inicio
+          </th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.start_date | date : 'mediumDate' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="gender">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sexo</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.gender }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="editEmployee(item)">Editar</button>
+              <button mat-menu-item>Borrar</button>
+            </mat-menu>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+    <mat-paginator
+      [pageSize]="10"
+      [pageSizeOptions]="[5, 10, 25]"
+      aria-label="Select page"
+    >
+    </mat-paginator>
   `,
-  styles: ``,
+  styles: `
+      .table-container {
+        overflow: auto;
+      }
+    `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeListComponent implements AfterViewInit {
   readonly state = inject(DashboardStore);
   public sort = viewChild.required(MatSort);
+  public paginator = viewChild.required(MatPaginator);
+
   displayedColumns = [
-    'name',
-    'document',
+    'first_name',
+    'document_id',
     'branch',
     'department',
     'position',
-    'salary',
+    'monthly_salary',
+    'email',
+    'phone_number',
+    'start_date',
+    'gender',
     'actions',
   ];
+  public searchControlText = new FormControl('', { nonNullable: true });
+  public branchControl = new FormControl('', { nonNullable: true });
+  public departmentControl = new FormControl('', { nonNullable: true });
+  public positionControl = new FormControl('', { nonNullable: true });
+  public searchValue = toSignal(
+    this.searchControlText.valueChanges.pipe(debounceTime(500)),
+    { initialValue: '' }
+  );
+  public branchValue = toSignal(
+    this.branchControl.valueChanges.pipe(debounceTime(500)),
+    { initialValue: '' }
+  );
+  public departmentValue = toSignal(
+    this.departmentControl.valueChanges.pipe(debounceTime(500)),
+    { initialValue: '' }
+  );
+  public positionValue = toSignal(
+    this.positionControl.valueChanges.pipe(debounceTime(500)),
+    { initialValue: '' }
+  );
   public dataSource = new MatTableDataSource<Employee>([]);
+
+  public filtered = computed(() =>
+    this.state
+      .employees()
+      .filter((item) =>
+        this.branchValue() ? item.branch?.id === this.branchValue() : true
+      )
+      .filter((item) =>
+        this.departmentValue()
+          ? item.department?.id === this.departmentValue()
+          : true
+      )
+      .filter((item) =>
+        this.positionValue() ? item.position?.id === this.positionValue() : true
+      )
+      .filter(
+        (item) =>
+          item.first_name
+            .toLowerCase()
+            .includes(this.searchValue().toLowerCase()) ||
+          item.father_name
+            .toLowerCase()
+            .includes(this.searchValue().toLowerCase()) ||
+          item.document_id
+            .toLowerCase()
+            .includes(this.searchValue().toLowerCase())
+      )
+  );
   private dialog = inject(MatDialog);
   private viewRef = inject(ViewContainerRef);
   private injector = inject(Injector);
@@ -152,8 +271,21 @@ export class EmployeeListComponent implements AfterViewInit {
   ngAfterViewInit() {
     effect(
       () => {
-        this.dataSource.data = this.state.employees();
+        this.dataSource.data = this.filtered();
+        this.dataSource.sortingDataAccessor = (item, property) => {
+          switch (property) {
+            case 'position':
+              return item.position?.id;
+            case 'branch':
+              return item.branch?.name;
+            case 'department':
+              return item.department?.name;
+            default: // @ts-ignore
+              return item[property];
+          }
+        };
         this.dataSource.sort = this.sort();
+        this.dataSource.paginator = this.paginator();
       },
       { injector: this.injector }
     );

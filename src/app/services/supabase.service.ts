@@ -66,6 +66,13 @@ export class SupabaseService {
     });
   }
 
+  public async isLoggedIn(): Promise<boolean> {
+    const {
+      data: { session },
+    } = await this.client.auth.getSession();
+    return !!session;
+  }
+
   signOut() {
     return this.client.auth.signOut();
   }

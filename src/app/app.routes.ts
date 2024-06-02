@@ -1,8 +1,10 @@
 import { Route } from '@angular/router';
+import { authGuardFn } from '../../guard';
 
 export const appRoutes: Route[] = [
   {
     path: '',
+    canActivateChild: [authGuardFn],
     loadChildren: () =>
       import('./dashboard/dashboard.routes').then((x) => x.DASHBOARD_ROUTES),
   },

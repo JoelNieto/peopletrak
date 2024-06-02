@@ -76,7 +76,6 @@ export class BranchesFormComponent implements OnInit {
     }),
     address: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
     }),
     is_active: new FormControl(true, { nonNullable: true }),
   });
