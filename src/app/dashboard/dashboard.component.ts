@@ -9,7 +9,7 @@ import { DashboardStore } from './dashboard.store';
   selector: 'app-dashboard',
   template: `
     <mat-toolbar class="sticky top-0 z-10">
-      <span routerLink="/home">Registro de empleados</span>
+      <a routerLink="/home">Registro de empleados</a>
       <span class="example-spacer"></span>
       <a mat-button routerLink="/employees" routerLinkActive="active">
         Empleados

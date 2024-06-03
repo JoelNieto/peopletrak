@@ -27,9 +27,9 @@ export type Employee = {
   middle_name: string;
   father_name: string;
   mother_name: string;
-  birth_date: Date;
+  birth_date?: Date;
   gender: 'M' | 'F';
-  start_date: Date;
+  start_date?: Date;
   monthly_salary: number;
   branch_id: string;
   branch?: Branch;

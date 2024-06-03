@@ -1,8 +1,9 @@
-import { inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   patchState,
   signalStore,
+  withComputed,
   withHooks,
   withMethods,
   withState,
@@ -30,6 +31,15 @@ const initialState: State = {
 
 export const DashboardStore = signalStore(
   withState(initialState),
+  withComputed(({ employees, branches }) => {
+    const headCount = computed(
+      () => employees().filter((x) => !x.end_date).length
+    );
+    const branchesCount = computed(
+      () => branches().filter((x) => x.is_active).length
+    );
+    return { headCount, branchesCount };
+  }),
   withMethods(
     (
       state,

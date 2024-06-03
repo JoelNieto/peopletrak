@@ -173,7 +173,6 @@ export class EmployeeFormComponent implements OnInit {
     mother_name: new FormControl('', { nonNullable: true }),
     document_id: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
     }),
     email: new FormControl('', {
       nonNullable: true,
@@ -183,8 +182,12 @@ export class EmployeeFormComponent implements OnInit {
       nonNullable: true,
     }),
     address: new FormControl('', { nonNullable: true }),
-    birth_date: new FormControl<Date>(new Date(), { nonNullable: true }),
-    start_date: new FormControl<Date>(new Date(), { nonNullable: true }),
+    birth_date: new FormControl<Date | undefined>(undefined, {
+      nonNullable: true,
+    }),
+    start_date: new FormControl<Date | undefined>(undefined, {
+      nonNullable: true,
+    }),
     branch_id: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
