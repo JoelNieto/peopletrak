@@ -19,9 +19,12 @@ import { SupabaseService } from '../services/supabase.service';
   ],
   template: `
     <div class="w-full h-screen flex flex-col items-center justify-center p-4">
-      <mat-card class="w-full md:w-1/5">
+      <mat-card class="w-full md:w-2/5">
         <mat-card-header>
-          <mat-card-title> Login</mat-card-title>
+          <mat-card-title> Iniciar sesion</mat-card-title>
+          <mat-card-subtitle
+            >Introduzca su correo y revise su buzon para el enlace
+          </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <mat-form-field>
@@ -59,6 +62,7 @@ export class LoginComponent {
 
       if (error) throw error;
       this.snackBar.open('Link enviado exitosamente!');
+      this.email.reset();
     } catch (error) {
       console.error(error);
       this.snackBar.open('Intente nuevamente');

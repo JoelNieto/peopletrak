@@ -23,6 +23,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { Employee } from '../../models';
 import { DashboardStore } from '../dashboard.store';
@@ -45,6 +46,7 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
     MatInputModule,
     ReactiveFormsModule,
     MatProgressBar,
+    RouterLink,
   ],
   template: `
     <div class="w-full flex justify-between items-center">
@@ -52,7 +54,7 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
       <button mat-flat-button (click)="editEmployee()">Nuevo</button>
     </div>
 
-    <div class="w-full flex gap-4">
+    <div class="w-full flex flex-col md:flex-row gap:2 md:gap-4">
       <mat-form-field>
         <mat-label>Buscar</mat-label>
         <mat-icon matPrefix>search</mat-icon>
@@ -133,18 +135,6 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
             {{ item.monthly_salary | number : '2.2' }}
           </td>
         </ng-container>
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.email }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="phone_number">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nro. Tel.</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.phone_number }}
-          </td>
-        </ng-container>
         <ng-container matColumnDef="start_date">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             Fecha inicio
@@ -166,6 +156,7 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
+              <a mat-menu-item [routerLink]="item.id">Detalles</a>
               <button mat-menu-item (click)="editEmployee(item)">Editar</button>
               <button mat-menu-item>Borrar</button>
             </mat-menu>
@@ -201,8 +192,6 @@ export class EmployeeListComponent implements AfterViewInit {
     'department',
     'position',
     'monthly_salary',
-    'email',
-    'phone_number',
     'start_date',
     'gender',
     'actions',

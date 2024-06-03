@@ -12,9 +12,14 @@ import {
 } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { v4 } from 'uuid';
 import { Employee } from '../../models';
@@ -31,8 +36,12 @@ import { DashboardStore } from '../dashboard.store';
     MatDatepickerModule,
     MatButton,
     ReactiveFormsModule,
+    MatProgressBar,
   ],
   template: `
+    @if (state.loading()) {
+    <mat-progress-bar mode="query" />
+    }
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
       <h2 mat-dialog-title>Datos empleado</h2>
       <mat-dialog-content>
@@ -194,6 +203,7 @@ export class EmployeeFormComponent implements OnInit {
     }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
+  private dialog = inject(MatDialog);
   private data: { employee?: Employee } = inject(MAT_DIALOG_DATA);
 
   ngOnInit() {
@@ -203,5 +213,6 @@ export class EmployeeFormComponent implements OnInit {
 
   async saveChanges() {
     await this.state.updateEmployee(this.form.getRawValue());
+    this.dialog.closeAll();
   }
 }

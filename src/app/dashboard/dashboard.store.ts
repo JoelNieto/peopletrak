@@ -45,7 +45,8 @@ export const DashboardStore = signalStore(
               collection === 'positions'
                 ? 'id, name, department_id, department:departments(id, name), created_at'
                 : '*'
-            );
+            )
+            .order('name', { ascending: true });
           if (error) throw error;
           patchState(state, () => ({ [collection]: data }));
         } catch (error) {

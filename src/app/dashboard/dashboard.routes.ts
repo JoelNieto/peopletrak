@@ -13,10 +13,22 @@ export const DASHBOARD_ROUTES: Routes = [
       },
       {
         path: 'employees',
-        loadComponent: () =>
-          import('./employee-list/employee-list.component').then(
-            (x) => x.EmployeeListComponent
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./employee-list/employee-list.component').then(
+                (x) => x.EmployeeListComponent
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./employee-detail/employee-detail.component').then(
+                (x) => x.EmployeeDetailComponent
+              ),
+          },
+        ],
       },
       {
         path: 'departments',
