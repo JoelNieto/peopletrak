@@ -38,7 +38,42 @@ export const DashboardStore = signalStore(
     const branchesCount = computed(
       () => branches().filter((x) => x.is_active).length
     );
-    return { headCount, branchesCount };
+
+    const employeesByGender = computed(() =>
+      employees().reduce<
+        {
+          gender: string;
+          count: number;
+        }[]
+      >((acc, item) => {
+        const index = acc.findIndex((x) => x.gender === item.gender);
+        if (index !== -1) {
+          acc[index].count++;
+        } else {
+          acc.push({ gender: item.gender, count: 1 });
+        }
+        return acc;
+      }, [])
+    );
+
+    const employeesByBranch = computed(() =>
+      employees().reduce<
+        {
+          branch: Branch | undefined;
+          count: number;
+        }[]
+      >((acc, item) => {
+        const itemIndex = acc.findIndex((x) => x.branch?.id === item.branch_id);
+        if (itemIndex !== -1) {
+          acc[itemIndex].count++;
+        } else {
+          acc.push({ branch: item.branch, count: 1 });
+        }
+        return acc;
+      }, [])
+    );
+
+    return { headCount, branchesCount, employeesByBranch, employeesByGender };
   }),
   withMethods(
     (

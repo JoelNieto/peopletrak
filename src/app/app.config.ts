@@ -19,6 +19,7 @@ import {
   withViewTransitions,
 } from '@angular/router';
 import { es } from 'date-fns/locale';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { appRoutes } from './app.routes';
 
 registerLocaleData(localeEs, 'es-MX');
@@ -35,6 +36,7 @@ export const appConfig: ApplicationConfig = {
     provideExperimentalZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideDateFnsAdapter(),
+    provideCharts(withDefaultRegisterables()),
     { provide: LOCALE_ID, useValue: 'es-MX' },
     { provide: MAT_DATE_LOCALE, useValue: es },
     {
