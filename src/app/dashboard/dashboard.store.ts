@@ -136,6 +136,26 @@ export const DashboardStore = signalStore(
         }
       }
 
+      async function deleteEmployee(id: string) {
+        patchState(state, { loading: true });
+        try {
+          const { error } = await supabase.client
+            .from('employees')
+            .delete()
+            .eq('id', id);
+          if (error) throw error;
+          snackBar.open('Cambios guardados');
+          patchState(state, {
+            employees: state.employees().filter((x) => x.id !== id),
+          });
+        } catch (error) {
+          console.error(error);
+          snackBar.open('Intente nuevamente');
+        } finally {
+          patchState(state, { loading: false });
+        }
+      }
+
       async function updateItem({
         request,
         collection,
@@ -159,7 +179,13 @@ export const DashboardStore = signalStore(
         }
       }
 
-      return { fetchCollection, updateItem, fetchEmployees, updateEmployee };
+      return {
+        fetchCollection,
+        updateItem,
+        fetchEmployees,
+        updateEmployee,
+        deleteEmployee,
+      };
     }
   ),
   withHooks({

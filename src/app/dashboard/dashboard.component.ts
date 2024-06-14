@@ -46,7 +46,8 @@ import { DashboardStore } from './dashboard.store';
               [activated]="employees.isActive"
               routerLink="employees"
             >
-              Empleados
+              <mat-icon matListItemIcon>groups</mat-icon>
+              <div matListItemTitle>Empleados</div>
             </a>
             <a
               mat-list-item
@@ -55,7 +56,8 @@ import { DashboardStore } from './dashboard.store';
               [activated]="branches.isActive"
               routerLink="branches"
             >
-              Sucursales </a
+              <mat-icon matListItemIcon>store</mat-icon>
+              <div matListItemTitle>Sucursales</div> </a
             ><a
               mat-list-item
               routerLinkActive="active"
@@ -63,7 +65,8 @@ import { DashboardStore } from './dashboard.store';
               [activated]="departments.isActive"
               routerLink="departments"
             >
-              Areas </a
+              <mat-icon matListItemIcon>account_tree</mat-icon>
+              <div matListItemTitle>Areas</div> </a
             ><a
               mat-list-item
               routerLinkActive="active"
@@ -71,7 +74,8 @@ import { DashboardStore } from './dashboard.store';
               [activated]="positions.isActive"
               routerLink="positions"
             >
-              Cargos
+              <mat-icon matListItemIcon>badge</mat-icon>
+              <div matListItemTitle>Cargos</div>
             </a>
           </mat-nav-list>
         </div>

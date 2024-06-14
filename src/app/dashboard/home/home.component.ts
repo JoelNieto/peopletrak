@@ -81,6 +81,7 @@ import { DashboardStore } from '../dashboard.store';
             [labels]="branchLabels()"
             type="bar"
             [options]="pieChartOptions"
+            height="200"
           ></canvas>
         </mat-card-content>
       </mat-card>

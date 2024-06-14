@@ -25,6 +25,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
+import { DeleteConfirmationComponent } from '../../delete-confirmation.component';
 import { Employee } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
@@ -158,7 +159,9 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
             <mat-menu #menu="matMenu">
               <a mat-menu-item [routerLink]="item.id">Detalles</a>
               <button mat-menu-item (click)="editEmployee(item)">Editar</button>
-              <button mat-menu-item>Borrar</button>
+              <button mat-menu-item (click)="deleteEmployee(item.id)">
+                Borrar
+              </button>
             </mat-menu>
           </td>
         </ng-container>
@@ -278,5 +281,21 @@ export class EmployeeListComponent implements AfterViewInit {
       },
       { injector: this.injector }
     );
+  }
+
+  deleteEmployee(id: string) {
+    this.dialog
+      .open(DeleteConfirmationComponent, {
+        width: '40vw',
+        viewContainerRef: this.viewRef,
+      })
+      .afterClosed()
+      .subscribe({
+        next: async (res) => {
+          if (res) {
+            await this.state.deleteEmployee(id);
+          }
+        },
+      });
   }
 }

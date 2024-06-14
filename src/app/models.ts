@@ -43,3 +43,22 @@ export type Employee = {
   end_date?: Date;
   created_at?: Date;
 };
+
+export type TimeOffType = {
+  id: string;
+  name: string;
+};
+
+export type TimeOffs = {
+  id: string;
+  type_id: string;
+  type?: TimeOffType;
+  employee_id: string;
+  employee?: Employee;
+  start_date: Date;
+  end_date: Date;
+  notes: string[];
+  created_by: string;
+  is_approved: boolean;
+  approved_by: string;
+}
