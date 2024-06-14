@@ -286,7 +286,7 @@ export class EmployeeListComponent implements AfterViewInit {
   deleteEmployee(id: string) {
     this.dialog
       .open(DeleteConfirmationComponent, {
-        width: '40vw',
+        width: '20vw',
         viewContainerRef: this.viewRef,
       })
       .afterClosed()
@@ -299,3 +299,5 @@ export class EmployeeListComponent implements AfterViewInit {
       });
   }
 }
+
+git;
