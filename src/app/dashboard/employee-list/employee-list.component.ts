@@ -299,5 +299,3 @@ export class EmployeeListComponent implements AfterViewInit {
       });
   }
 }
-
-git;
