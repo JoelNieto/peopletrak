@@ -11,6 +11,7 @@ export type Department = {
   name: string;
   created_at?: Date;
 };
+export type UniformSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL' | '4XL';
 
 export type Position = {
   id: string;
@@ -43,6 +44,7 @@ export type Employee = {
   end_date?: Date;
   created_at?: Date;
   is_active: boolean;
+  uniform_size?: UniformSize;
 };
 
 export type TimeOffType = {

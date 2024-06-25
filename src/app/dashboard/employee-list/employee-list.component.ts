@@ -144,6 +144,12 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
             {{ item.monthly_salary | number : '2.2' }}
           </td>
         </ng-container>
+        <ng-container matColumnDef="uniform_size">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Talla</th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.uniform_size }}
+          </td>
+        </ng-container>
         <ng-container matColumnDef="start_date">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             Fecha inicio
@@ -216,6 +222,7 @@ export class EmployeeListComponent implements AfterViewInit {
     'monthly_salary',
     'start_date',
     'gender',
+    'uniform_size',
     'actions',
   ];
   public searchControlText = new FormControl('', { nonNullable: true });

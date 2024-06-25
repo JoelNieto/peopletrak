@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { v4 } from 'uuid';
-import { Employee } from '../../models';
+import { Employee, UniformSize } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
@@ -122,7 +122,7 @@ import { DashboardStore } from '../dashboard.store';
               }
             </mat-select>
           </mat-form-field>
-          <mat-form-field floatLabel="always">
+          <mat-form-field>
             <mat-label>Salario</mat-label>
             <input
               matInput
@@ -132,6 +132,19 @@ import { DashboardStore } from '../dashboard.store';
               formControlName="monthly_salary"
             />
             <span matTextPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Talla</mat-label>
+            <mat-select formControlName="uniform_size">
+              <mat-option value="XS">XS</mat-option>
+              <mat-option value="S">S</mat-option>
+              <mat-option value="M">M</mat-option>
+              <mat-option value="L">L</mat-option>
+              <mat-option value="XL">XL</mat-option>
+              <mat-option value="2XL">2XL</mat-option>
+              <mat-option value="3XL">3XL</mat-option>
+              <mat-option value="4XL">4XL</mat-option>
+            </mat-select>
           </mat-form-field>
           <mat-form-field>
             <mat-label>Fecha de inicio</mat-label>
@@ -204,7 +217,10 @@ export class EmployeeFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    is_active: new FormControl(true, {nonNullable: true}),
+    uniform_size: new FormControl<UniformSize | undefined>(undefined, {
+      nonNullable: true,
+    }),
+    is_active: new FormControl(true, { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
   private dialog = inject(MatDialog);
