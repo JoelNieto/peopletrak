@@ -204,6 +204,7 @@ export class EmployeeFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    is_active: new FormControl(true, {nonNullable: true}),
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
   private dialog = inject(MatDialog);

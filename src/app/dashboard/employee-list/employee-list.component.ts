@@ -21,6 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
@@ -29,6 +30,7 @@ import { DeleteConfirmationComponent } from '../../delete-confirmation.component
 import { Employee } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
+import { TerminationFormComponent } from '../termination-form/termination-form.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -47,6 +49,7 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
     MatInputModule,
     ReactiveFormsModule,
     MatProgressBar,
+    MatSlideToggleModule,
     RouterLink,
   ],
   template: `
@@ -95,6 +98,11 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
         </mat-select>
       </mat-form-field>
     </div>
+    <section class="flex content-center items-center mb-4">
+      <mat-slide-toggle [formControl]="inactiveToggle"
+        >Incluir inactivos
+      </mat-slide-toggle>
+    </section>
     <div class="table-container">
       @if (state.loading()) {
       <mat-progress-bar mode="query" color="primary" />
@@ -157,9 +165,20 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              <a mat-menu-item [routerLink]="item.id">Detalles</a>
-              <button mat-menu-item (click)="editEmployee(item)">Editar</button>
+              <a mat-menu-item [routerLink]="item.id">
+                <mat-icon>info</mat-icon>
+                Detalles</a
+              >
+              <button mat-menu-item (click)="editEmployee(item)">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+              <button mat-menu-item (click)="terminateEmployee(item)">
+                <mat-icon>door_front</mat-icon>
+                Salida
+              </button>
               <button mat-menu-item (click)="deleteEmployee(item.id)">
+                <mat-icon>delete</mat-icon>
                 Borrar
               </button>
             </mat-menu>
@@ -203,6 +222,7 @@ export class EmployeeListComponent implements AfterViewInit {
   public branchControl = new FormControl('', { nonNullable: true });
   public departmentControl = new FormControl('', { nonNullable: true });
   public positionControl = new FormControl('', { nonNullable: true });
+  public inactiveToggle = new FormControl(false, { nonNullable: true });
   public searchValue = toSignal(
     this.searchControlText.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
@@ -211,6 +231,9 @@ export class EmployeeListComponent implements AfterViewInit {
     this.branchControl.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
   );
+  public inactiveValue = toSignal(this.inactiveToggle.valueChanges, {
+    initialValue: false,
+  });
   public departmentValue = toSignal(
     this.departmentControl.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
@@ -234,6 +257,10 @@ export class EmployeeListComponent implements AfterViewInit {
       )
       .filter((item) =>
         this.positionValue() ? item.position?.id === this.positionValue() : true
+      )
+      .filter(
+        (item) =>
+          item.is_active === (this.inactiveValue() ? item.is_active : true)
       )
       .filter(
         (item) =>
@@ -281,6 +308,14 @@ export class EmployeeListComponent implements AfterViewInit {
       },
       { injector: this.injector }
     );
+  }
+
+  terminateEmployee(employee?: Employee) {
+    this.dialog.open(TerminationFormComponent, {
+      data: { employee },
+      width: '50vw',
+      viewContainerRef: this.viewRef,
+    });
   }
 
   deleteEmployee(id: string) {

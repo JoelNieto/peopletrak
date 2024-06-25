@@ -42,6 +42,7 @@ export type Employee = {
   address: string;
   end_date?: Date;
   created_at?: Date;
+  is_active: boolean;
 };
 
 export type TimeOffType = {
@@ -61,4 +62,12 @@ export type TimeOffs = {
   created_by: string;
   is_approved: boolean;
   approved_by: string;
-}
+};
+
+export type Termination = {
+  id: string;
+  employee_id: string;
+  date: Date;
+  notes: string;
+  reason: 'DESPIDO' | 'RENUNCIA' | 'FIN_CONTRATO';
+};

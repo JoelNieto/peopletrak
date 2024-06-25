@@ -28,13 +28,15 @@ body {
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+  --mat-sidenav-container-width: 20rem;
 }
 
-mat-form-field {
-  width: 100%;
-}
 
 td, th {
   white-space: nowrap;
 
+}
+
+mat-form-field {
+  @apply w-full;
 }

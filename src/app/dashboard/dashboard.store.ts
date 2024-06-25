@@ -8,7 +8,8 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import { Branch, Department, Employee, Position } from '../models';
+import { sortBy } from 'lodash';
+import { Branch, Department, Employee, Position, Termination } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 
 type Collection = 'departments' | 'branches' | 'positions';
@@ -19,6 +20,7 @@ type State = {
   departments: Department[];
   positions: Position[];
   employees: Employee[];
+  includeInactive: boolean;
 };
 
 const initialState: State = {
@@ -27,11 +29,12 @@ const initialState: State = {
   departments: [],
   positions: [],
   employees: [],
+  includeInactive: false,
 };
 
 export const DashboardStore = signalStore(
   withState(initialState),
-  withComputed(({ employees, branches }) => {
+  withComputed(({ employees, branches, includeInactive }) => {
     const headCount = computed(
       () => employees().filter((x) => !x.end_date).length
     );
@@ -73,7 +76,19 @@ export const DashboardStore = signalStore(
       }, [])
     );
 
-    return { headCount, branchesCount, employeesByBranch, employeesByGender };
+    const employeesList = computed(() =>
+      sortBy(employees(), ['first_name', 'father_name']).filter((item) =>
+        item.is_active === includeInactive() ? item.is_active : true
+      )
+    );
+
+    return {
+      headCount,
+      employeesList,
+      branchesCount,
+      employeesByBranch,
+      employeesByGender,
+    };
   }),
   withMethods(
     (
@@ -179,12 +194,39 @@ export const DashboardStore = signalStore(
         }
       }
 
+      async function terminateEmployee(request: Termination) {
+        patchState(state, { loading: true });
+        try {
+          const { error } = await supabase.client
+            .from('terminations')
+            .upsert(request);
+          if (error) throw error;
+          const employee = state
+            .employees()
+            .find((x) => x.id === request.employee_id);
+          if (employee) {
+            await supabase.client
+              .from('employees')
+              .update({ is_active: false })
+              .eq('id', employee.id);
+            snackBar.open('Cambios guardados');
+            await fetchEmployees();
+          }
+        } catch (error) {
+          console.error(error);
+          snackBar.open('Intente nuevamente');
+        } finally {
+          patchState(state, { loading: false });
+        }
+      }
+
       return {
         fetchCollection,
         updateItem,
         fetchEmployees,
         updateEmployee,
         deleteEmployee,
+        terminateEmployee,
       };
     }
   ),

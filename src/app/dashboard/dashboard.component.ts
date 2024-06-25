@@ -80,7 +80,7 @@ import { DashboardStore } from './dashboard.store';
           </mat-nav-list>
         </div>
       </mat-sidenav>
-      <mat-sidenav-content>
+      <mat-sidenav-content class="ml-[20rem]">
         @if (isHandset()) {
         <mat-toolbar>
           <button mat-icon-button (click)="toggleMenu()">
