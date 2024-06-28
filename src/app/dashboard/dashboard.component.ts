@@ -1,4 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
@@ -20,14 +21,21 @@ import { DashboardStore } from './dashboard.store';
   template: `
     <mat-sidenav-container autosize class="h-screen">
       <mat-sidenav
-        fixedInViewport
         [attr.role]="role()"
         [mode]="mode()"
         [opened]="!isHandset()"
-        class="w-24 p-4"
+        [ngClass]="isCollapsed() ? 'w-20' : 'w-56'"
+        class="pt-4"
       >
+        <div class="flex gap-4 items-center">
+          <button mat-icon-button (click)="toggleMenu()">
+            <mat-icon>menu</mat-icon>
+          </button>
+          @if(!isCollapsed()) {
+          <a routerLink="/home" class="mat-headline-small">Peopletrak</a>
+          }
+        </div>
         <div class="flex flex-col">
-          <a routerLink="/home" class="mat-headline-medium">Peopletrak</a>
           <mat-nav-list>
             <a
               mat-list-item
@@ -37,7 +45,9 @@ import { DashboardStore } from './dashboard.store';
               routerLink="home"
             >
               <mat-icon matListItemIcon>dashboard</mat-icon>
+              @if(!isCollapsed()) {
               <div matListItemTitle>Dashboard</div>
+              }
             </a>
             <a
               mat-list-item
@@ -47,7 +57,9 @@ import { DashboardStore } from './dashboard.store';
               routerLink="employees"
             >
               <mat-icon matListItemIcon>groups</mat-icon>
+              @if(!isCollapsed()) {
               <div matListItemTitle>Empleados</div>
+              }
             </a>
             <a
               mat-list-item
@@ -57,7 +69,9 @@ import { DashboardStore } from './dashboard.store';
               routerLink="branches"
             >
               <mat-icon matListItemIcon>store</mat-icon>
-              <div matListItemTitle>Sucursales</div> </a
+              @if (!isCollapsed()) {
+              <div matListItemTitle>Sucursales</div>
+              } </a
             ><a
               mat-list-item
               routerLinkActive="active"
@@ -66,7 +80,9 @@ import { DashboardStore } from './dashboard.store';
               routerLink="departments"
             >
               <mat-icon matListItemIcon>account_tree</mat-icon>
-              <div matListItemTitle>Areas</div> </a
+              @if (!isCollapsed()) {
+              <div matListItemTitle>Areas</div>
+              }</a
             ><a
               mat-list-item
               routerLinkActive="active"
@@ -75,12 +91,14 @@ import { DashboardStore } from './dashboard.store';
               routerLink="positions"
             >
               <mat-icon matListItemIcon>badge</mat-icon>
+              @if (!isCollapsed()) {
               <div matListItemTitle>Cargos</div>
+              }
             </a>
           </mat-nav-list>
         </div>
       </mat-sidenav>
-      <mat-sidenav-content class="ml-[20rem]">
+      <mat-sidenav-content>
         @if (isHandset()) {
         <mat-toolbar>
           <button mat-icon-button (click)="toggleMenu()">
@@ -95,6 +113,13 @@ import { DashboardStore } from './dashboard.store';
     </mat-sidenav-container>
   `,
   styles: `
+  mat-sidenav {
+    @apply w-20 px-2;
+  }
+
+    .expanded {
+      width: 230px;
+    }
       main {
         height: calc(100% - var(--mat-toolbar-standard-height));
       }
@@ -110,6 +135,7 @@ import { DashboardStore } from './dashboard.store';
     RouterLinkActive,
     MatSidenavModule,
     MatListModule,
+    NgClass,
   ],
 })
 export class DashboardComponent implements OnInit {
@@ -117,6 +143,7 @@ export class DashboardComponent implements OnInit {
   public mode = computed(() => (this.isHandset() ? 'over' : 'side'));
   public role = computed(() => (this.isHandset() ? 'dialog' : 'navigation'));
   public sidenav = viewChild.required(MatSidenav);
+  public isCollapsed = signal(true);
   private breakpointObserver = inject(BreakpointObserver);
 
   ngOnInit() {
@@ -128,8 +155,10 @@ export class DashboardComponent implements OnInit {
   async toggleMenu() {
     if (this.isHandset()) {
       this.sidenav().toggle();
+      this.isCollapsed.set(false);
       return;
     }
     this.sidenav().open();
+    this.isCollapsed.update((value) => !value);
   }
 }

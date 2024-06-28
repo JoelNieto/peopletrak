@@ -36,7 +36,7 @@ export const DashboardStore = signalStore(
   withState(initialState),
   withComputed(({ employees, branches, includeInactive }) => {
     const headCount = computed(
-      () => employees().filter((x) => !x.end_date).length
+      () => employees().filter((x) => x.is_active).length
     );
     const branchesCount = computed(
       () => branches().filter((x) => x.is_active).length
@@ -146,6 +146,7 @@ export const DashboardStore = signalStore(
         } catch (error) {
           console.error(error);
           snackBar.open('Intente nuevamente');
+          throw error;
         } finally {
           patchState(state, { loading: false });
         }

@@ -16,6 +16,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -223,7 +224,7 @@ export class EmployeeFormComponent implements OnInit {
     is_active: new FormControl(true, { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
-  private dialog = inject(MatDialog);
+  private dialog = inject(MatDialogRef);
   private data: { employee?: Employee } = inject(MAT_DIALOG_DATA);
 
   ngOnInit() {
@@ -232,7 +233,9 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   async saveChanges() {
-    await this.state.updateEmployee(this.form.getRawValue());
-    this.dialog.closeAll();
+    await this.state
+      .updateEmployee(this.form.getRawValue())
+      .then(() => this.dialog.close())
+      .catch((error) => console.log({ error }));
   }
 }
