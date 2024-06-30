@@ -5,7 +5,6 @@ import {
   computed,
   inject,
   input,
-  OnInit,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { DashboardStore } from '../dashboard.store';
@@ -71,17 +70,18 @@ import { DashboardStore } from '../dashboard.store';
   styles: `
       p {
         margin-bottom: 0 !important;
-      }`,
+      }
+      
+      .mat-label {
+        color: var(--mat-text-button-state-layer-color);
+      }
+      `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeDetailComponent implements OnInit {
+export class EmployeeDetailComponent {
   public state = inject(DashboardStore);
   public id = input.required<string>();
   public employee = computed(() =>
     this.state.employees().find((x) => x.id === this.id())
   );
-
-  ngOnInit() {
-    console.log(this.employee());
-  }
 }

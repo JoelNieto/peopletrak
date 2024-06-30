@@ -1,0 +1,6 @@
+{
+  "typescriptHero.imports.disableImportRemovalOnOrganize": false,
+  "typescriptHero.imports.disableImportsSorting": false,
+  "javascript.experimental.updateImportsOnPaste": true,
+  "typescript.experimental.updateImportsOnPaste": true
+}
