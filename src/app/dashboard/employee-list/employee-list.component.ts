@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -28,9 +28,11 @@ import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { DeleteConfirmationComponent } from '../../delete-confirmation.component';
 import { Employee } from '../../models';
+import { AgePipe } from '../../pipes/age.pipe';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 import { TerminationFormComponent } from '../termination-form/termination-form.component';
+import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -51,6 +53,8 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
     MatProgressBar,
     MatSlideToggleModule,
     RouterLink,
+    AgePipe,
+    CurrencyPipe,
   ],
   template: `
     <div class="w-full flex justify-between items-center">
@@ -141,7 +145,7 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
         <ng-container matColumnDef="monthly_salary">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Salario</th>
           <td mat-cell *matCellDef="let item">
-            {{ item.monthly_salary | number : '2.2' }}
+            {{ item.monthly_salary | currency : '$' }}
           </td>
         </ng-container>
         <ng-container matColumnDef="uniform_size">
@@ -156,6 +160,16 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
           </th>
           <td mat-cell *matCellDef="let item">
             {{ item.start_date | date : 'mediumDate' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="birth_date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Fecha de nacimiento
+          </th>
+          <td mat-cell *matCellDef="let item">
+            {{ item.birth_date | date : 'mediumDate' }} ({{
+              item.birth_date | age
+            }})
           </td>
         </ng-container>
         <ng-container matColumnDef="created_at">
@@ -181,6 +195,10 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
                 <mat-icon>info</mat-icon>
                 Detalles</a
               >
+              <button mat-menu-item (click)="timeOff(item)">
+                <mat-icon>event_busy</mat-icon>
+                Vacaciones
+              </button>
               <button mat-menu-item (click)="editEmployee(item)">
                 <mat-icon>edit</mat-icon>
                 Editar
@@ -228,6 +246,7 @@ export class EmployeeListComponent implements AfterViewInit {
     'monthly_salary',
     'start_date',
     'gender',
+    'birth_date',
     'uniform_size',
     'created_at',
     'actions',
@@ -346,5 +365,13 @@ export class EmployeeListComponent implements AfterViewInit {
           }
         },
       });
+  }
+
+  timeOff(employee: Employee) {
+    this.dialog.open(TimeOffFormComponent, {
+      width: '40vw',
+      viewContainerRef: this.viewRef,
+      data: { employee },
+    });
   }
 }

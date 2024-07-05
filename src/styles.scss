@@ -12,7 +12,7 @@ $light-theme: mat.define-theme(
                 (
                         color: (
                                 theme-type: light,
-                                primary: mat.$cyan-palette,
+                                primary: mat.$azure-palette,
                                 tertiary: mat.$magenta-palette,
                         ),
                 )
@@ -31,10 +31,16 @@ body {
   --mat-sidenav-container-width: 20rem;
 }
 
-
 td, th {
   white-space: nowrap;
+}
 
+.mdc-notched-outline__notch {
+  border-right: 0 !important;
+}
+
+mat-dialog-content {
+  padding-top: .25rem !important;
 }
 
 mat-form-field {
