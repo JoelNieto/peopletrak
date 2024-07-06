@@ -369,7 +369,7 @@ export class EmployeeListComponent implements AfterViewInit {
 
   timeOff(employee: Employee) {
     this.dialog.open(TimeOffFormComponent, {
-      width: '40vw',
+      width: '60vw',
       viewContainerRef: this.viewRef,
       data: { employee },
     });
