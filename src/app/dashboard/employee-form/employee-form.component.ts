@@ -1,22 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { v4 } from 'uuid';
+
 import { UniformSize } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 
@@ -25,7 +15,6 @@ import { DashboardStore } from '../dashboard.store';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    ProgressBarModule,
     InputTextModule,
     InputNumberModule,
     CalendarModule,
@@ -33,9 +22,6 @@ import { DashboardStore } from '../dashboard.store';
   ],
   template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
-      @if (state.loading()) {
-      <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
-      }
       <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
         <div class="input-container">
           <label for="first_name">Nombre</label>
@@ -195,6 +181,7 @@ import { DashboardStore } from '../dashboard.store';
           <p-button
             label="Guardar cambios"
             type="submit"
+            [loading]="state.loading()"
             [disabled]="form.invalid || form.pristine"
           />
         </div>

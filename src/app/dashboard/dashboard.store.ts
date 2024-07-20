@@ -1,14 +1,8 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withHooks,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
 import { sortBy } from 'lodash';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+
 import { Branch, Department, Employee, Position, Termination } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 
@@ -94,7 +88,8 @@ export const DashboardStore = signalStore(
     (
       state,
       supabase = inject(SupabaseService),
-      message = inject(MessageService)
+      message = inject(MessageService),
+      confirm = inject(ConfirmationService)
     ) => {
       async function fetchCollection(collection: Collection) {
         patchState(state, { loading: true });
@@ -160,32 +155,90 @@ export const DashboardStore = signalStore(
         }
       }
 
+      async function deleteItem({
+        id,
+        collection,
+      }: {
+        id: string;
+        collection: Collection;
+      }) {
+        patchState(state, { loading: true });
+        confirm.confirm({
+          message: 'Desea eliminar este elemento?',
+          header: 'Confirmar eliminar',
+          icon: 'pi pi-info-circle',
+          acceptLabel: 'Si, borrar',
+          acceptButtonStyleClass: 'p-button-danger',
+          rejectButtonStyleClass: 'p-button-text p-button-secondary',
+          accept: async () => {
+            try {
+              const { error } = await supabase.client
+                .from(collection)
+                .delete()
+                .eq('id', id);
+              if (error) throw error;
+              message.add({
+                severity: 'success',
+                summary: 'Exito',
+                detail: 'Cambios guardados exitosamente',
+              });
+              await fetchCollection(collection);
+            } catch (err) {
+              console.error(err);
+              message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Intente nuevamente',
+              });
+            } finally {
+              patchState(state, { loading: false });
+            }
+          },
+          reject: () => {
+            patchState(state, { loading: false });
+          },
+        });
+      }
+
       async function deleteEmployee(id: string) {
         patchState(state, { loading: true });
-        try {
-          const { error } = await supabase.client
-            .from('employees')
-            .delete()
-            .eq('id', id);
-          if (error) throw error;
-          message.add({
-            severity: 'success',
-            summary: 'Exito',
-            detail: 'Cambios guardados exitosamente',
-          });
-          patchState(state, {
-            employees: state.employees().filter((x) => x.id !== id),
-          });
-        } catch (error) {
-          console.error(error);
-          message.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Intente nuevamente',
-          });
-        } finally {
-          patchState(state, { loading: false });
-        }
+        confirm.confirm({
+          message: 'Desea eliminar este empleado?',
+          header: 'Confirmar eliminar',
+          icon: 'pi pi-info-circle',
+          acceptLabel: 'Si, borrar',
+          acceptButtonStyleClass: 'p-button-danger',
+          rejectButtonStyleClass: 'p-button-text p-button-secondary',
+          accept: async () => {
+            try {
+              const { error } = await supabase.client
+                .from('employees')
+                .delete()
+                .eq('id', id);
+              if (error) throw error;
+              message.add({
+                severity: 'success',
+                summary: 'Exito',
+                detail: 'Cambios guardados exitosamente',
+              });
+              patchState(state, {
+                employees: state.employees().filter((x) => x.id !== id),
+              });
+            } catch (error) {
+              console.error(error);
+              message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Intente nuevamente',
+              });
+            } finally {
+              patchState(state, { loading: false });
+            }
+          },
+          reject: () => {
+            patchState(state, { loading: false });
+          },
+        });
       }
 
       async function updateItem({
@@ -258,6 +311,7 @@ export const DashboardStore = signalStore(
       return {
         fetchCollection,
         updateItem,
+        deleteItem,
         fetchEmployees,
         updateEmployee,
         deleteEmployee,

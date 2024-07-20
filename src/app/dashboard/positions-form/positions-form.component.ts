@@ -1,20 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
+
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
@@ -48,6 +39,7 @@ import { DashboardStore } from '../dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
+          [loading]="state.loading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>

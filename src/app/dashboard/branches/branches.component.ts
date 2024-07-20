@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
+
 import { Branch } from '../../models';
 import { BranchesFormComponent } from '../branches-form/branches-form.component';
 import { DashboardStore } from '../dashboard.store';
@@ -62,13 +63,14 @@ import { DashboardStore } from '../dashboard.store';
                   icon="pi pi-pen-to-square"
                   [rounded]="true"
                   [text]="true"
-                  (click)="editBranch(item)"
+                  (onClick)="editBranch(item)"
                 />
                 <p-button
                   severity="danger"
                   icon="pi pi-trash"
                   [rounded]="true"
                   [text]="true"
+                  (onClick)="deleteBranch(item.id)"
                 />
               </td>
             </tr>
@@ -91,5 +93,9 @@ export class BranchesComponent {
       data: { branch },
       header: 'Sucursal',
     });
+  }
+
+  deleteBranch(id: string) {
+    this.state.deleteItem({ id, collection: 'branches' });
   }
 }

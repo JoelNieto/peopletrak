@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
+
 import { Position } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 import { PositionsFormComponent } from '../positions-form/positions-form.component';
@@ -62,13 +63,14 @@ import { PositionsFormComponent } from '../positions-form/positions-form.compone
                 [text]="true"
                 [rounded]="true"
                 icon="pi pi-pen-to-square"
-                (click)="editPosition(item)"
+                (onClick)="editPosition(item)"
               />
               <p-button
                 severity="danger"
                 [text]="true"
                 [rounded]="true"
                 icon="pi pi-trash"
+                (onClick)="deletePosition(item.id)"
               />
             </td>
           </tr>
@@ -91,5 +93,9 @@ export class PositionsComponent {
       width: '36rem',
       data: { position },
     });
+  }
+
+  deletePosition(id: string) {
+    this.state.deleteItem({ id, collection: 'positions' });
   }
 }

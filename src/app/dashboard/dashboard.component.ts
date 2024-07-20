@@ -7,8 +7,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 
@@ -18,6 +19,7 @@ import { DashboardStore } from './dashboard.store';
   selector: 'app-dashboard',
   template: `
     <p-toast />
+    <p-confirmDialog />
     <div class="flex">
       <div
         class="fixed h-screen transition-all  duration-300 z-10 w-64 border-r border-slate-200"
@@ -48,6 +50,17 @@ import { DashboardStore } from './dashboard.store';
             >
               <i class="pi pi-users mr-2"></i>
               Empleados
+            </a>
+          </li>
+          <li>
+            <a
+              pRipple
+              routerLink="positions"
+              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
+              routerLinkActive="selected"
+            >
+              <i class="pi pi-users mr-2"></i>
+              Cargos
             </a>
           </li>
           <li pRipple>
@@ -105,7 +118,7 @@ import { DashboardStore } from './dashboard.store';
         min-width: 0;
       }`,
   standalone: true,
-  providers: [DashboardStore, MessageService],
+  providers: [DashboardStore, MessageService, ConfirmationService],
   imports: [
     RouterOutlet,
     MatToolbarModule,
@@ -119,6 +132,7 @@ import { DashboardStore } from './dashboard.store';
     AccordionModule,
     RippleModule,
     CardModule,
+    ConfirmDialogModule,
   ],
 })
 export class DashboardComponent implements OnInit {

@@ -1,19 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
+
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
@@ -36,6 +27,7 @@ import { DashboardStore } from '../dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
+          [loading]="state.loading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -54,7 +46,7 @@ export class DepartmentsFormComponent implements OnInit {
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  private state = inject(DashboardStore);
+  public state = inject(DashboardStore);
 
   ngOnInit() {
     const { department } = this.dialog.data;

@@ -3,6 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
+
 import { Department } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 import { DepartmentsFormComponent } from '../departments-form/departments-form.component';
@@ -45,13 +46,14 @@ import { DepartmentsFormComponent } from '../departments-form/departments-form.c
                   [text]="true"
                   [rounded]="true"
                   icon="pi pi-pen-to-square"
-                  (click)="editDepartment(item)"
+                  (onClick)="editDepartment(item)"
                 />
                 <p-button
                   severity="danger"
                   [text]="true"
                   [rounded]="true"
                   icon="pi pi-trash"
+                  (onClick)="deleteDepartment(item.id)"
                 />
               </td>
             </tr>
@@ -74,5 +76,9 @@ export class DepartmentsComponent {
       width: '36rem',
       data: { department },
     });
+  }
+
+  deleteDepartment(id: string) {
+    this.state.deleteItem({ id, collection: 'departments' });
   }
 }

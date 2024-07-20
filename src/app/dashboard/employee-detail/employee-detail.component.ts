@@ -1,11 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -168,6 +162,13 @@ export class EmployeeDetailComponent {
         this.terminateEmployee();
       },
     },
+    {
+      label: 'Eliminar',
+      icon: 'pi pi-trash',
+      command: () => {
+        this.deleteEmployee();
+      },
+    },
   ];
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
@@ -186,5 +187,9 @@ export class EmployeeDetailComponent {
       width: '50vw',
       header: 'Terminacion de empleado',
     });
+  }
+
+  deleteEmployee() {
+    this.state.deleteEmployee(this.employee()!.id);
   }
 }
