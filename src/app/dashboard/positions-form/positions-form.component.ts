@@ -10,66 +10,53 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
-import { Position } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
   selector: 'app-positions-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatButton,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DropdownModule],
   template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
-    <h2 mat-dialog-title>Cargo</h2>
-    <mat-dialog-content>
-      <mat-form-field>
-        <mat-label>Nombre</mat-label>
-        <input type="text" matInput formControlName="name" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label> Area</mat-label>
-        <mat-select formControlName="department_id">
-          @for (department of state.departments(); track department.id) {
-          <mat-option [value]="department.id"
-            >{{ department.name }}
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-stroked-button mat-dialog-close type="button">
-        Cancelar
-      </button>
-      <button
-        mat-flat-button
-        type="submit"
-        [disabled]="form.invalid || form.pristine"
-      >
-        Guardar cambios
-      </button>
-    </mat-dialog-actions>
+    <div class="flex flex-col gap-4">
+      <div class="input-container">
+        <label for="name">Nombre</label>
+        <input type="text" pInputText id="name" formControlName="name" />
+      </div>
+      <div class="input-container">
+        <label for="department"> Area</label>
+        <p-dropdown
+          id="department"
+          appendTo="body"
+          [options]="state.departments()"
+          optionValue="id"
+          optionLabel="name"
+          formControlName="department_id"
+        />
+      </div>
+      <div class="flex gap-4 items-center justify-end">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          (click)="dialog.close()"
+        />
+        <p-button
+          label="Guardar cambios"
+          type="submit"
+          [disabled]="form.invalid || form.pristine"
+        />
+      </div>
+    </div>
   </form>`,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PositionsFormComponent implements OnInit {
-  public data: { position?: Position } = inject(MAT_DIALOG_DATA);
   form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     name: new FormControl('', {
@@ -82,10 +69,11 @@ export class PositionsFormComponent implements OnInit {
     }),
   });
   public state = inject(DashboardStore);
-  private dialog = inject(MatDialog);
+  public dialog = inject(DynamicDialogRef);
+  private dialogConfig = inject(DynamicDialogConfig);
 
   ngOnInit() {
-    const { position } = this.data;
+    const { position } = this.dialogConfig.data;
     if (position) {
       this.form.patchValue(position);
     }
@@ -97,6 +85,6 @@ export class PositionsFormComponent implements OnInit {
         request: this.form.getRawValue(),
         collection: 'positions',
       })
-      .then(() => this.dialog.closeAll());
+      .then(() => this.dialog.close());
   }
 }

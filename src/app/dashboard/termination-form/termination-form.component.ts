@@ -10,20 +10,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import {
-  MatDatepicker,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { v4 } from 'uuid';
-import { Employee } from '../../models';
+
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
@@ -31,62 +25,76 @@ import { DashboardStore } from '../dashboard.store';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatInputModule,
-    MatDialogModule,
-    MatSelectModule,
-    MatDatepicker,
-    MatDatepickerModule,
-    MatButton,
+    InputTextModule,
+    ButtonModule,
+    DropdownModule,
+    CalendarModule,
+    InputTextareaModule,
   ],
   template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
-      <h2 mat-dialog-title>Terminacion de empleado</h2>
-      <mat-dialog-content>
-        <div class="grid grid-cols-2 gap-4">
-          <mat-form-field>
-            <mat-label>Empleado</mat-label>
-            <mat-select formControlName="employee_id">
-              @for (employee of store.employeesList(); track employee.id) {
-              <mat-option [value]="employee.id"
-                >{{ employee.first_name }} {{ employee.father_name }}
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Fecha efectiva</mat-label>
-            <input
-              matInput
-              [matDatepicker]="startdate"
-              formControlName="date"
-            />
-            <mat-hint>DD/MM/AAAA</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="startdate" />
-            <mat-datepicker #startdate />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Motivo</mat-label>
-            <mat-select formControlName="reason">
-              <mat-option value="DESPIDO">Despido</mat-option>
-              <mat-option value="RENUNCIA">Renuncia</mat-option>
-              <mat-option value="FIN_CONTRATO">Fin de contrato</mat-option>
-            </mat-select>
-          </mat-form-field>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="input-container">
+          <label for="employee">Empleado</label>
+          <p-dropdown
+            formControlName="employee_id"
+            inputId="employee"
+            [options]="store.employeesList()"
+            optionValue="id"
+          >
+            <ng-template pTemplate="selectedItem" let-selected>
+              {{ selected.first_name }} {{ selected.father_name }}
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+              {{ item.first_name }} {{ item.father_name }}
+            </ng-template>
+          </p-dropdown>
         </div>
-        <mat-form-field class="mb-2">
-          <mat-label>Apuntes</mat-label>
-          <textarea matInput formControlName="notes"></textarea>
-        </mat-form-field>
-      </mat-dialog-content>
-      <mat-dialog-actions>
-        <button mat-stroked-button mat-dialog-close type="button">
-          Cancelar
-        </button>
-        <button mat-flat-button type="submit" [disabled]="form.invalid">
-          Guardar cambios
-        </button>
-      </mat-dialog-actions>
+
+        <div class="input-container">
+          <label for="date">Fecha efectiva</label>
+          <p-calendar
+            inputId="date"
+            formControlName="date"
+            [showIcon]="true"
+            appendTo="body"
+          />
+        </div>
+        <div class="input-container">
+          <label for="reason">Motivo</label>
+          <p-dropdown
+            inputId="reason"
+            formControlName="reason"
+            [options]="reasons"
+            optionValue="value"
+            optionLabel="label"
+          />
+        </div>
+        <div class="input-container md:col-span-2">
+          <label for="notes">Apuntes</label>
+          <textarea
+            pInputTextarea
+            id="notes"
+            formControlName="notes"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <p-button
+          [outlined]="true"
+          label="Cancelar"
+          severity="secondary"
+          type="button"
+          (onClick)="dialog.close()"
+        />
+
+        <p-button
+          label="Guardar cambios"
+          type="submit"
+          [disabled]="form.invalid"
+        />
+      </div>
     </form>
   `,
   styles: ``,
@@ -94,7 +102,15 @@ import { DashboardStore } from '../dashboard.store';
 })
 export class TerminationFormComponent implements OnInit {
   public store = inject(DashboardStore);
-  public data: { employee?: Employee } = inject(MAT_DIALOG_DATA);
+  public reasons = [
+    { value: 'DESPIDO', label: 'Despido' },
+    {
+      value: 'RENUNCIA',
+      label: 'Renuncia',
+    },
+    { value: 'FIN_CONTRATO', label: 'Fin de contrato' },
+  ];
+  public info = inject(DynamicDialogConfig);
   public form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     employee_id: new FormControl('', {
@@ -114,10 +130,10 @@ export class TerminationFormComponent implements OnInit {
     }),
     notes: new FormControl('', { nonNullable: true }),
   });
-  private dialog = inject(MatDialogRef);
+  public dialog = inject(DynamicDialogRef);
 
   ngOnInit() {
-    const { employee } = this.data;
+    const { employee } = this.info.data;
     if (employee) {
       this.form.get('employee_id')?.patchValue(employee.id);
     }

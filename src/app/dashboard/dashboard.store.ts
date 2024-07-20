@@ -1,5 +1,4 @@
 import { computed, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   patchState,
   signalStore,
@@ -9,6 +8,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { sortBy } from 'lodash';
+import { MessageService } from 'primeng/api';
 import { Branch, Department, Employee, Position, Termination } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 
@@ -94,7 +94,7 @@ export const DashboardStore = signalStore(
     (
       state,
       supabase = inject(SupabaseService),
-      snackBar = inject(MatSnackBar)
+      message = inject(MessageService)
     ) => {
       async function fetchCollection(collection: Collection) {
         patchState(state, { loading: true });
@@ -141,11 +141,19 @@ export const DashboardStore = signalStore(
             .from('employees')
             .upsert(request);
           if (error) throw error;
-          snackBar.open('Cambios guardados');
+          message.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'Cambios guardados exitosamente',
+          });
           await fetchEmployees();
         } catch (error) {
           console.error(error);
-          snackBar.open('Intente nuevamente');
+          message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Intente nuevamente',
+          });
           throw error;
         } finally {
           patchState(state, { loading: false });
@@ -160,13 +168,21 @@ export const DashboardStore = signalStore(
             .delete()
             .eq('id', id);
           if (error) throw error;
-          snackBar.open('Cambios guardados');
+          message.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'Cambios guardados exitosamente',
+          });
           patchState(state, {
             employees: state.employees().filter((x) => x.id !== id),
           });
         } catch (error) {
           console.error(error);
-          snackBar.open('Intente nuevamente');
+          message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Intente nuevamente',
+          });
         } finally {
           patchState(state, { loading: false });
         }
@@ -185,11 +201,20 @@ export const DashboardStore = signalStore(
             .from(collection)
             .upsert(request);
           if (error) throw error;
-          snackBar.open('Cambios guardados');
+          message.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'Cambios guardados exitosamente',
+          });
           await fetchCollection(collection);
         } catch (error) {
           console.error(error);
-          snackBar.open('Intente nuevamente');
+          message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Intente nuevamente',
+          });
+          throw error;
         } finally {
           patchState(state, { loading: false });
         }
@@ -210,12 +235,21 @@ export const DashboardStore = signalStore(
               .from('employees')
               .update({ is_active: false })
               .eq('id', employee.id);
-            snackBar.open('Cambios guardados');
+            message.add({
+              severity: 'success',
+              summary: 'Exito',
+              detail: 'Cambios guardados exitosamente',
+            });
             await fetchEmployees();
           }
         } catch (error) {
           console.error(error);
-          snackBar.open('Intente nuevamente');
+          message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Intente nuevamente',
+          });
+          throw error;
         } finally {
           patchState(state, { loading: false });
         }

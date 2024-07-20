@@ -10,60 +10,41 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { Button } from 'primeng/button';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
-import { Department } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
   selector: 'app-departments-form',
   standalone: true,
-  imports: [
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    ReactiveFormsModule,
-    MatDialogTitle,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
+  imports: [ReactiveFormsModule, Button, InputTextModule],
   template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
-    <h2 mat-dialog-title>Area</h2>
-    <mat-dialog-content>
-      <mat-form-field>
-        <mat-label>Nombre</mat-label>
-        <input type="text" matInput formControlName="name" />
-      </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-stroked-button mat-dialog-close type="button">
-        Cancelar
-      </button>
-      <button
-        mat-flat-button
-        type="submit"
-        [disabled]="form.invalid || form.pristine"
-      >
-        Guardar cambios
-      </button>
-    </mat-dialog-actions>
+    <div class="flex flex-col gap-4">
+      <div class="input-container">
+        <label for="name">Nombre</label>
+        <input type="text" id="name" pInputText formControlName="name" />
+      </div>
+      <div class="flex gap-4 items-center justify-end">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          (click)="dialogRef.close()"
+        />
+        <p-button
+          label="Guardar cambios"
+          type="submit"
+          [disabled]="form.invalid || form.pristine"
+        />
+      </div>
+    </div>
   </form>`,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsFormComponent implements OnInit {
-  public data: { department?: Department } = inject(MAT_DIALOG_DATA);
   form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     name: new FormControl('', {
@@ -71,11 +52,12 @@ export class DepartmentsFormComponent implements OnInit {
       validators: [Validators.required],
     }),
   });
-  private dialog = inject(MatDialog);
+  public dialogRef = inject(DynamicDialogRef);
+  private dialog = inject(DynamicDialogConfig);
   private state = inject(DashboardStore);
 
   ngOnInit() {
-    const { department } = this.data;
+    const { department } = this.dialog.data;
     if (department) {
       this.form.patchValue(department);
     }
@@ -87,6 +69,6 @@ export class DepartmentsFormComponent implements OnInit {
         request: this.form.getRawValue(),
         collection: 'departments',
       })
-      .then(() => this.dialog.closeAll());
+      .then(() => this.dialogRef.close());
   }
 }

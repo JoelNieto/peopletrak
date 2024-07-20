@@ -1,79 +1,38 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { CardModule } from 'primeng/card';
+
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatGridListModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatIconModule,
-    BaseChartDirective,
-  ],
+  imports: [BaseChartDirective, CardModule],
   template: ` <div class="md:px-8">
-    <h1 class="mat-h1">Dashboard</h1>
+    <h1 class="text-gray-700 font-bold text-2xl">Dashboard</h1>
     <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title> HeadCount</mat-card-title>
-          <button
-            mat-icon-button
-            class="more-button"
-            [matMenuTriggerFor]="menu"
-            aria-label="Toggle menu"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu" xPosition="before">
-            <button mat-menu-item>Expand</button>
-            <button mat-menu-item>Remove</button>
-          </mat-menu>
-        </mat-card-header>
-        <mat-card-content class="flex items-center justify-center">
+      <p-card header="HeadCount">
+        <div class="flex items-center justify-center">
           <p class="mat-display-large">{{ state.headCount() }}</p>
-        </mat-card-content>
-      </mat-card>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title> Sucursales</mat-card-title>
-          <button
-            mat-icon-button
-            class="more-button"
-            [matMenuTriggerFor]="menu"
-            aria-label="Toggle menu"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu" xPosition="before">
-            <button mat-menu-item>Expand</button>
-            <button mat-menu-item>Remove</button>
-          </mat-menu>
-        </mat-card-header>
-        <mat-card-content class="flex items-center justify-center">
+        </div>
+      </p-card>
+      <p-card header="Sucursales">
+        <div class="flex items-center justify-center">
           <p class="mat-display-large">{{ state.branchesCount() }}</p>
-        </mat-card-content>
-      </mat-card>
-      <mat-card class="md:col-span-2">
-        <mat-card-header>
-          <mat-card-title>Por sucursal</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+        </div>
+      </p-card>
+      <p-card
+        header="Por sucursal"
+        subheader="Listado de empleados por sucursal"
+        class="md:col-span-2"
+      >
+        <div>
           <canvas
             baseChart
             #genderChart
@@ -83,14 +42,11 @@ import { DashboardStore } from '../dashboard.store';
             [options]="pieChartOptions"
             height="200"
           ></canvas>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </p-card>
     </div>
   </div>`,
-  styles: `
-      mat-card-header {
-        @apply flex justify-between
-      }`,
+  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {

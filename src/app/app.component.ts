@@ -1,10 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { SupabaseService } from './services/supabase.service';
 
 @Component({
   standalone: true,
   imports: [RouterOutlet],
+  providers: [MessageService],
   selector: 'app-root',
   template: ` <router-outlet /> `,
   styles: ``,

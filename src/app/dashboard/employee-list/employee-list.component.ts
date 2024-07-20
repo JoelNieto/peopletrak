@@ -1,31 +1,27 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
-  Injector,
-  viewChild,
-  ViewContainerRef,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressBar } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DropdownModule } from 'primeng/dropdown';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { debounceTime } from 'rxjs';
+
 import { DeleteConfirmationComponent } from '../../delete-confirmation.component';
 import { Employee } from '../../models';
 import { AgePipe } from '../../pipes/age.pipe';
@@ -38,219 +34,197 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
   selector: 'app-employee-list',
   standalone: true,
   imports: [
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatIcon,
-    MatMenuModule,
     DecimalPipe,
     DatePipe,
-    MatInputModule,
     ReactiveFormsModule,
-    MatProgressBar,
-    MatSlideToggleModule,
     RouterLink,
     AgePipe,
     CurrencyPipe,
+    ButtonModule,
+    DropdownModule,
+    InputTextModule,
+    InputIconModule,
+    IconFieldModule,
+    InputSwitchModule,
+    ProgressBarModule,
+    TableModule,
+    MenuModule,
+    CardModule,
+    TagModule,
   ],
+  providers: [DynamicDialogRef, DialogService],
   template: `
-    <div class="w-full flex justify-between items-center">
-      <h1 class="mat-headline-medium">Listado de empleados</h1>
-      <button mat-flat-button (click)="editEmployee()">Nuevo</button>
-    </div>
-
-    <div class="w-full flex flex-col md:flex-row gap:2 md:gap-4">
-      <mat-form-field>
-        <mat-label>Buscar</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input
-          type="text"
-          id="table-search"
-          matInput
-          [formControl]="searchControlText"
-          placeholder="Introduzca filtro"
-        />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Sucursal</mat-label>
-        <mat-select [formControl]="branchControl">
-          <mat-option>Todos</mat-option>
-          @for (branch of state.branches(); track branch.id) {
-          <mat-option [value]="branch.id">{{ branch.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Area</mat-label>
-        <mat-select [formControl]="departmentControl">
-          <mat-option>Todos</mat-option>
-          @for (department of state.departments(); track department.id) {
-          <mat-option [value]="department.id">{{ department.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Cargo</mat-label>
-        <mat-select [formControl]="positionControl">
-          <mat-option>Todos</mat-option>
-          @for (position of state.positions(); track position.id) {
-          <mat-option [value]="position.id">{{ position.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <section class="flex content-center items-center mb-4">
-      <mat-slide-toggle [formControl]="inactiveToggle"
-        >Incluir inactivos
-      </mat-slide-toggle>
-    </section>
-    <div class="table-container">
-      @if (state.loading()) {
-      <mat-progress-bar mode="query" color="primary" />
-      }
-      <table mat-table [dataSource]="dataSource" matSort>
-        <ng-container matColumnDef="first_name" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.first_name }} {{ item.father_name }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="document_id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cedula</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.document_id }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="branch">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sucursal</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.branch.name }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="department">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Area</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.department.name }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="position">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cargo</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.position.name }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="monthly_salary">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Salario</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.monthly_salary | currency : '$' }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="uniform_size">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Talla</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.uniform_size }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="start_date">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Fecha inicio
-          </th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.start_date | date : 'mediumDate' }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="birth_date">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Fecha de nacimiento
-          </th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.birth_date | date : 'mediumDate' }} ({{
-              item.birth_date | age
-            }})
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="created_at">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Creado</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.created_at | date : 'medium' }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="gender">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sexo</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.gender }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="actions" stickyEnd>
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let item">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <a mat-menu-item [routerLink]="item.id">
-                <mat-icon>info</mat-icon>
-                Detalles</a
-              >
-              <button mat-menu-item (click)="timeOff(item)">
-                <mat-icon>event_busy</mat-icon>
-                Vacaciones
-              </button>
-              <button mat-menu-item (click)="editEmployee(item)">
-                <mat-icon>edit</mat-icon>
-                Editar
-              </button>
-              <button mat-menu-item (click)="terminateEmployee(item)">
-                <mat-icon>door_front</mat-icon>
-                Salida
-              </button>
-              <button mat-menu-item (click)="deleteEmployee(item.id)">
-                <mat-icon>delete</mat-icon>
-                Borrar
-              </button>
-            </mat-menu>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-    </div>
-    <mat-paginator
-      [pageSize]="10"
-      [pageSizeOptions]="[5, 10, 25]"
-      aria-label="Select page"
+    <p-card
+      header="Empleados"
+      subheader="Listado de colaboradores de la empresa"
     >
-    </mat-paginator>
+      <div class="w-full flex justify-end items-center">
+        <p-button
+          label="Nuevo"
+          (click)="editEmployee()"
+          icon="pi pi-plus-circle"
+        />
+      </div>
+
+      <div class="w-full flex flex-col md:flex-row gap:2 md:gap-4">
+        <div class="input-container">
+          <p-iconField iconPosition="left">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input
+              type="text"
+              pInputText
+              [formControl]="searchControlText"
+              placeholder="Search"
+            />
+          </p-iconField>
+        </div>
+        <div class="input-container">
+          <label for="branch">Sucursal</label>
+          <p-dropdown
+            id="branch"
+            [formControl]="branchControl"
+            [options]="state.branches()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Todos"
+            [showClear]="true"
+            class="w-full"
+          />
+        </div>
+        <div class="input-container">
+          <label for="department">Area</label>
+          <p-dropdown
+            id="department"
+            [options]="state.departments()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Todos"
+            [showClear]="true"
+            [formControl]="departmentControl"
+          />
+        </div>
+        <div class="input-container">
+          <label for="position">Cargo</label>
+          <p-dropdown
+            id="position"
+            [options]="state.positions()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Todos"
+            [showClear]="true"
+            [formControl]="positionControl"
+          />
+        </div>
+      </div>
+      <section class="pt-2 flex items-center gap-2">
+        <p-inputSwitch [formControl]="inactiveToggle" inputId="active" />
+        <label for="active">Incluir inactivos</label>
+      </section>
+      @if (state.loading()) {
+      <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
+      }
+      <p-table
+        [value]="this.filtered()"
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [scrollable]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pFrozenColumn pSortableColumn="first_name">
+              Nombre<p-sortIcon field="first_name" />
+            </th>
+            @if (inactiveValue()) {
+            <th pSortableColumn="is_active">
+              Status
+              <p-sortIcon field="is_active" />
+            </th>
+            }
+            <th pSortableColumn="document_id">
+              Cedula<p-sortIcon field="document_id" />
+            </th>
+            <th pSortableColumn="branch.name">
+              Sucursal <p-sortIcon field="branch" />
+            </th>
+            <th pSortableColumn="department.name">
+              Area <p-sortIcon field="department" />
+            </th>
+            <th pSortableColumn="position.name">
+              Cargo <p-sortIcon field="position" />
+            </th>
+            <th pSortableColumn="monthly_salary">
+              Salario <p-sortIcon field="salary" />
+            </th>
+            <th pSortableColumn="uniform_size">
+              Talla <p-sortIcon field="size" />
+            </th>
+            <th pSortableColumn="start_date">
+              Fecha de inicio <p-sortIcon field="start_date" />
+            </th>
+            <th pSortableColumn="birth_date">
+              Fecha de nacimiento <p-sortIcon field="birth_date" />
+            </th>
+            <th>Sexo</th>
+            <th pSortableColumn="created_at">
+              Creado <p-sortIcon field="created_at" />
+            </th>
+            <th pFrozenColumn alignFrozen="right"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td pFrozenColumn>{{ item.first_name }} {{ item.father_name }}</td>
+            @if (inactiveValue()) {
+            <td>
+              <p-tag
+                [severity]="item.is_active ? 'success' : 'danger'"
+                [value]="item.is_active ? 'ACTIVO' : 'INACTIVO'"
+              />
+            </td>
+
+            }
+            <td>{{ item.document_id }}</td>
+            <td>{{ item.branch.name }}</td>
+            <td>{{ item.department.name }}</td>
+            <td>{{ item.position.name }}</td>
+            <td>{{ item.monthly_salary | currency : '$' }}</td>
+            <td>{{ item.uniform_size }}</td>
+            <td>{{ item.start_date | date : 'mediumDate' }}</td>
+            <td>
+              {{ item.birth_date | date : 'mediumDate' }} ({{
+                item.birth_date | age
+              }})
+            </td>
+            <td>{{ item.gender }}</td>
+            <td>{{ item.created_at | date : 'medium' }}</td>
+            <td pFrozenColumn alignFrozen="right">
+              <p-button
+                icon="pi pi-info-circle"
+                [routerLink]="item.id"
+                [rounded]="true"
+                [text]="true"
+              />
+              <p-button
+                icon="pi pi-pen-to-square"
+                (click)="editEmployee(item)"
+                [rounded]="true"
+                [text]="true"
+                severity="success"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
   `,
   styles: `
-      .table-container {
-        overflow: auto;
-      }
+    
     `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeListComponent implements AfterViewInit {
+export class EmployeeListComponent {
   readonly state = inject(DashboardStore);
-  public sort = viewChild.required(MatSort);
-  public paginator = viewChild.required(MatPaginator);
-
-  displayedColumns = [
-    'first_name',
-    'document_id',
-    'branch',
-    'department',
-    'position',
-    'monthly_salary',
-    'start_date',
-    'gender',
-    'birth_date',
-    'uniform_size',
-    'created_at',
-    'actions',
-  ];
   public searchControlText = new FormControl('', { nonNullable: true });
   public branchControl = new FormControl('', { nonNullable: true });
   public departmentControl = new FormControl('', { nonNullable: true });
@@ -275,7 +249,6 @@ export class EmployeeListComponent implements AfterViewInit {
     this.positionControl.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
   );
-  public dataSource = new MatTableDataSource<Employee>([]);
 
   public filtered = computed(() =>
     this.state
@@ -308,69 +281,33 @@ export class EmployeeListComponent implements AfterViewInit {
             .includes(this.searchValue().toLowerCase())
       )
   );
-  private dialog = inject(MatDialog);
-  private viewRef = inject(ViewContainerRef);
-  private injector = inject(Injector);
+  private dialog = inject(DialogService);
+  private ref = inject(DynamicDialogRef);
 
   editEmployee(employee?: Employee) {
-    this.dialog.open(EmployeeFormComponent, {
+    this.ref = this.dialog.open(EmployeeFormComponent, {
+      header: 'Datos de empleado',
       width: '90vw',
-      viewContainerRef: this.viewRef,
       data: { employee },
     });
-  }
-
-  ngAfterViewInit() {
-    effect(
-      () => {
-        this.dataSource.data = this.filtered();
-        this.dataSource.sortingDataAccessor = (item, property) => {
-          switch (property) {
-            case 'position':
-              return item.position?.id;
-            case 'branch':
-              return item.branch?.name;
-            case 'department':
-              return item.department?.name;
-            default: // @ts-ignore
-              return item[property];
-          }
-        };
-        this.dataSource.sort = this.sort();
-        this.dataSource.paginator = this.paginator();
-      },
-      { injector: this.injector }
-    );
   }
 
   terminateEmployee(employee?: Employee) {
     this.dialog.open(TerminationFormComponent, {
       data: { employee },
       width: '50vw',
-      viewContainerRef: this.viewRef,
     });
   }
 
   deleteEmployee(id: string) {
-    this.dialog
-      .open(DeleteConfirmationComponent, {
-        width: '20vw',
-        viewContainerRef: this.viewRef,
-      })
-      .afterClosed()
-      .subscribe({
-        next: async (res) => {
-          if (res) {
-            await this.state.deleteEmployee(id);
-          }
-        },
-      });
+    this.dialog.open(DeleteConfirmationComponent, {
+      width: '20vw',
+    });
   }
 
   timeOff(employee: Employee) {
     this.dialog.open(TimeOffFormComponent, {
       width: '60vw',
-      viewContainerRef: this.viewRef,
       data: { employee },
     });
   }
