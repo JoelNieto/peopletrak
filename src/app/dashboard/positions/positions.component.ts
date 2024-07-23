@@ -1,10 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -17,17 +11,7 @@ import { PositionsFormComponent } from '../positions-form/positions-form.compone
 @Component({
   selector: 'app-positions',
   standalone: true,
-  imports: [
-    MatMenuModule,
-    MatIcon,
-    MatSortModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatTableModule,
-    TableModule,
-    CardModule,
-    ButtonModule,
-  ],
+  imports: [TableModule, CardModule, ButtonModule],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <p-card header="Cargos" subheader="Listado de cargos de la empresa">

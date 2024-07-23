@@ -1,10 +1,6 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgClass } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -25,9 +21,7 @@ import { DashboardStore } from './dashboard.store';
         class="fixed h-screen transition-all  duration-300 z-10 w-64 border-r border-slate-200"
       >
         <div class="flex gap-4 items-center">
-          <button mat-icon-button (click)="toggleMenu()">
-            <mat-icon>menu</mat-icon>
-          </button>
+          <p-button [text]="true" icon="pi pi-bars" (click)="toggleMenu()" />
 
           <a class="font-bold text-slate-600">Peopletrak</a>
         </div>
@@ -59,7 +53,7 @@ import { DashboardStore } from './dashboard.store';
               class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
               routerLinkActive="selected"
             >
-              <i class="pi pi-users mr-2"></i>
+              <i class="pi pi-user-plus mr-2"></i>
               Cargos
             </a>
           </li>
@@ -121,12 +115,8 @@ import { DashboardStore } from './dashboard.store';
   providers: [DashboardStore, MessageService, ConfirmationService],
   imports: [
     RouterOutlet,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
     RouterLink,
     RouterLinkActive,
-    MatListModule,
     NgClass,
     ToastModule,
     AccordionModule,

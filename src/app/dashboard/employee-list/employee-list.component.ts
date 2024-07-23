@@ -1,12 +1,7 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -51,6 +46,7 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
     MenuModule,
     CardModule,
     TagModule,
+    FormsModule,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -134,6 +130,7 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
           <tr>
             <th pFrozenColumn pSortableColumn="first_name">
               Nombre<p-sortIcon field="first_name" />
+              <p-columnFilter type="text" field="first_name" display="menu" />
             </th>
             @if (inactiveValue()) {
             <th pSortableColumn="is_active">
@@ -161,6 +158,39 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
             </th>
             <th pSortableColumn="start_date">
               Fecha de inicio <p-sortIcon field="start_date" />
+            </th>
+            <th pSortableColumn="probatory">
+              Probatorio <p-sortIcon field="probatory" />
+              <p-columnFilter
+                field="probatory"
+                matchMode="equals"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [showApplyButton]="false"
+                [showClearButton]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-dropdown
+                    [options]="probatories"
+                    (onChange)="filter($event.value)"
+                    placeholder="Elija uno"
+                    [showClear]="true"
+                  >
+                    <ng-template let-option pTemplate="item">
+                      <p-tag
+                        [value]="option.value ? 'PROBATORIO' : 'NORMAL'"
+                        [severity]="option.value ? 'danger' : 'secondary'"
+                      />
+                    </ng-template>
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
             </th>
             <th pSortableColumn="birth_date">
               Fecha de nacimiento <p-sortIcon field="birth_date" />
@@ -191,6 +221,11 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
             <td>{{ item.monthly_salary | currency : '$' }}</td>
             <td>{{ item.uniform_size }}</td>
             <td>{{ item.start_date | date : 'mediumDate' }}</td>
+            <td>
+              @if (item.probatory) {
+              <p-tag severity="danger" value="PROBATORIO" />
+              }
+            </td>
             <td>
               {{ item.birth_date | date : 'mediumDate' }} ({{
                 item.birth_date | age
@@ -230,6 +265,10 @@ export class EmployeeListComponent {
   public departmentControl = new FormControl('', { nonNullable: true });
   public positionControl = new FormControl('', { nonNullable: true });
   public inactiveToggle = new FormControl(false, { nonNullable: true });
+  public probatories = [
+    { label: 'Probatorio', value: true },
+    { label: 'Regular', value: false },
+  ];
   public searchValue = toSignal(
     this.searchControlText.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
@@ -252,7 +291,7 @@ export class EmployeeListComponent {
 
   public filtered = computed(() =>
     this.state
-      .employees()
+      .employeesList()
       .filter((item) =>
         this.branchValue() ? item.branch?.id === this.branchValue() : true
       )

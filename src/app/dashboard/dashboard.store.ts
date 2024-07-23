@@ -1,5 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
+import { differenceInMonths } from 'date-fns';
 import { sortBy } from 'lodash';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -71,9 +72,12 @@ export const DashboardStore = signalStore(
     );
 
     const employeesList = computed(() =>
-      sortBy(employees(), ['first_name', 'father_name']).filter((item) =>
-        item.is_active === includeInactive() ? item.is_active : true
-      )
+      sortBy(employees(), ['first_name', 'father_name']).map((item) => ({
+        ...item,
+        months: differenceInMonths(new Date(), item.start_date ?? new Date()),
+        probatory:
+          differenceInMonths(new Date(), item.start_date ?? new Date()) < 3,
+      }))
     );
 
     return {

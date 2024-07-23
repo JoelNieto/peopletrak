@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -141,7 +141,7 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
     `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeDetailComponent {
+export class EmployeeDetailComponent implements OnInit {
   public state = inject(DashboardStore);
   public id = input.required<string>();
   public employee = computed(() =>
@@ -172,6 +172,10 @@ export class EmployeeDetailComponent {
   ];
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
+
+  ngOnInit(): void {
+    console.log(this.state.employeesList());
+  }
 
   editEmployee() {
     this.ref = this.dialog.open(EmployeeFormComponent, {

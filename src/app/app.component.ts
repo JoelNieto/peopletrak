@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
+
+import es from '../assets/i18n/es.json';
 import { SupabaseService } from './services/supabase.service';
 
 @Component({
@@ -13,9 +15,11 @@ import { SupabaseService } from './services/supabase.service';
 })
 export class AppComponent implements OnInit {
   private supabase = inject(SupabaseService);
+  private config = inject(PrimeNGConfig);
   session = this.supabase.session;
 
   ngOnInit() {
     this.supabase.authChanges((_, session) => (this.session = session));
+    this.config.setTranslation(es);
   }
 }
