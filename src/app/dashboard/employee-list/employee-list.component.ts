@@ -1,8 +1,15 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { FilterService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
@@ -12,18 +19,16 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { debounceTime } from 'rxjs';
 
-import { DeleteConfirmationComponent } from '../../delete-confirmation.component';
 import { Employee } from '../../models';
 import { AgePipe } from '../../pipes/age.pipe';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
-import { TerminationFormComponent } from '../termination-form/termination-form.component';
-import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -47,6 +52,7 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
     CardModule,
     TagModule,
     FormsModule,
+    MultiSelectModule,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -143,12 +149,79 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
             </th>
             <th pSortableColumn="branch.name">
               Sucursal <p-sortIcon field="branch" />
+              <p-columnFilter
+                field="branch"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [showApplyButton]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.branches()"
+                    placeholder="Any"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                  />
+                </ng-template>
+              </p-columnFilter>
             </th>
             <th pSortableColumn="department.name">
               Area <p-sortIcon field="department" />
+              <p-columnFilter
+                field="branch"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.departments()"
+                    placeholder="Any"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                  />
+                </ng-template>
+              </p-columnFilter>
             </th>
             <th pSortableColumn="position.name">
               Cargo <p-sortIcon field="position" />
+              <p-columnFilter
+                field="branch"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.positions()"
+                    placeholder="Any"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                  />
+                </ng-template>
+              </p-columnFilter>
             </th>
             <th pSortableColumn="monthly_salary">
               Salario <p-sortIcon field="salary" />
@@ -178,6 +251,7 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
                 >
                   <p-dropdown
                     [options]="probatories"
+                    [ngModel]="value"
                     (onChange)="filter($event.value)"
                     placeholder="Elija uno"
                     [showClear]="true"
@@ -258,7 +332,7 @@ import { TimeOffFormComponent } from '../time-off-form/time-off-form.component';
     `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeListComponent {
+export class EmployeeListComponent implements OnInit {
   readonly state = inject(DashboardStore);
   public searchControlText = new FormControl('', { nonNullable: true });
   public branchControl = new FormControl('', { nonNullable: true });
@@ -322,31 +396,17 @@ export class EmployeeListComponent {
   );
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
+  private filterService = inject(FilterService);
+  callbackFilter: any;
+
+  ngOnInit(): void {
+    this.filterService.register('custom-filter', (value, filter) => {});
+  }
 
   editEmployee(employee?: Employee) {
     this.ref = this.dialog.open(EmployeeFormComponent, {
       header: 'Datos de empleado',
       width: '90vw',
-      data: { employee },
-    });
-  }
-
-  terminateEmployee(employee?: Employee) {
-    this.dialog.open(TerminationFormComponent, {
-      data: { employee },
-      width: '50vw',
-    });
-  }
-
-  deleteEmployee(id: string) {
-    this.dialog.open(DeleteConfirmationComponent, {
-      width: '20vw',
-    });
-  }
-
-  timeOff(employee: Employee) {
-    this.dialog.open(TimeOffFormComponent, {
-      width: '60vw',
       data: { employee },
     });
   }

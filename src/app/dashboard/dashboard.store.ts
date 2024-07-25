@@ -1,5 +1,12 @@
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { differenceInMonths } from 'date-fns';
 import { sortBy } from 'lodash';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -121,7 +128,7 @@ export const DashboardStore = signalStore(
           const { data, error } = await supabase.client
             .from('employees')
             .select(
-              '*, branch:branches(id, name), department:departments(id, name), position:positions(id, name)'
+              '*, branch:branches(*), department:departments(*), position:positions(*)'
             );
 
           if (error) throw error;
