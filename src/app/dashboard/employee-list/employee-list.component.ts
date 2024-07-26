@@ -67,57 +67,6 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
           icon="pi pi-plus-circle"
         />
       </div>
-
-      <div class="w-full flex flex-col md:flex-row gap:2 md:gap-4">
-        <div class="input-container">
-          <p-iconField iconPosition="left">
-            <p-inputIcon styleClass="pi pi-search" />
-            <input
-              type="text"
-              pInputText
-              [formControl]="searchControlText"
-              placeholder="Search"
-            />
-          </p-iconField>
-        </div>
-        <div class="input-container">
-          <label for="branch">Sucursal</label>
-          <p-dropdown
-            id="branch"
-            [formControl]="branchControl"
-            [options]="state.branches()"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Todos"
-            [showClear]="true"
-            class="w-full"
-          />
-        </div>
-        <div class="input-container">
-          <label for="department">Area</label>
-          <p-dropdown
-            id="department"
-            [options]="state.departments()"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Todos"
-            [showClear]="true"
-            [formControl]="departmentControl"
-          />
-        </div>
-        <div class="input-container">
-          <label for="position">Cargo</label>
-          <p-dropdown
-            id="position"
-            [options]="state.positions()"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Todos"
-            [showClear]="true"
-            [formControl]="positionControl"
-          />
-        </div>
-      </div>
       <section class="pt-2 flex items-center gap-2">
         <p-inputSwitch [formControl]="inactiveToggle" inputId="active" />
         <label for="active">Incluir inactivos</label>
@@ -131,12 +80,12 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
         [scrollable]="true"
+        dataKey="id"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th pFrozenColumn pSortableColumn="first_name">
+            <th style="width:22%" pFrozenColumn pSortableColumn="full_name">
               Nombre<p-sortIcon field="first_name" />
-              <p-columnFilter type="text" field="first_name" display="menu" />
             </th>
             @if (inactiveValue()) {
             <th pSortableColumn="is_active">
@@ -149,79 +98,12 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
             </th>
             <th pSortableColumn="branch.name">
               Sucursal <p-sortIcon field="branch" />
-              <p-columnFilter
-                field="branch"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [showApplyButton]="false"
-              >
-                <ng-template
-                  pTemplate="filter"
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <p-multiSelect
-                    [ngModel]="value"
-                    [options]="state.branches()"
-                    placeholder="Any"
-                    (onChange)="filter($event.value)"
-                    optionLabel="name"
-                  />
-                </ng-template>
-              </p-columnFilter>
             </th>
             <th pSortableColumn="department.name">
               Area <p-sortIcon field="department" />
-              <p-columnFilter
-                field="branch"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-              >
-                <ng-template
-                  pTemplate="filter"
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <p-multiSelect
-                    [ngModel]="value"
-                    [options]="state.departments()"
-                    placeholder="Any"
-                    (onChange)="filter($event.value)"
-                    optionLabel="name"
-                  />
-                </ng-template>
-              </p-columnFilter>
             </th>
             <th pSortableColumn="position.name">
               Cargo <p-sortIcon field="position" />
-              <p-columnFilter
-                field="branch"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-              >
-                <ng-template
-                  pTemplate="filter"
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <p-multiSelect
-                    [ngModel]="value"
-                    [options]="state.positions()"
-                    placeholder="Any"
-                    (onChange)="filter($event.value)"
-                    optionLabel="name"
-                  />
-                </ng-template>
-              </p-columnFilter>
             </th>
             <th pSortableColumn="monthly_salary">
               Salario <p-sortIcon field="salary" />
@@ -234,10 +116,102 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
             </th>
             <th pSortableColumn="probatory">
               Probatorio <p-sortIcon field="probatory" />
+            </th>
+            <th pSortableColumn="birth_date">
+              Fecha de nacimiento <p-sortIcon field="birth_date" />
+            </th>
+            <th>Sexo</th>
+            <th pSortableColumn="created_at">
+              Creado <p-sortIcon field="created_at" />
+            </th>
+            <th pFrozenColumn alignFrozen="right"></th>
+          </tr>
+          <tr>
+            <th pFrozenColumn>
+              <p-columnFilter
+                type="text"
+                field="full_name"
+                placeholder="Buscar por nombre"
+                ariaLabel="Filter Name"
+              />
+            </th>
+            @if (inactiveValue()) {
+            <th></th>
+            }
+            <th></th>
+            <th>
+              <p-columnFilter
+                field="branch"
+                matchMode="custom-filter"
+                [showMenu]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.branches()"
+                    placeholder="TODOS"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                    appendTo="body"
+                  />
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th>
+              <p-columnFilter
+                field="department"
+                matchMode="custom-filter"
+                [showMenu]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.departments()"
+                    placeholder="TODOS"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                    appendTo="body"
+                  />
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th>
+              <p-columnFilter
+                field="position"
+                matchMode="custom-filter"
+                [showMenu]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-multiSelect
+                    [ngModel]="value"
+                    [options]="state.positions()"
+                    placeholder="TODOS"
+                    (onChange)="filter($event.value)"
+                    optionLabel="name"
+                    appendTo="body"
+                  />
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>
               <p-columnFilter
                 field="probatory"
                 matchMode="equals"
-                display="menu"
                 [showMatchModes]="false"
                 [showOperator]="false"
                 [showAddButton]="false"
@@ -266,13 +240,9 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
                 </ng-template>
               </p-columnFilter>
             </th>
-            <th pSortableColumn="birth_date">
-              Fecha de nacimiento <p-sortIcon field="birth_date" />
-            </th>
-            <th>Sexo</th>
-            <th pSortableColumn="created_at">
-              Creado <p-sortIcon field="created_at" />
-            </th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th pFrozenColumn alignFrozen="right"></th>
           </tr>
         </ng-template>
@@ -347,36 +317,14 @@ export class EmployeeListComponent implements OnInit {
     this.searchControlText.valueChanges.pipe(debounceTime(500)),
     { initialValue: '' }
   );
-  public branchValue = toSignal(
-    this.branchControl.valueChanges.pipe(debounceTime(500)),
-    { initialValue: '' }
-  );
+
   public inactiveValue = toSignal(this.inactiveToggle.valueChanges, {
     initialValue: false,
   });
-  public departmentValue = toSignal(
-    this.departmentControl.valueChanges.pipe(debounceTime(500)),
-    { initialValue: '' }
-  );
-  public positionValue = toSignal(
-    this.positionControl.valueChanges.pipe(debounceTime(500)),
-    { initialValue: '' }
-  );
 
   public filtered = computed(() =>
     this.state
       .employeesList()
-      .filter((item) =>
-        this.branchValue() ? item.branch?.id === this.branchValue() : true
-      )
-      .filter((item) =>
-        this.departmentValue()
-          ? item.department?.id === this.departmentValue()
-          : true
-      )
-      .filter((item) =>
-        this.positionValue() ? item.position?.id === this.positionValue() : true
-      )
       .filter(
         (item) =>
           item.is_active === (this.inactiveValue() ? item.is_active : true)
@@ -400,7 +348,20 @@ export class EmployeeListComponent implements OnInit {
   callbackFilter: any;
 
   ngOnInit(): void {
-    this.filterService.register('custom-filter', (value, filter) => {});
+    this.filterService.register(
+      'custom-filter',
+      (value: { id: any } | null | undefined, filter: any[]) => {
+        if (filter === undefined || filter === null || !filter.length) {
+          return true;
+        }
+
+        if (value === undefined || value === null) {
+          return false;
+        }
+
+        return filter.map((x) => x.id).includes(value.id);
+      }
+    );
   }
 
   editEmployee(employee?: Employee) {
