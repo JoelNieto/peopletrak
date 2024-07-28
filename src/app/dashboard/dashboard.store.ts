@@ -1,12 +1,5 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withHooks,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
 import { differenceInMonths } from 'date-fns';
 import { sortBy } from 'lodash';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -22,7 +15,6 @@ type State = {
   departments: Department[];
   positions: Position[];
   employees: Employee[];
-  includeInactive: boolean;
 };
 
 const initialState: State = {
@@ -31,12 +23,11 @@ const initialState: State = {
   departments: [],
   positions: [],
   employees: [],
-  includeInactive: false,
 };
 
 export const DashboardStore = signalStore(
   withState(initialState),
-  withComputed(({ employees, branches, includeInactive }) => {
+  withComputed(({ employees, branches }) => {
     const headCount = computed(
       () => employees().filter((x) => x.is_active).length
     );

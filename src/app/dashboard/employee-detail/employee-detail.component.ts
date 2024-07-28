@@ -1,11 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -14,6 +8,7 @@ import { MenuModule } from 'primeng/menu';
 import { SplitButtonModule } from 'primeng/splitbutton';
 
 import { AgePipe } from '../../pipes/age.pipe';
+import { SeniorityPipe } from '../../pipes/seniority.pipe';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 import { TerminationFormComponent } from '../termination-form/termination-form.component';
@@ -29,6 +24,7 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
     MenuModule,
     ButtonModule,
     AgePipe,
+    SeniorityPipe,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -98,12 +94,13 @@ import { TerminationFormComponent } from '../termination-form/termination-form.c
           </div>
         </div>
       </p-card>
-      <p-card header="Datos laborales">
-        <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
+      <p-card header="Datos laborales" [subheader]="employee()?.position?.name">
+        <div class="flex flex-col md:grid md:grid-cols-3 gap-4">
           <div>
             <p class="label">Fecha de Ingreso</p>
             <p class="info">
               {{ employee()?.start_date | date : 'mediumDate' }}
+              / {{ employee()?.start_date! | seniority }}
             </p>
           </div>
           <div>

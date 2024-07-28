@@ -105,7 +105,7 @@ import { DashboardStore } from './dashboard.store';
   `,
   styles: `
       .selected {
-        @apply bg-indigo-500 text-white font-bold transition-all duration-300 ease-in-out;
+        @apply bg-indigo-500 text-white transition-all duration-300 ease-in-out;
       }
 
       main {

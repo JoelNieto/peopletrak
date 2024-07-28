@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toDate } from 'date-fns-tz';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -252,8 +253,16 @@ export class EmployeeFormComponent implements OnInit {
     const { employee } = this.info.data;
     if (employee) {
       this.form.patchValue(employee);
-      this.form.get('birth_date')?.patchValue(new Date(employee.birth_date));
-      this.form.get('start_date')?.patchValue(new Date(employee.start_date));
+      this.form
+        .get('birth_date')
+        ?.patchValue(
+          toDate(employee.birth_date, { timeZone: 'America/Panama' })
+        );
+      this.form
+        .get('start_date')
+        ?.patchValue(
+          toDate(employee.start_date, { timeZone: 'America/Panama' })
+        );
     }
   }
 

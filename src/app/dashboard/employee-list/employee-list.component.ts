@@ -138,7 +138,14 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
             @if (inactiveValue()) {
             <th></th>
             }
-            <th></th>
+            <th>
+              <p-columnFilter
+                type="text"
+                field="document_id"
+                placeholder="Buscar por Nro. Doc"
+                ariaLabel="Filter Document"
+              />
+            </th>
             <th>
               <p-columnFilter
                 field="branch"
