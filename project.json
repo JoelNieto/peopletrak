@@ -8,9 +8,7 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/peopletrak",
         "index": "./src/index.html",
@@ -18,13 +16,8 @@
         "polyfills": [],
         "tsConfig": "./tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": [
-          "./src/favicon.ico",
-          "./src/assets"
-        ],
-        "styles": [
-          "./src/styles.scss"
-        ],
+        "assets": ["./src/favicon.ico", "./src/assets"],
+        "styles": ["./src/styles.scss"],
         "scripts": [],
         "server": "src/main.server.ts",
         "prerender": true,
@@ -83,16 +76,12 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": [
-          "./src"
-        ]
+        "lintFilePatterns": ["./src"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectName}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
       "options": {
         "jestConfig": "jest.config.ts"
       }

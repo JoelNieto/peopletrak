@@ -1,4 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import {
+  DynamicDialogConfig,
+  DynamicDialogModule,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
+import { DashboardStore } from '../dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 describe('DepartmentsFormComponent', () => {
@@ -7,7 +14,14 @@ describe('DepartmentsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DepartmentsFormComponent],
+      providers: [
+        DashboardStore,
+        MessageService,
+        DynamicDialogRef,
+        ConfirmationService,
+        { provide: DynamicDialogConfig, useValue: { data: {} } },
+      ],
+      imports: [DepartmentsFormComponent, DynamicDialogModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DepartmentsFormComponent);

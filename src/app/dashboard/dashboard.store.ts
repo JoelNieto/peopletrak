@@ -1,13 +1,27 @@
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
-import { differenceInMonths } from 'date-fns';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
+import { differenceInMonths, getMonth } from 'date-fns';
 import { sortBy } from 'lodash';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Branch, Department, Employee, Position, Termination } from '../models';
+import {
+  Branch,
+  Department,
+  Employee,
+  Position,
+  Termination,
+  TimeOffType,
+} from '../models';
 import { SupabaseService } from '../services/supabase.service';
 
-type Collection = 'departments' | 'branches' | 'positions';
+type Collection = 'departments' | 'branches' | 'positions' | 'timeoff_types';
 
 type State = {
   loading: boolean;
@@ -15,6 +29,7 @@ type State = {
   departments: Department[];
   positions: Position[];
   employees: Employee[];
+  timeoff_types: TimeOffType[];
 };
 
 const initialState: State = {
@@ -23,6 +38,7 @@ const initialState: State = {
   departments: [],
   positions: [],
   employees: [],
+  timeoff_types: [],
 };
 
 export const DashboardStore = signalStore(
@@ -50,6 +66,25 @@ export const DashboardStore = signalStore(
         }
         return acc;
       }, [])
+    );
+
+    const birthDates = computed(() =>
+      sortBy(
+        employees()
+          .filter((x) => x.is_active)
+          .filter((x) =>
+            x.birth_date
+              ? getMonth(x.birth_date) === getMonth(new Date())
+              : false
+          )
+          .map(({ first_name, father_name, birth_date, branch }) => ({
+            first_name,
+            father_name,
+            birth_date,
+            branch,
+          })),
+        ['birth_date']
+      )
     );
 
     const employeesByBranch = computed(() =>
@@ -85,6 +120,7 @@ export const DashboardStore = signalStore(
       branchesCount,
       employeesByBranch,
       employeesByGender,
+      birthDates,
     };
   }),
   withMethods(
@@ -327,6 +363,7 @@ export const DashboardStore = signalStore(
       await fetchCollection('branches');
       await fetchCollection('departments');
       await fetchCollection('positions');
+      await fetchCollection('timeoff_types');
       await fetchEmployees();
     },
   })

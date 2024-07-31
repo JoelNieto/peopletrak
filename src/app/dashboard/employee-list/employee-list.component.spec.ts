@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DashboardStore } from '../dashboard.store';
 import { EmployeeListComponent } from './employee-list.component';
 
 describe('EmployeeListComponent', () => {
@@ -7,11 +9,12 @@ describe('EmployeeListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [DashboardStore, MessageService, ConfirmationService],
       imports: [EmployeeListComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EmployeeListComponent);
-  component = fixture.componentInstance;
+    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 

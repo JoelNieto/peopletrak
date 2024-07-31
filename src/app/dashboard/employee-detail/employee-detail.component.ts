@@ -1,5 +1,11 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -12,6 +18,7 @@ import { SeniorityPipe } from '../../pipes/seniority.pipe';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 import { TerminationFormComponent } from '../termination-form/termination-form.component';
+import { TimeOffsComponent } from '../time-offs.component';
 
 @Component({
   selector: 'app-employee-detail',
@@ -163,6 +170,13 @@ export class EmployeeDetailComponent {
       },
     },
     {
+      label: 'Tiempo fuera',
+      icon: 'pi pi-calendar',
+      command: () => {
+        this.timeOff();
+      },
+    },
+    {
       label: 'Salida',
       icon: 'pi pi-undo',
       command: () => {
@@ -191,8 +205,18 @@ export class EmployeeDetailComponent {
   terminateEmployee() {
     this.ref = this.dialog.open(TerminationFormComponent, {
       data: { employee: this.employee() },
-      width: '50vw',
+      width: '90vw',
       header: 'Terminacion de empleado',
+    });
+  }
+
+  timeOff() {
+    this.ref = this.dialog.open(TimeOffsComponent, {
+      data: {
+        employee: this.employee(),
+      },
+      width: '60vw',
+      header: 'Tiempo fuera de empleado',
     });
   }
 

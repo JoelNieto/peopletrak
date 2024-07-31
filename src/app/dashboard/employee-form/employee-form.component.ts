@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { toDate } from 'date-fns-tz';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
@@ -147,8 +157,8 @@ import { DashboardStore } from '../dashboard.store';
           <label for="salary">Salario</label>
           <p-inputNumber
             mode="currency"
-            currency="USD"
-            locale="en-US"
+            currency="PAB"
+            locale="es-PA"
             formControlName="monthly_salary"
             id="salary"
           />

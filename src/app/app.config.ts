@@ -15,12 +15,14 @@ import {
 } from '@angular/router';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
+import { provideClientHydration } from '@angular/platform-browser';
 import { appRoutes } from './app.routes';
 
 registerLocaleData(localeEs, 'es-MX');
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideClientHydration(),
     provideRouter(
       appRoutes,
       withEnabledBlockingInitialNavigation(),
