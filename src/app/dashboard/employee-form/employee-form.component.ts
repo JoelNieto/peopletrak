@@ -1,8 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
+  Injector,
+  input,
   OnInit,
+  untracked,
 } from '@angular/core';
 import {
   FormControl,
@@ -13,12 +17,14 @@ import {
 import { toDate } from 'date-fns-tz';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
-import { UniformSize } from '../../models';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { markGroupDirty } from 'src/app/services/util.service';
+import { Employee, UniformSize } from '../../models';
 import { DashboardStore } from '../dashboard.store';
 
 @Component({
@@ -32,10 +38,12 @@ import { DashboardStore } from '../dashboard.store';
     DropdownModule,
   ],
   template: `
-    <form [formGroup]="form" (ngSubmit)="saveChanges()">
+    <h1>Datos del empleado</h1>
+    <p-button text label="Volver al listado" icon="pi pi-arrow-left" />
+    <form class="mt-4" [formGroup]="form" (ngSubmit)="saveChanges()">
       <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
         <div class="input-container">
-          <label for="first_name">Nombre</label>
+          <label for="first_name">* Nombre</label>
           <input
             type="text"
             id="first_name"
@@ -117,7 +125,6 @@ import { DashboardStore } from '../dashboard.store';
             inputId="gender"
             [options]="['F', 'M']"
             formControlName="gender"
-            appendTo="body"
           />
         </div>
         <div class="input-container">
@@ -128,7 +135,6 @@ import { DashboardStore } from '../dashboard.store';
             optionValue="id"
             inputId="branch"
             formControlName="branch_id"
-            appendTo="body"
           />
         </div>
         <div class="input-container">
@@ -139,7 +145,6 @@ import { DashboardStore } from '../dashboard.store';
             optionValue="id"
             inputId="department"
             formControlName="department_id"
-            appendTo="body"
           />
         </div>
         <div class="input-container">
@@ -150,15 +155,13 @@ import { DashboardStore } from '../dashboard.store';
             optionValue="id"
             inputId="position"
             formControlName="position_id"
-            appendTo="body"
           />
         </div>
         <div class="input-container">
           <label for="salary">Salario</label>
           <p-inputNumber
             mode="currency"
-            currency="PAB"
-            locale="es-PA"
+            currency="USD"
             formControlName="monthly_salary"
             id="salary"
           />
@@ -186,14 +189,15 @@ import { DashboardStore } from '../dashboard.store';
           <p-button
             label="Cancelar"
             severity="secondary"
-            [outlined]="true"
-            (click)="dialog.close()"
+            outlined
+            icon="pi pi-refresh"
+            (click)="cancelChanges()"
           />
           <p-button
             label="Guardar cambios"
             type="submit"
+            icon="pi pi-save"
             [loading]="state.loading()"
-            [disabled]="form.invalid || form.pristine"
           />
         </div>
       </div>
@@ -205,6 +209,11 @@ import { DashboardStore } from '../dashboard.store';
 export class EmployeeFormComponent implements OnInit {
   public state = inject(DashboardStore);
   public sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+  public employee_id = input<string>();
+  private injector = inject(Injector);
+  private message = inject(MessageService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   public form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     first_name: new FormControl('', {
@@ -231,7 +240,7 @@ export class EmployeeFormComponent implements OnInit {
     birth_date: new FormControl<Date | undefined>(undefined, {
       nonNullable: true,
     }),
-    start_date: new FormControl<Date | undefined>(undefined, {
+    start_date: new FormControl<Date>(new Date(), {
       nonNullable: true,
     }),
     branch_id: new FormControl('', {
@@ -256,30 +265,66 @@ export class EmployeeFormComponent implements OnInit {
     is_active: new FormControl(true, { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
-  public dialog = inject(DynamicDialogRef);
-  private info = inject(DynamicDialogConfig);
 
   ngOnInit() {
-    const { employee } = this.info.data;
-    if (employee) {
-      this.form.patchValue(employee);
+    if (this.employee_id()) {
+      this.state.getSelected(this.employee_id()!);
+    }
+    effect(
+      () => {
+        console.log('Called');
+        if (!this.state.selected()) return;
+
+        untracked(() => {
+          this.preloadForm(this.state.selected()!);
+        });
+      },
+      { injector: this.injector }
+    );
+  }
+
+  preloadForm(employee: Employee) {
+    this.form.patchValue(employee);
+    employee.birth_date &&
       this.form
         .get('birth_date')
         ?.patchValue(
           toDate(employee.birth_date, { timeZone: 'America/Panama' })
         );
-      this.form
-        .get('start_date')
-        ?.patchValue(
-          toDate(employee.start_date, { timeZone: 'America/Panama' })
-        );
-    }
+    this.form
+      .get('start_date')
+      ?.patchValue(toDate(employee.start_date, { timeZone: 'America/Panama' }));
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   async saveChanges() {
+    const { pristine, invalid } = this.form;
+    if (invalid) {
+      this.message.add({
+        severity: 'error',
+        summary: 'No se guardaron cambios',
+        detail: 'Formulario invalido',
+      });
+      markGroupDirty(this.form);
+      this.form.get('first_name')?.markAsDirty();
+      return;
+    }
+    if (pristine) {
+      this.message.add({
+        severity: 'warn',
+        summary: 'No se guardaron cambios',
+        detail: 'No ha realizado ningun cambio en el formulario',
+      });
+      return;
+    }
     await this.state
       .updateEmployee(this.form.getRawValue())
-      .then(() => this.dialog.close())
+      .then(() => this.router.navigate(['..'], { relativeTo: this.route }))
       .catch((error) => console.log({ error }));
+  }
+
+  cancelChanges() {
+    console.log('Changes');
   }
 }

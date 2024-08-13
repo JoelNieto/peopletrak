@@ -8,7 +8,6 @@ import {
   withState,
 } from '@ngrx/signals';
 import { differenceInMonths, getMonth } from 'date-fns';
-import { sortBy } from 'lodash';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import {
@@ -17,6 +16,7 @@ import {
   Employee,
   Position,
   Termination,
+  TimeOff,
   TimeOffType,
 } from '../models';
 import { SupabaseService } from '../services/supabase.service';
@@ -30,6 +30,7 @@ type State = {
   positions: Position[];
   employees: Employee[];
   timeoff_types: TimeOffType[];
+  selected: Employee | null;
 };
 
 const initialState: State = {
@@ -39,6 +40,7 @@ const initialState: State = {
   positions: [],
   employees: [],
   timeoff_types: [],
+  selected: null,
 };
 
 export const DashboardStore = signalStore(
@@ -69,22 +71,17 @@ export const DashboardStore = signalStore(
     );
 
     const birthDates = computed(() =>
-      sortBy(
-        employees()
-          .filter((x) => x.is_active)
-          .filter((x) =>
-            x.birth_date
-              ? getMonth(x.birth_date) === getMonth(new Date())
-              : false
-          )
-          .map(({ first_name, father_name, birth_date, branch }) => ({
-            first_name,
-            father_name,
-            birth_date,
-            branch,
-          })),
-        ['birth_date']
-      )
+      employees()
+        .filter((x) => x.is_active)
+        .filter((x) =>
+          x.birth_date ? getMonth(x.birth_date) === getMonth(new Date()) : false
+        )
+        .map(({ first_name, father_name, birth_date, branch }) => ({
+          first_name,
+          father_name,
+          birth_date,
+          branch,
+        }))
     );
 
     const employeesByBranch = computed(() =>
@@ -105,7 +102,7 @@ export const DashboardStore = signalStore(
     );
 
     const employeesList = computed(() =>
-      sortBy(employees(), ['first_name', 'father_name']).map((item) => ({
+      employees().map((item) => ({
         ...item,
         full_name: `${item.first_name} ${item.middle_name} ${item.father_name} ${item.mother_name}`,
         months: differenceInMonths(new Date(), item.start_date ?? new Date()),
@@ -157,7 +154,8 @@ export const DashboardStore = signalStore(
             .from('employees')
             .select(
               '*, branch:branches(*), department:departments(*), position:positions(*)'
-            );
+            )
+            .order('first_name', { ascending: true });
 
           if (error) throw error;
           patchState(state, { employees: data });
@@ -167,6 +165,27 @@ export const DashboardStore = signalStore(
           patchState(state, { loading: false });
         }
       }
+
+      async function getSelected(id: string) {
+        patchState(state, { loading: true });
+        try {
+          const { error, data } = await supabase.client
+            .from('employees')
+            .select(
+              '*, branch:branches(*), department:departments(*), position:positions(*), timeoffs(*)'
+            )
+            .eq('id', id)
+            .single();
+          if (error) throw error;
+          patchState(state, { selected: data });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          patchState(state, { loading: false });
+        }
+      }
+
+      const resetSelected = () => patchState(state, { selected: null });
 
       async function updateEmployee(request: Employee) {
         patchState(state, { loading: true });
@@ -347,6 +366,30 @@ export const DashboardStore = signalStore(
         }
       }
 
+      async function saveTimeOff(request: TimeOff) {
+        patchState(state, { loading: true });
+        try {
+          const { error } = await supabase.client
+            .from('timeoffs')
+            .upsert([request]);
+          if (error) throw error;
+          message.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'Tiempo fuera creado exitosamente',
+          });
+        } catch (err) {
+          console.error(err);
+          message.add({
+            severity: 'error',
+            summary: 'Ocurrio un error',
+            detail: 'Intente nuevamente',
+          });
+        } finally {
+          patchState(state, { loading: false });
+        }
+      }
+
       return {
         fetchCollection,
         updateItem,
@@ -355,6 +398,9 @@ export const DashboardStore = signalStore(
         updateEmployee,
         deleteEmployee,
         terminateEmployee,
+        getSelected,
+        resetSelected,
+        saveTimeOff,
       };
     }
   ),
@@ -364,7 +410,6 @@ export const DashboardStore = signalStore(
       await fetchCollection('departments');
       await fetchCollection('positions');
       await fetchCollection('timeoff_types');
-      await fetchEmployees();
     },
   })
 );

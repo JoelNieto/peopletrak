@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -29,7 +39,7 @@ import { DashboardStore } from '../dashboard.store';
           formControlName="department_id"
         />
       </div>
-      <div class="flex gap-4 items-center justify-end">
+      <div class="dialog-actions">
         <p-button
           label="Cancelar"
           severity="secondary"

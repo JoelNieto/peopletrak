@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DashboardStore } from '../dashboard.store';
@@ -17,7 +18,7 @@ describe('EmployeeFormComponent', () => {
         ConfirmationService,
         { provide: DynamicDialogConfig, useValue: { data: {} } },
       ],
-      imports: [EmployeeFormComponent],
+      imports: [EmployeeFormComponent, RouterModule.forRoot([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EmployeeFormComponent);

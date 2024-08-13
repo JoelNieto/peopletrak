@@ -30,7 +30,7 @@ export type Employee = {
   mother_name: string;
   birth_date?: Date;
   gender: 'M' | 'F';
-  start_date?: Date;
+  start_date: Date;
   monthly_salary: number;
   branch_id: string;
   branch?: Branch;
@@ -45,6 +45,7 @@ export type Employee = {
   created_at?: Date;
   is_active: boolean;
   uniform_size?: UniformSize;
+  timeoffs?: TimeOff[];
 };
 
 export type TimeOffType = {
@@ -52,18 +53,16 @@ export type TimeOffType = {
   name: string;
 };
 
-export type TimeOffs = {
+export type TimeOff = {
   id: string;
   type_id: string;
   type?: TimeOffType;
   employee_id: string;
   employee?: Employee;
-  start_date: Date;
-  end_date: Date;
+  date_from: Date;
+  date_to: Date;
   notes: string[];
-  created_by: string;
   is_approved: boolean;
-  approved_by: string;
 };
 
 export type Termination = {

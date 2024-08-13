@@ -1,25 +1,33 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { MessageService, PrimeNGConfig } from 'primeng/api';
 
+import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 import es from '../assets/i18n/es.json';
-import { SupabaseService } from './services/supabase.service';
 
 @Component({
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NgxSpinnerComponent],
   providers: [MessageService],
   selector: 'app-root',
-  template: ` <router-outlet /> `,
+  template: ` <router-outlet />
+    <ngx-spinner type="ball-scale-multiple" bdColor="rgb(99, 102, 241, 0.8)">
+      <p class="text-white">Cargando...</p></ngx-spinner
+    >`,
   styles: ``,
 })
 export class AppComponent implements OnInit {
-  private supabase = inject(SupabaseService);
   private config = inject(PrimeNGConfig);
-  session = this.supabase.session;
+  private spinner = inject(NgxSpinnerService);
+  private router = inject(Router);
 
   ngOnInit() {
-    this.supabase.authChanges((_, session) => (this.session = session));
+    this.router.initialNavigation();
     this.config.setTranslation(es);
+    this.spinner.show();
+    setTimeout(() => {
+      /** spinner ends after 5 seconds */
+      this.spinner.hide();
+    }, 2000);
   }
 }

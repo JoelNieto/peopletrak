@@ -23,7 +23,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { debounceTime } from 'rxjs';
 
 import { Employee } from '../../models';
 import { AgePipe } from '../../pipes/age.pipe';
@@ -60,17 +59,14 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
       header="Empleados"
       subheader="Listado de colaboradores de la empresa"
     >
-      <div class="w-full flex justify-end items-center">
-        <p-button
-          label="Nuevo"
-          (click)="editEmployee()"
-          icon="pi pi-plus-circle"
-        />
+      <div class="w-full flex justify-between items-center">
+        <section class="pt-2 flex items-center gap-2">
+          <p-inputSwitch [formControl]="inactiveToggle" inputId="active" />
+          <label for="active">Incluir inactivos</label>
+        </section>
+        <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
       </div>
-      <section class="pt-2 flex items-center gap-2">
-        <p-inputSwitch [formControl]="inactiveToggle" inputId="active" />
-        <label for="active">Incluir inactivos</label>
-      </section>
+
       @if (state.loading()) {
       <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
       }
@@ -81,6 +77,7 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
         [rowsPerPageOptions]="[5, 10, 20]"
         [scrollable]="true"
         dataKey="id"
+        styleClass="p-datatable-striped"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -288,14 +285,14 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
               <p-button
                 icon="pi pi-info-circle"
                 [routerLink]="item.id"
-                [rounded]="true"
-                [text]="true"
+                rounded
+                text
               />
               <p-button
                 icon="pi pi-pen-to-square"
-                (click)="editEmployee(item)"
-                [rounded]="true"
-                [text]="true"
+                [routerLink]="[item.id, 'edit']"
+                rounded
+                text
                 severity="success"
               />
             </td>
@@ -311,19 +308,11 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
 })
 export class EmployeeListComponent implements OnInit {
   readonly state = inject(DashboardStore);
-  public searchControlText = new FormControl('', { nonNullable: true });
-  public branchControl = new FormControl('', { nonNullable: true });
-  public departmentControl = new FormControl('', { nonNullable: true });
-  public positionControl = new FormControl('', { nonNullable: true });
   public inactiveToggle = new FormControl(false, { nonNullable: true });
   public probatories = [
     { label: 'Probatorio', value: true },
     { label: 'Regular', value: false },
   ];
-  public searchValue = toSignal(
-    this.searchControlText.valueChanges.pipe(debounceTime(500)),
-    { initialValue: '' }
-  );
 
   public inactiveValue = toSignal(this.inactiveToggle.valueChanges, {
     initialValue: false,
@@ -335,18 +324,6 @@ export class EmployeeListComponent implements OnInit {
       .filter(
         (item) =>
           item.is_active === (this.inactiveValue() ? item.is_active : true)
-      )
-      .filter(
-        (item) =>
-          item.first_name
-            .toLowerCase()
-            .includes(this.searchValue().toLowerCase()) ||
-          item.father_name
-            .toLowerCase()
-            .includes(this.searchValue().toLowerCase()) ||
-          item.document_id
-            .toLowerCase()
-            .includes(this.searchValue().toLowerCase())
       )
   );
   private dialog = inject(DialogService);
@@ -369,6 +346,8 @@ export class EmployeeListComponent implements OnInit {
         return filter.map((x) => x.id).includes(value.id);
       }
     );
+    this.state.resetSelected();
+    this.state.fetchEmployees();
   }
 
   editEmployee(employee?: Employee) {

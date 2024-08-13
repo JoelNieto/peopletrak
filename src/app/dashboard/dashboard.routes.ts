@@ -22,10 +22,25 @@ export const DASHBOARD_ROUTES: Routes = [
               ),
           },
           {
-            path: ':id',
+            path: 'new',
+            loadComponent: () =>
+              import('./employee-form/employee-form.component').then(
+                (x) => x.EmployeeFormComponent
+              ),
+          },
+          {
+            path: ':employee_id',
             loadComponent: () =>
               import('./employee-detail/employee-detail.component').then(
                 (x) => x.EmployeeDetailComponent
+              ),
+          },
+
+          {
+            path: ':employee_id/edit',
+            loadComponent: () =>
+              import('./employee-form/employee-form.component').then(
+                (x) => x.EmployeeFormComponent
               ),
           },
         ],

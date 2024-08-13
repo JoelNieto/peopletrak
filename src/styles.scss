@@ -77,3 +77,7 @@ h1 {
 h2 {
   @apply text-xl;
 }
+
+.p-card {
+  @apply shadow-none border border-slate-200;
+}

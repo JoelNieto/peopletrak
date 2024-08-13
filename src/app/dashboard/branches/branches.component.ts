@@ -1,8 +1,5 @@
 import { DialogModule } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -15,15 +12,7 @@ import { DashboardStore } from '../dashboard.store';
 @Component({
   selector: 'app-branches',
   standalone: true,
-  imports: [
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    ButtonModule,
-    CardModule,
-    TableModule,
-    DialogModule,
-  ],
+  imports: [ButtonModule, CardModule, TableModule, DialogModule],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <p-card

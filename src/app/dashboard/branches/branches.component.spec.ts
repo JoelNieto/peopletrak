@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DashboardStore } from '../dashboard.store';
 import { BranchesComponent } from './branches.component';
 
 describe('BranchesComponent', () => {
@@ -7,6 +9,7 @@ describe('BranchesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [DashboardStore, MessageService, ConfirmationService],
       imports: [BranchesComponent],
     }).compileComponents();
 
