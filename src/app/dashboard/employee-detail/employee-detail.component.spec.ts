@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
+import { randomUUID } from 'crypto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DashboardStore } from '../dashboard.store';
 import { EmployeeDetailComponent } from './employee-detail.component';
@@ -16,6 +17,7 @@ describe('EmployeeDetailComponent', () => {
 
     fixture = TestBed.createComponent(EmployeeDetailComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('employee_id', randomUUID());
     fixture.detectChanges();
   });
 

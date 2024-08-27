@@ -22,7 +22,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { markGroupDirty } from 'src/app/services/util.service';
 import { Employee, UniformSize } from '../../models';
 import { DashboardStore } from '../dashboard.store';
@@ -39,7 +39,12 @@ import { DashboardStore } from '../dashboard.store';
   ],
   template: `
     <h1>Datos del empleado</h1>
-    <p-button text label="Volver al listado" icon="pi pi-arrow-left" />
+    <p-button
+      text
+      label="Volver al listado"
+      icon="pi pi-arrow-left"
+      (onClick)="cancelChanges(true)"
+    />
     <form class="mt-4" [formGroup]="form" (ngSubmit)="saveChanges()">
       <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
         <div class="input-container">
@@ -266,6 +271,8 @@ export class EmployeeFormComponent implements OnInit {
     monthly_salary: new FormControl(0, { nonNullable: true }),
   });
 
+  private confirmationService = inject(ConfirmationService);
+
   ngOnInit() {
     if (this.employee_id()) {
       this.state.getSelected(this.employee_id()!);
@@ -324,7 +331,19 @@ export class EmployeeFormComponent implements OnInit {
       .catch((error) => console.log({ error }));
   }
 
-  cancelChanges() {
-    console.log('Changes');
+  cancelChanges(list = false) {
+    const route = list ? ['../..'] : ['..'];
+    if (this.form.pristine) {
+      this.router.navigate(route, { relativeTo: this.route });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: '¿Desea cancelar los cambios?',
+      header: 'Cancelar',
+      accept: () => {
+        this.router.navigate(route, { relativeTo: this.route });
+      },
+    });
   }
 }

@@ -38,7 +38,7 @@ import { TimeOffsComponent } from '../time-offs.component';
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
-    <div class="mx-8 md:mx-12 flex flex-col gap-2">
+    <div class="mx-4 md:mx-6 flex flex-col gap-2">
       <div class="flex w-full justify-between items-center">
         <h2>
           Datos del empleado: {{ employee()?.first_name }}
@@ -154,8 +154,11 @@ import { TimeOffsComponent } from '../time-offs.component';
         </p-tabPanel>
         <p-tabPanel header="Tiempos fuera" rightIcon="pi pi-calendar">
           @for(timeoff of employee()?.timeoffs; track $index) {
-          {{ timeoff.date_from }}
-          {{ timeoff.date_to }}
+          <p-card [header]="timeoff.type?.name">
+            {{ timeoff.date_from }}
+            {{ timeoff.date_to }}
+          </p-card>
+
           }</p-tabPanel
         >
       </p-tabView>
@@ -173,12 +176,14 @@ import { TimeOffsComponent } from '../time-offs.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeDetailComponent implements OnInit {
-  public state = inject(DashboardStore);
+  protected readonly state = inject(DashboardStore);
+
   public employee_id = input.required<string>();
   public employee = this.state.selected;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  items: MenuItem[] = [
+
+  protected readonly items: MenuItem[] = [
     {
       label: 'Editar',
       icon: 'pi pi-pencil',
@@ -242,6 +247,6 @@ export class EmployeeDetailComponent implements OnInit {
   }
 
   deleteEmployee() {
-    this.state.deleteEmployee(this.employee()!.id);
+    this.state.deleteEmployee(this.employee_id());
   }
 }

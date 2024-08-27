@@ -1,6 +1,5 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgClass } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -105,7 +104,7 @@ import { DashboardStore } from './dashboard.store';
   `,
   styles: `
       .selected {
-        @apply bg-indigo-500 text-white transition-all duration-300 ease-in-out;
+        @apply bg-indigo-100 text-indigo-500 transition-all duration-300 ease-in-out;
       }
 
       main {
@@ -125,17 +124,10 @@ import { DashboardStore } from './dashboard.store';
     ConfirmDialogModule,
   ],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   public isHandset = signal(false);
   public isCollapsed = signal(true);
   public store = inject(DashboardStore);
-  private breakpointObserver = inject(BreakpointObserver);
-
-  ngOnInit() {
-    this.breakpointObserver
-      .observe(Breakpoints.Handset)
-      .subscribe((breakPoint) => this.isHandset.set(breakPoint.matches));
-  }
 
   async toggleMenu() {
     if (this.isHandset()) {

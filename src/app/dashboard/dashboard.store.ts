@@ -172,7 +172,7 @@ export const DashboardStore = signalStore(
           const { error, data } = await supabase.client
             .from('employees')
             .select(
-              '*, branch:branches(*), department:departments(*), position:positions(*), timeoffs(*)'
+              '*, branch:branches(*), department:departments(*), position:positions(*), timeoffs(*, type:timeoff_types(*))'
             )
             .eq('id', id)
             .single();
