@@ -16,6 +16,7 @@ import {
 } from '@angular/forms';
 import { toDate } from 'date-fns-tz';
 import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -36,6 +37,7 @@ import { DashboardStore } from '../dashboard.store';
     InputNumberModule,
     CalendarModule,
     DropdownModule,
+    CheckboxModule,
   ],
   template: `
     <h1>Datos del empleado</h1>
@@ -190,6 +192,15 @@ import { DashboardStore } from '../dashboard.store';
             appendTo="body"
           />
         </div>
+        <div class="flex gap-2">
+          <p-checkbox
+            formControlName="is_active"
+            [binary]="true"
+            inputId="is_active"
+          />
+          <label for="is_active">Activo</label>
+        </div>
+
         <div class="flex col-span-4 justify-end gap-2">
           <p-button
             label="Cancelar"
@@ -279,7 +290,6 @@ export class EmployeeFormComponent implements OnInit {
     }
     effect(
       () => {
-        console.log('Called');
         if (!this.state.selected()) return;
 
         untracked(() => {
