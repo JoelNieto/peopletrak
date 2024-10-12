@@ -7,11 +7,14 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { differenceInMonths, getMonth } from 'date-fns';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
+import { pipe, tap } from 'rxjs';
 import {
   Branch,
+  Company,
   Department,
   Employee,
   Position,
@@ -21,36 +24,49 @@ import {
 } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 
-type Collection = 'departments' | 'branches' | 'positions' | 'timeoff_types';
+type Collection =
+  | 'departments'
+  | 'branches'
+  | 'positions'
+  | 'timeoff_types'
+  | 'companies';
 
 type State = {
   loading: boolean;
+  companies: Company[];
   branches: Branch[];
   departments: Department[];
   positions: Position[];
   employees: Employee[];
   timeoff_types: TimeOffType[];
   selected: Employee | null;
+  selectedCompanyId: string | null;
 };
 
 const initialState: State = {
   loading: false,
+  companies: [],
   branches: [],
   departments: [],
   positions: [],
   employees: [],
   timeoff_types: [],
   selected: null,
+  selectedCompanyId: null,
 };
 
 export const DashboardStore = signalStore(
   withState(initialState),
-  withComputed(({ employees, branches }) => {
+  withComputed(({ employees, branches, companies, selectedCompanyId }) => {
     const headCount = computed(
       () => employees().filter((x) => x.is_active).length
     );
     const branchesCount = computed(
       () => branches().filter((x) => x.is_active).length
+    );
+
+    const selectedCompany = computed(() =>
+      companies().find((x) => x.id === selectedCompanyId())
     );
 
     const employeesByGender = computed(() =>
@@ -118,6 +134,7 @@ export const DashboardStore = signalStore(
       employeesByBranch,
       employeesByGender,
       birthDates,
+      selectedCompany,
     };
   }),
   withMethods(
@@ -127,17 +144,40 @@ export const DashboardStore = signalStore(
       message = inject(MessageService),
       confirm = inject(ConfirmationService)
     ) => {
+      const updateQuery = rxMethod<string | null>(
+        pipe(
+          tap(() => patchState(state, { loading: true })),
+          tap(async () => {
+            await Promise.all([
+              fetchCollection('branches'),
+              fetchCollection('departments'),
+              fetchCollection('positions'),
+              fetchCollection('timeoff_types'),
+              fetchEmployees(),
+            ]);
+          })
+        )
+      );
+
       async function fetchCollection(collection: Collection) {
         patchState(state, { loading: true });
+        let query = supabase.client
+          .from(collection)
+          .select(
+            collection === 'positions'
+              ? 'id, name, department_id, department:departments(id, name), created_at'
+              : '*'
+          )
+          .order('name', { ascending: true });
+        if (
+          state.selectedCompanyId() &&
+          collection !== 'companies' &&
+          collection !== 'timeoff_types'
+        ) {
+          query = query.eq('company_id', state.selectedCompanyId());
+        }
         try {
-          const { data, error } = await supabase.client
-            .from(collection)
-            .select(
-              collection === 'positions'
-                ? 'id, name, department_id, department:departments(id, name), created_at'
-                : '*'
-            )
-            .order('name', { ascending: true });
+          const { data, error } = await query;
           if (error) throw error;
           patchState(state, () => ({ [collection]: data }));
         } catch (error) {
@@ -149,13 +189,18 @@ export const DashboardStore = signalStore(
 
       async function fetchEmployees() {
         patchState(state, { loading: true });
+        let query = supabase.client
+          .from('employees')
+          .select(
+            '*, branch:branches(*), department:departments(*), position:positions(*)'
+          )
+          .order('first_name', { ascending: true });
+
+        if (state.selectedCompanyId()) {
+          query = query.eq('company_id', state.selectedCompanyId());
+        }
         try {
-          const { data, error } = await supabase.client
-            .from('employees')
-            .select(
-              '*, branch:branches(*), department:departments(*), position:positions(*)'
-            )
-            .order('first_name', { ascending: true });
+          const { data, error } = await query;
 
           if (error) throw error;
           patchState(state, { employees: data });
@@ -390,6 +435,9 @@ export const DashboardStore = signalStore(
         }
       }
 
+      const toggleCompany = (id: string | null) =>
+        patchState(state, { selectedCompanyId: id });
+
       return {
         fetchCollection,
         updateItem,
@@ -401,15 +449,15 @@ export const DashboardStore = signalStore(
         getSelected,
         resetSelected,
         saveTimeOff,
+        toggleCompany,
+        updateQuery,
       };
     }
   ),
   withHooks({
-    async onInit({ fetchCollection, fetchEmployees }) {
-      await fetchCollection('branches');
-      await fetchCollection('departments');
-      await fetchCollection('positions');
-      await fetchCollection('timeoff_types');
+    onInit({ updateQuery, selectedCompanyId, fetchCollection }) {
+      updateQuery(selectedCompanyId);
+      fetchCollection('companies');
     },
   })
 );

@@ -1,3 +1,12 @@
+export type Company = {
+  id: string;
+  name: string;
+  address: string;
+  phone_number: string;
+  is_active: boolean;
+  created_at?: Date;
+};
+
 export type Branch = {
   id: string;
   name: string;
@@ -72,3 +81,14 @@ export type Termination = {
   notes: string;
   reason: 'DESPIDO' | 'RENUNCIA' | 'FIN_CONTRATO';
 };
+
+export interface Column {
+  field: string;
+  header: string;
+  customExportHeader?: string;
+}
+
+export interface ExportColumn {
+  title: string;
+  dataKey: string;
+}

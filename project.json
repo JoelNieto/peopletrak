@@ -7,26 +7,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:application",
+      "executor": "@nx/angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/peopletrak",
         "index": "./src/index.html",
         "browser": "./src/main.ts",
-        "polyfills": [],
+        "polyfills": ["zone.js"],
         "tsConfig": "./tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": ["./src/favicon.ico", "./src/assets"],
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "public"
+          }
+        ],
         "styles": [
           "node_modules/ngx-spinner/animations/ball-scale-multiple.css",
           "./src/styles.scss"
         ],
-        "scripts": [],
-        "server": "src/main.server.ts",
-        "prerender": true,
-        "ssr": {
-          "entry": "server.ts"
-        }
+        "scripts": []
       },
       "configurations": {
         "production": {
@@ -59,7 +59,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
           "buildTarget": "peopletrak:build:production"

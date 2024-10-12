@@ -9,7 +9,7 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: 'home',
         loadComponent: () =>
-          import('./home/home.component').then((x) => x.HomeComponent),
+          import('./home.component').then((x) => x.HomeComponent),
       },
       {
         path: 'employees',
@@ -17,21 +17,21 @@ export const DASHBOARD_ROUTES: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./employee-list/employee-list.component').then(
+              import('./employee-list.component').then(
                 (x) => x.EmployeeListComponent
               ),
           },
           {
             path: 'new',
             loadComponent: () =>
-              import('./employee-form/employee-form.component').then(
+              import('./employee-form.component').then(
                 (x) => x.EmployeeFormComponent
               ),
           },
           {
             path: ':employee_id',
             loadComponent: () =>
-              import('./employee-detail/employee-detail.component').then(
+              import('./employee-detail.component').then(
                 (x) => x.EmployeeDetailComponent
               ),
           },
@@ -39,32 +39,31 @@ export const DASHBOARD_ROUTES: Routes = [
           {
             path: ':employee_id/edit',
             loadComponent: () =>
-              import('./employee-form/employee-form.component').then(
+              import('./employee-form.component').then(
                 (x) => x.EmployeeFormComponent
               ),
           },
         ],
       },
       {
+        path: 'companies',
+        loadComponent: () =>
+          import('./companies.component').then((x) => x.CompaniesComponent),
+      },
+      {
         path: 'departments',
         loadComponent: () =>
-          import('./departments/departments.component').then(
-            (x) => x.DepartmentsComponent
-          ),
+          import('./departments.component').then((x) => x.DepartmentsComponent),
       },
       {
         path: 'positions',
         loadComponent: () =>
-          import('./positions/positions.component').then(
-            (x) => x.PositionsComponent
-          ),
+          import('./positions.component').then((x) => x.PositionsComponent),
       },
       {
         path: 'branches',
         loadComponent: () =>
-          import('./branches/branches.component').then(
-            (x) => x.BranchesComponent
-          ),
+          import('./branches.component').then((x) => x.BranchesComponent),
       },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],

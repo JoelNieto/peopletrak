@@ -8,22 +8,64 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'app-dashboard',
+  providers: [DashboardStore, MessageService, ConfirmationService],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    NgClass,
+    ToastModule,
+    AccordionModule,
+    RippleModule,
+    CardModule,
+    ConfirmDialogModule,
+    DropdownModule,
+    FormsModule,
+  ],
   template: `
     <p-toast />
     <p-confirmDialog />
-    <div class="flex">
-      <div
-        class="fixed h-screen transition-all  duration-300 z-10 w-64 border-r border-slate-200"
-      >
-        <div class="flex gap-4 items-center">
-          <p-button [text]="true" icon="pi pi-bars" (click)="toggleMenu()" />
-
-          <a class="font-bold text-slate-600">Peopletrak</a>
+    <nav
+      class="bg-white border border-b-slate-200 flex fixed z-30 w-full items-center justify-between px-4 py-3"
+    >
+      <div class="flex">
+        <p-button
+          [icon]="!isHandset() ? 'pi pi-bars' : 'pi pi-arrow-left'"
+          (click)="toggleMenu()"
+          rounded
+          text
+        />
+        <a
+          class="font-bold text-slate-600"
+          class="flex gap-1 items-center text-lg text-slate-700"
+        >
+          <img src="images/pt-logo.svg" class="h-8" /> Peopletrak</a
+        >
+      </div>
+      <div class="w-64">
+        <div class="input-container">
+          <p-dropdown
+            [options]="store.companies()"
+            [ngModel]="store.selectedCompanyId()"
+            (onChange)="toggleCompany($event.value)"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Seleccione una empresa"
+            showClear
+          />
         </div>
+      </div>
+    </nav>
+    <div class="flex pt-16 overflow-hidden">
+      <aside
+        class="fixed py-4  max-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64"
+      >
         <ul class="flex flex-col list-none p-2 px-4">
           <li pRipple>
             <a
@@ -33,6 +75,16 @@ import { DashboardStore } from './dashboard.store';
             >
               <i class="pi pi-home mr-2"></i>
               Dashboard
+            </a>
+          </li>
+          <li pRipple>
+            <a
+              routerLink="companies"
+              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-100 no-underline text-slate-600"
+              routerLinkActive="selected"
+            >
+              <i class="pi pi-building mr-2"></i>
+              Empresas
             </a>
           </li>
           <li pRipple>
@@ -95,9 +147,9 @@ import { DashboardStore } from './dashboard.store';
             </p-accordion>
           </li>
         </ul>
-      </div>
+      </aside>
 
-      <main class="px-8 py-4 flex-1 ml-64">
+      <main class="overflow-auto relative w-full p-4 h-full ms-64">
         <router-outlet />
       </main>
     </div>
@@ -111,18 +163,6 @@ import { DashboardStore } from './dashboard.store';
         min-width: 0;
       }`,
   standalone: true,
-  providers: [DashboardStore, MessageService, ConfirmationService],
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    NgClass,
-    ToastModule,
-    AccordionModule,
-    RippleModule,
-    CardModule,
-    ConfirmDialogModule,
-  ],
 })
 export class DashboardComponent {
   public isHandset = signal(false);
@@ -136,5 +176,9 @@ export class DashboardComponent {
     }
 
     this.isCollapsed.update((value) => !value);
+  }
+
+  toggleCompany(companyId: string | null) {
+    this.store.toggleCompany(companyId);
   }
 }

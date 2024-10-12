@@ -3,7 +3,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { MessageService, PrimeNGConfig } from 'primeng/api';
 
 import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
-import es from '../assets/i18n/es.json';
+import es from '../../public/i18n/es.json';
 
 @Component({
   standalone: true,
