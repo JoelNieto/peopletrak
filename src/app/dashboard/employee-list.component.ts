@@ -24,6 +24,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
+import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
 import { DashboardStore } from './dashboard.store';
@@ -73,7 +74,6 @@ import { EmployeeFormComponent } from './employee-form.component';
       <p-table
         #dt
         [value]="this.filtered()"
-        [columns]="cols"
         [paginator]="true"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
@@ -82,11 +82,18 @@ import { EmployeeFormComponent } from './employee-form.component';
         styleClass="p-datatable-striped"
       >
         <ng-template pTemplate="caption">
-          <div style="text-align: left">
+          <div class="flex gap-2">
             <p-button
-              icon="pi pi-external-link"
-              label="Export"
-              (onClick)="dt.exportCSV()"
+              icon="pi pi-file-excel"
+              severity="success"
+              label="XLS"
+              (onClick)="generateReport()"
+            />
+            <p-button
+              icon="pi pi-file-pdf"
+              severity="warning"
+              label="PDF"
+              (onClick)="generateReport()"
             />
           </div>
         </ng-template>
@@ -338,6 +345,24 @@ export class EmployeeListComponent implements OnInit {
           item.is_active === (this.inactiveValue() ? item.is_active : true)
       )
   );
+
+  public itemsToReports = computed(() =>
+    this.filtered().map((item) => ({
+      Nombre: item.first_name + ' ' + item.father_name,
+      Status: item.is_active ? 'ACTIVO' : 'INACTIVO',
+      Cedula: item.document_id,
+      Sucursal: item.branch?.name,
+      Area: item.department?.name,
+      Cargo: item.position?.name,
+      Salario: item.monthly_salary,
+      Talla: item.uniform_size,
+      'Fecha de inicio': item.start_date,
+      Probatorio: item.probatory ? 'PROBATORIO' : 'NORMAL',
+      'Fecha de nacimiento': item.birth_date,
+      Sexo: item.gender,
+      Creado: item.created_at,
+    }))
+  );
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
   private filterService = inject(FilterService);
@@ -361,22 +386,6 @@ export class EmployeeListComponent implements OnInit {
     );
     this.state.resetSelected();
     this.state.fetchEmployees();
-    this.cols = [
-      { field: 'Name', header: 'Nombre' },
-      { field: 'Status', header: 'Status' },
-      { field: 'Document', header: 'Cedula' },
-      { field: 'Branch', header: 'Sucursal' },
-      { field: 'Department', header: 'Area' },
-      { field: 'Position', header: 'Cargo' },
-      { field: 'Salary', header: 'Salario' },
-      { field: 'Size', header: 'Talla' },
-      { field: 'Start Date', header: 'Fecha de inicio' },
-      { field: 'Birth Date', header: 'Fecha de nacimiento  ' },
-    ];
-    this.exportColumns = this.cols.map((col) => ({
-      title: col.header,
-      dataKey: col.field,
-    }));
   }
 
   editEmployee(employee?: Employee) {
@@ -385,5 +394,12 @@ export class EmployeeListComponent implements OnInit {
       width: '90vw',
       data: { employee },
     });
+  }
+
+  generateReport() {
+    const ws = utils.json_to_sheet(this.itemsToReports());
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'Empleados');
+    writeFile(wb, 'REPORTE_EMPLEADOS.xlsx');
   }
 }
