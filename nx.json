@@ -69,8 +69,7 @@
       "standalone": true,
       "inlineStyle": true,
       "inlineTemplate": true,
-      "changeDetection": "OnPush",
-      "nameAndDirectoryFormat": "as-provided"
+      "changeDetection": "OnPush"
     }
   },
   "defaultProject": "peopletrak",

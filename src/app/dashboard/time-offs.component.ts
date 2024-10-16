@@ -41,6 +41,8 @@ import { DashboardStore } from './dashboard.store';
           [options]="store.employeesList()"
           optionValue="id"
           appendTo="body"
+          filterBy="first_name,father_name"
+          filter
         >
           <ng-template pTemplate="selectedItem" let-selected>
             {{ selected.first_name }} {{ selected.father_name }}
