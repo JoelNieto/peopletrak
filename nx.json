@@ -73,5 +73,6 @@
     }
   },
   "defaultProject": "peopletrak",
-  "nxCloudAccessToken": "MDdkOTI1YTgtNmRhNC00MjZkLWEyOTYtOWUwNDU3Y2EzZGUzfHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "MDdkOTI1YTgtNmRhNC00MjZkLWEyOTYtOWUwNDU3Y2EzZGUzfHJlYWQtd3JpdGU=",
+  "useLegacyCache": true
 }
