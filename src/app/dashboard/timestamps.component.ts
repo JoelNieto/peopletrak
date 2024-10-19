@@ -50,6 +50,7 @@ import { DashboardStore } from './dashboard.store';
             <th pSortableColumn="created_at">
               Fecha <p-sortIcon field="created_at" />
             </th>
+            <th>Hora</th>
             <th>Acciones</th>
           </tr>
           <tr>
@@ -108,6 +109,7 @@ import { DashboardStore } from './dashboard.store';
             </th>
             <th></th>
             <th></th>
+            <th></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-timestamp>
@@ -117,7 +119,8 @@ import { DashboardStore } from './dashboard.store';
               {{ timestamp.employee.father_name }}
             </td>
             <td>{{ timestamp.branch.name }}</td>
-            <td>{{ timestamp.created_at | date : 'dd/MM/yyyy hh:mm:ss a' }}</td>
+            <td>{{ timestamp.created_at | date : 'dd/MM/yyyy' }}</td>
+            <td>{{ timestamp.created_at | date : 'hh:mm:ss a' }}</td>
             <td class="flex gap-2">
               <p-button
                 icon="pi pi-pencil"
