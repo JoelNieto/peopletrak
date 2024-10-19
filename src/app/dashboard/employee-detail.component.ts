@@ -150,6 +150,9 @@ import { TimeOffsComponent } from './time-offs.component';
             </div>
           </p-card>
         </p-tabPanel>
+        <p-tabPanel header="Marcacion" rightIcon="pi pi-clock">
+          <img src="{{ employee()?.qr_code }}" alt="QR Code" />
+        </p-tabPanel>
         <p-tabPanel header="Tiempos fuera" rightIcon="pi pi-calendar">
           @for(timeoff of employee()?.timeoffs; track $index) {
           <p-card [header]="timeoff.type?.name">

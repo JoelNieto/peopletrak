@@ -55,6 +55,8 @@ export type Employee = {
   is_active: boolean;
   uniform_size?: UniformSize;
   timeoffs?: TimeOff[];
+  qr_code?: string;
+  code_uri?: string;
 };
 
 export type TimeOffType = {
@@ -91,4 +93,15 @@ export interface Column {
 export interface ExportColumn {
   title: string;
   dataKey: string;
+}
+export interface Timestamp {
+  id: string;
+  employee_id: string;
+  employee?: Employee;
+  branch_id: string;
+  branch?: Branch;
+  company_id: string;
+  company?: Company;
+  date: Date;
+  time: string;
 }

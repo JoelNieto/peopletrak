@@ -40,9 +40,7 @@ import { SupabaseService } from './services/supabase.service';
           </p-dropdown>
         </div>
         <canvas id="canvas"></canvas>
-        <p-button (onClick)="generateQrCode()" [disabled]="!employee()"
-          >Click</p-button
-        >
+        <p-button (onClick)="generateQrCode()">Click</p-button>
       </p-card>
     </div>
   </div> `,
@@ -65,8 +63,14 @@ export class QrGeneratorComponent {
       initialValue: [],
     }
   );
+
   generateQrCode() {
-    const { id } = this.employee()!;
+    this.employees()!.forEach((employee) => {
+      this.getQr(employee.id);
+    });
+  }
+
+  getQr(id: string) {
     const totp = new OTPAuth.TOTP({
       issuer: 'peopletrak.netlify.app',
       label: 'PeopleTrak',
@@ -75,18 +79,18 @@ export class QrGeneratorComponent {
       period: 12,
     });
 
-    const token = totp.generate();
     const uri = totp.toString();
 
-    QRCode.toDataURL(uri, (error, qrUrl) => {
+    QRCode.toDataURL(uri, async (error, qrUrl) => {
       if (error) {
         console.error(error);
         return;
       }
 
-      console.log({
-        qrCodeUrl: qrUrl,
-      });
+      await this.supabase.client
+        .from('employees')
+        .update({ qr_code: qrUrl, code_uri: uri })
+        .eq('id', id);
     });
   }
 }

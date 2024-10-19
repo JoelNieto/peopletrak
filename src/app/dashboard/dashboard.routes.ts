@@ -46,6 +46,11 @@ export const DASHBOARD_ROUTES: Routes = [
         ],
       },
       {
+        path: 'timestamps',
+        loadComponent: () =>
+          import('./timestamps.component').then((x) => x.TimestampsComponent),
+      },
+      {
         path: 'companies',
         loadComponent: () =>
           import('./companies.component').then((x) => x.CompaniesComponent),

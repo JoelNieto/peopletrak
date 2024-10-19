@@ -97,6 +97,16 @@ import { DashboardStore } from './dashboard.store';
               Empleados
             </a>
           </li>
+          <li pRipple>
+            <a
+              routerLink="timestamps"
+              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
+              routerLinkActive="selected"
+            >
+              <i class="pi pi-clock mr-2"></i>
+              Marcaciones
+            </a>
+          </li>
           <li>
             <a
               pRipple
