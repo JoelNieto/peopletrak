@@ -10,7 +10,6 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { differenceInMonths, getMonth } from 'date-fns';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import QRCode from 'qrcode';
 import { pipe, tap } from 'rxjs';
 import {
   Branch,
@@ -236,15 +235,6 @@ export const DashboardStore = signalStore(
       async function updateEmployee(request: Employee) {
         patchState(state, { loading: true });
         try {
-          if (!request.id) {
-            QRCode.toDataURL(request.id, async (error, qrCode) => {
-              if (error) {
-                console.error(error);
-                return;
-              }
-              request.qr_code = qrCode;
-            });
-          }
           const { error } = await supabase.client
             .from('employees')
             .upsert(request);

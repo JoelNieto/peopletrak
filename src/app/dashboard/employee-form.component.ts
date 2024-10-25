@@ -14,17 +14,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toDate } from 'date-fns-tz';
+import * as OTPAuth from 'otpauth';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { v4 } from 'uuid';
-
-import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import QRCode from 'qrcode';
 import { markGroupDirty } from 'src/app/services/util.service';
+import { v4 } from 'uuid';
 import { Employee, UniformSize } from '../models';
 import { DashboardStore } from './dashboard.store';
 
@@ -56,6 +57,7 @@ import { DashboardStore } from './dashboard.store';
             id="first_name"
             pInputText
             formControlName="first_name"
+            placeholder="Nombre"
           />
         </div>
         <div class="input-container">
@@ -65,6 +67,7 @@ import { DashboardStore } from './dashboard.store';
             id="middle_name"
             pInputText
             formControlName="middle_name"
+            placeholder="Segundo Nombre"
           />
         </div>
         <div class="input-container">
@@ -74,6 +77,7 @@ import { DashboardStore } from './dashboard.store';
             id="father_name"
             pInputText
             formControlName="father_name"
+            placeholder="Apellido"
           />
         </div>
         <div class="input-container">
@@ -83,6 +87,7 @@ import { DashboardStore } from './dashboard.store';
             id="mother_name"
             pInputText
             formControlName="mother_name"
+            placeholder="Apellido materno"
           />
         </div>
         <div class="input-container">
@@ -93,24 +98,27 @@ import { DashboardStore } from './dashboard.store';
             iconDisplay="input"
             [showIcon]="true"
             appendTo="body"
+            placeholder="dd/mm/yyyy"
           />
         </div>
         <div class="input-container">
-          <label for="document_id">Cedula</label>
+          <label for="document_id">Cédula</label>
           <input
             type="text"
             id="document_id"
             pInputText
             formControlName="document_id"
+            placeholder="Cédula de identidad"
           />
         </div>
         <div class="input-container">
-          <label for="address">Direccion</label>
+          <label for="address">Dirección</label>
           <input
             type="text"
             id="address"
             pInputText
             formControlName="address"
+            placeholder="Calle, Ciudad, Provincia"
           />
         </div>
         <div class="input-container">
@@ -118,12 +126,13 @@ import { DashboardStore } from './dashboard.store';
           <input type="email" id="email" pInputText formControlName="email" />
         </div>
         <div class="input-container">
-          <label for="phone_number">Nro. Telefono</label>
+          <label for="phone_number">Nro. Teléfono</label>
           <input
             type="text"
             id="phone_number"
             pInputText
             formControlName="phone_number"
+            placeholder="Teléfono"
           />
         </div>
         <div class="input-container">
@@ -132,6 +141,8 @@ import { DashboardStore } from './dashboard.store';
             inputId="gender"
             [options]="['F', 'M']"
             formControlName="gender"
+            appendTo="body"
+            placeholder="Seleccione un sexo"
           />
         </div>
         <div class="input-container">
@@ -142,6 +153,8 @@ import { DashboardStore } from './dashboard.store';
             optionValue="id"
             inputId="branch"
             formControlName="branch_id"
+            appendTo="body"
+            placeholder="Seleccione una sucursal"
           />
         </div>
         <div class="input-container">
@@ -152,6 +165,8 @@ import { DashboardStore } from './dashboard.store';
             optionValue="id"
             inputId="department"
             formControlName="department_id"
+            appendTo="body"
+            placeholder="Seleccione un area"
           />
         </div>
         <div class="input-container">
@@ -162,6 +177,8 @@ import { DashboardStore } from './dashboard.store';
             optionValue="id"
             inputId="position"
             formControlName="position_id"
+            appendTo="body"
+            placeholder="Seleccione un cargo"
           />
         </div>
         <div class="input-container">
@@ -171,6 +188,7 @@ import { DashboardStore } from './dashboard.store';
             currency="USD"
             formControlName="monthly_salary"
             id="salary"
+            placeholder="Salario mensual"
           />
         </div>
         <div class="input-container">
@@ -180,6 +198,7 @@ import { DashboardStore } from './dashboard.store';
             [options]="sizes"
             formControlName="uniform_size"
             appendTo="body"
+            placeholder="Seleccione una talla"
           />
         </div>
         <div class="input-container">
@@ -190,6 +209,7 @@ import { DashboardStore } from './dashboard.store';
             iconDisplay="input"
             [showIcon]="true"
             appendTo="body"
+            placeholder="dd/mm/yyyy"
           />
         </div>
         <div class="input-container">
@@ -296,6 +316,8 @@ export class EmployeeFormComponent implements OnInit {
       validators: [Validators.required],
     }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
+    qr_code: new FormControl('', { nonNullable: true }),
+    code_uri: new FormControl('', { nonNullable: true }),
   });
 
   private confirmationService = inject(ConfirmationService);
@@ -351,6 +373,9 @@ export class EmployeeFormComponent implements OnInit {
       });
       return;
     }
+    if (!this.employee_id()) {
+      this.addTimeclockQR();
+    }
     await this.state
       .updateEmployee(this.form.getRawValue())
       .then(() => this.router.navigate(['..'], { relativeTo: this.route }))
@@ -370,6 +395,26 @@ export class EmployeeFormComponent implements OnInit {
       accept: () => {
         this.router.navigate(route, { relativeTo: this.route });
       },
+    });
+  }
+
+  private addTimeclockQR() {
+    const { first_name, father_name } = this.form.getRawValue();
+    const totp = new OTPAuth.TOTP({
+      issuer: 'Peopletrak Blackdog',
+      label: `${first_name.trim()} ${father_name.trim()}`,
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+    });
+
+    const uri = totp.toString();
+    QRCode.toDataURL(uri, async (error, qrCode) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      this.form.patchValue({ qr_code: qrCode, code_uri: uri });
     });
   }
 }

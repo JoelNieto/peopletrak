@@ -66,17 +66,17 @@ export class QrGeneratorComponent {
 
   generateQrCode() {
     this.employees()!.forEach((employee) => {
-      this.getQr(employee.id);
+      this.getQr(employee);
     });
   }
 
-  getQr(id: string) {
+  getQr(employee: Employee) {
     const totp = new OTPAuth.TOTP({
-      issuer: 'peopletrak.netlify.app',
-      label: 'PeopleTrak',
+      issuer: 'Peopletrak Blackdog',
+      label: `${employee.first_name.trim()} ${employee.father_name.trim()}`,
       algorithm: 'SHA1',
       digits: 6,
-      period: 12,
+      period: 30,
     });
 
     const uri = totp.toString();
@@ -90,7 +90,7 @@ export class QrGeneratorComponent {
       await this.supabase.client
         .from('employees')
         .update({ qr_code: qrUrl, code_uri: uri })
-        .eq('id', id);
+        .eq('id', employee.id);
     });
   }
 }
