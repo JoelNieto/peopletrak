@@ -1,3 +1,4 @@
+import { JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -15,7 +16,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputOtpModule } from 'primeng/inputotp';
 import { ToastModule } from 'primeng/toast';
 import { from, map } from 'rxjs';
-import { Employee } from './models';
+import { Employee, TimelogType } from './models';
 import { SupabaseService } from './services/supabase.service';
 @Component({
   selector: 'app-timeclock',
@@ -28,6 +29,7 @@ import { SupabaseService } from './services/supabase.service';
     ToastModule,
     CardModule,
     ConfirmDialogModule,
+    JsonPipe,
   ],
   providers: [ConfirmationService],
   template: `<p-confirmDialog /><p-toast />
@@ -79,7 +81,16 @@ import { SupabaseService } from './services/supabase.service';
                 </ng-template>
               </p-dropdown>
             </div>
+            <div class="input-container">
+              <p-dropdown
+                formControlName="type"
+                [options]="types"
+                optionLabel="label"
+                optionValue="value"
+              />
+            </div>
             <p-inputOtp formControlName="otp" [length]="6" />
+
             <p-button
               [disabled]="form.invalid"
               (onClick)="validateOtp()"
@@ -97,6 +108,11 @@ export class TimeclockComponent {
   protected supabase = inject(SupabaseService);
   private message = inject(MessageService);
   private confirmation = inject(ConfirmationService);
+
+  public types = Object.entries(TimelogType).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
 
   public companies = toSignal(
     from(this.supabase.client.from('companies').select('*').order('name')).pipe(
@@ -142,6 +158,10 @@ export class TimeclockComponent {
       validators: [Validators.required],
       nonNullable: true,
     }),
+    type: new FormControl<TimelogType>(TimelogType.entry, {
+      validators: [Validators.required],
+      nonNullable: true,
+    }),
     otp: new FormControl('', {
       validators: [Validators.required, Validators.minLength(6)],
       nonNullable: true,
@@ -149,7 +169,8 @@ export class TimeclockComponent {
   });
 
   async validateOtp() {
-    const { employee, otp, branch_id, company_id } = this.form.getRawValue();
+    const { employee, otp, branch_id, company_id, type } =
+      this.form.getRawValue();
     if (employee?.code_uri) {
       const totp = OTPAuth.URI.parse(employee.code_uri);
       const validation = totp.validate({ token: otp });
@@ -162,10 +183,11 @@ export class TimeclockComponent {
         this.form.get('otp')?.reset();
         return;
       }
-      const { error } = await this.supabase.client.from('timestamps').insert({
+      const { error } = await this.supabase.client.from('timelogs').insert({
         employee_id: employee.id,
         branch_id,
         company_id,
+        type,
       });
       if (error) {
         console.error(error);
@@ -177,8 +199,9 @@ export class TimeclockComponent {
         return;
       }
       this.confirmation.confirm({
-        message: `Marcación registrada exitosamente a las ${new Date().toLocaleTimeString()}`,
+        message: `Marcación registrada exitosamente a las <b>${new Date().toLocaleTimeString()}</b>`,
         header: 'Éxito',
+        icon: 'pi pi-check',
         acceptLabel: 'Aceptar',
         rejectVisible: false,
         accept: () => {

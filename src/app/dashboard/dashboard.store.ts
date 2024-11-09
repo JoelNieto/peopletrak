@@ -17,6 +17,7 @@ import {
   Department,
   Employee,
   Position,
+  Schedule,
   Termination,
   TimeOff,
   TimeOffType,
@@ -28,6 +29,7 @@ type Collection =
   | 'branches'
   | 'positions'
   | 'timeoff_types'
+  | 'schedules'
   | 'companies';
 
 type State = {
@@ -35,6 +37,7 @@ type State = {
   companies: Company[];
   branches: Branch[];
   departments: Department[];
+  schedules: Schedule[];
   positions: Position[];
   employees: Employee[];
   timeoff_types: TimeOffType[];
@@ -49,6 +52,7 @@ const initialState: State = {
   departments: [],
   positions: [],
   employees: [],
+  schedules: [],
   timeoff_types: [],
   selected: null,
   selectedCompanyId: null,
@@ -153,6 +157,7 @@ export const DashboardStore = signalStore(
               fetchCollection('departments'),
               fetchCollection('positions'),
               fetchCollection('timeoff_types'),
+              fetchCollection('schedules'),
               fetchEmployees(),
             ]);
           })

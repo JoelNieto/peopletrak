@@ -5,6 +5,13 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TabViewModule } from 'primeng/tabview';
 import { DashboardStore } from './dashboard.store';
 import { EmployeeDetailComponent } from './employee-detail.component';
+window.ResizeObserver =
+  window.ResizeObserver ||
+  jest.fn().mockImplementation(() => ({
+    disconnect: jest.fn(),
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+  }));
 
 describe('EmployeeDetailComponent', () => {
   let component: EmployeeDetailComponent;

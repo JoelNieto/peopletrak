@@ -105,3 +105,42 @@ export interface Timestamp {
   date: Date;
   time: string;
 }
+
+export type Schedule = {
+  id: string;
+  name: string;
+  entry_time: Date;
+  lunch_start_time: Date;
+  lunch_end_time: Date;
+  exit_time: Date;
+  created_at?: Date;
+  minutes_tolerance: number;
+  min_lunch_minutes: number;
+  max_lunch_minutes: number;
+};
+
+export enum TimelogType {
+  entry = 'Entrada',
+  exit = 'Salida',
+  lunch_start = 'Inicio Almuerzo',
+  lunch_end = 'Fin Almuerzo',
+}
+
+export type TimeLogs = {
+  id: string;
+  employee_id: string;
+  company_id: string;
+  branch_id: string;
+  type: TimelogType;
+  created_at: Date;
+};
+
+export type EmployeeSchedule = {
+  id: string;
+  employee_id: string;
+  schedule_id: string;
+  schedule?: Schedule;
+  start_date: Date;
+  end_date: Date;
+  created_at?: Date;
+};

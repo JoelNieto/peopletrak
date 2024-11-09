@@ -66,6 +66,11 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./positions.component').then((x) => x.PositionsComponent),
       },
       {
+        path: 'schedules',
+        loadComponent: () =>
+          import('./schedules.component').then((x) => x.SchedulesComponent),
+      },
+      {
         path: 'branches',
         loadComponent: () =>
           import('./branches.component').then((x) => x.BranchesComponent),

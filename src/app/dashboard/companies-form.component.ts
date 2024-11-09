@@ -81,7 +81,6 @@ export class CompaniesFormComponent implements OnInit {
   public state = inject(DashboardStore);
 
   ngOnInit() {
-    console.log(crypto.randomUUID());
     const { company } = this.dialog.data;
     if (company) {
       this.form.patchValue(company);

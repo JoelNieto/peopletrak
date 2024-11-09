@@ -11,11 +11,13 @@ import { FilterService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
+import { DialogService } from 'primeng/dynamicdialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
 import { from, map } from 'rxjs';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
+import { TimestampsFormComponent } from './timestamps-form.component';
 
 @Component({
   selector: 'app-timestamps',
@@ -29,6 +31,7 @@ import { DashboardStore } from './dashboard.store';
     MultiSelectModule,
     FormsModule,
   ],
+  providers: [DialogService],
   template: `<p-card
     header="Marcaciones"
     subheader="Listado de marcaciones de reloj de empleados "
@@ -38,7 +41,12 @@ import { DashboardStore } from './dashboard.store';
       <div class="flex justify-between">
         <p-calendar placeholder="Fecha" selectionMode="range" appendTo="body" />
       </div>
-      <p-table [value]="timestamps() ?? []" [paginator]="true" [rows]="10">
+      <p-table
+        [value]="timestamps() ?? []"
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10]"
+      >
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="employee.first_name">
@@ -121,21 +129,24 @@ import { DashboardStore } from './dashboard.store';
             <td>{{ timestamp.branch.name }}</td>
             <td>{{ timestamp.created_at | date : 'dd/MM/yyyy' }}</td>
             <td>{{ timestamp.created_at | date : 'hh:mm:ss a' }}</td>
-            <td class="flex gap-2">
-              <p-button
-                icon="pi pi-pencil"
-                severity="success"
-                rounded
-                text
-                outlined
-              />
-              <p-button
-                icon="pi pi-trash"
-                severity="danger"
-                rounded
-                text
-                outlined
-              />
+            <td>
+              <div class="flex gap-2">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="success"
+                  rounded
+                  text
+                  outlined
+                  (onClick)="editTimestamp(timestamp)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  rounded
+                  text
+                  outlined
+                />
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -149,6 +160,7 @@ export class TimestampsComponent implements OnInit {
   public supabase = inject(SupabaseService);
   public state = inject(DashboardStore);
   private filterService = inject(FilterService);
+  private dialog = inject(DialogService);
   public timestamps = toSignal(
     from(
       this.supabase.client
@@ -186,5 +198,13 @@ export class TimestampsComponent implements OnInit {
         return filter.map((x) => x.id).includes(value.id);
       }
     );
+  }
+
+  editTimestamp(timestamp?: any) {
+    this.dialog.open(TimestampsFormComponent, {
+      width: '36rem',
+      data: { timestamp },
+      header: 'Marcación',
+    });
   }
 }

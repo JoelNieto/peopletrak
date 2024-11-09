@@ -64,7 +64,7 @@ import { DashboardStore } from './dashboard.store';
     </nav>
     <div class="flex pt-16 overflow-hidden">
       <aside
-        class="fixed py-4  max-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64"
+        class="fixed py-4  min-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64 "
       >
         <ul class="flex flex-col list-none p-2 px-4">
           <li pRipple>
@@ -136,6 +136,16 @@ import { DashboardStore } from './dashboard.store';
             >
               <i class="pi pi-sitemap mr-2"></i>
               Areas
+            </a>
+          </li>
+          <li pRipple>
+            <a
+              routerLink="schedules"
+              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
+              routerLinkActive="selected"
+            >
+              <i class="pi pi-calendar-clock mr-2"></i>
+              Horarios
             </a>
           </li>
 

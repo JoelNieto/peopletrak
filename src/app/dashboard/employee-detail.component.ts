@@ -18,6 +18,7 @@ import { AgePipe } from '../pipes/age.pipe';
 import { SeniorityPipe } from '../pipes/seniority.pipe';
 import { DashboardStore } from './dashboard.store';
 import { EmployeeFormComponent } from './employee-form.component';
+import { EmployeeSchedulesComponent } from './employee-schedules.component';
 import { TerminationFormComponent } from './termination-form.component';
 import { TimeOffsComponent } from './time-offs.component';
 
@@ -33,6 +34,7 @@ import { TimeOffsComponent } from './time-offs.component';
     AgePipe,
     SeniorityPipe,
     TabViewModule,
+    EmployeeSchedulesComponent,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -149,6 +151,9 @@ import { TimeOffsComponent } from './time-offs.component';
               </div>
             </div>
           </p-card>
+        </p-tabPanel>
+        <p-tabPanel header="Horarios" rightIcon="pi pi-clock">
+          <app-employee-schedules [employeeId]="employee_id()" />
         </p-tabPanel>
         <p-tabPanel header="Marcacion" rightIcon="pi pi-clock">
           <img src="{{ employee()?.qr_code }}" alt="QR Code" />
