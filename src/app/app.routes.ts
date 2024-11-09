@@ -10,6 +10,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'timeclock',
+    title: 'Reloj de Marcación | Blackdog Panamá',
     loadComponent: () =>
       import('./timeclock.component').then((m) => m.TimeclockComponent),
   },
