@@ -6,6 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { format } from 'date-fns';
 import * as OTPAuth from 'otpauth';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -208,7 +209,10 @@ export class TimeclockComponent {
         return;
       }
       this.confirmation.confirm({
-        message: `Marcación registrada exitosamente a las <b>${new Date().toLocaleTimeString()}</b>`,
+        message: `Marcación registrada exitosamente a las <b>${format(
+          new Date(),
+          'h:mm:ss aaa'
+        )}</b>`,
         header: 'Éxito',
         icon: 'pi pi-check',
         acceptLabel: 'Aceptar',
