@@ -37,7 +37,7 @@ import { SupabaseService } from './services/supabase.service';
       class="flex flex-col items-center w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
     >
       <div
-        class="flex flex-col gap-6 w-full lg:w-3/5 items-center h-screen justify-center px-6"
+        class="flex flex-col gap-6 w-full lg:w-1/2 items-center h-screen justify-center px-6"
       >
         <p-card
           class="w-full"
