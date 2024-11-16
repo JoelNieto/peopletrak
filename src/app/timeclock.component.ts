@@ -1,4 +1,3 @@
-import { JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -17,6 +16,7 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ToastModule } from 'primeng/toast';
 import { from, map } from 'rxjs';
 import { Employee, TimelogType } from './models';
+import { TrimPipe } from './pipes/trim.pipe';
 import { SupabaseService } from './services/supabase.service';
 @Component({
   selector: 'app-timeclock',
@@ -29,13 +29,15 @@ import { SupabaseService } from './services/supabase.service';
     ToastModule,
     CardModule,
     ConfirmDialogModule,
-    JsonPipe,
+    TrimPipe,
   ],
   providers: [ConfirmationService],
   template: `<p-confirmDialog /><p-toast />
-    <div class="flex flex-col items-center w-full">
+    <div
+      class="flex flex-col items-center w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+    >
       <div
-        class="flex flex-col gap-6 w-full lg:w-1/3 items-center h-screen justify-center px-6"
+        class="flex flex-col gap-6 w-full lg:w-3/5 items-center h-screen justify-center px-6"
       >
         <p-card
           class="w-full"
@@ -74,28 +76,35 @@ import { SupabaseService } from './services/supabase.service';
                 filterBy="first_name,father_name"
               >
                 <ng-template pTemplate="selectedItem" let-selected>
-                  {{ selected.father_name }}, {{ selected.first_name }}
+                  {{ selected.father_name | trim }},
+                  {{ selected.first_name | trim }}
                 </ng-template>
                 <ng-template let-item pTemplate="item">
-                  {{ item.father_name }}, {{ item.first_name }}
+                  {{ item.father_name | trim }}, {{ item.first_name | trim }}
                 </ng-template>
               </p-dropdown>
             </div>
             <div class="input-container">
               <p-dropdown
                 formControlName="type"
+                placeholder="Seleccionar tipo de entrada"
                 [options]="types"
                 optionLabel="label"
                 optionValue="value"
               />
             </div>
-            <p-inputOtp formControlName="otp" [length]="6" />
+            <p-inputOtp
+              formControlName="otp"
+              [length]="6"
+              [integerOnly]="true"
+            />
 
             <p-button
               [disabled]="form.invalid"
               (onClick)="validateOtp()"
               label="Marcar"
               icon="pi pi-clock"
+              size="large"
             />
           </form>
         </p-card>

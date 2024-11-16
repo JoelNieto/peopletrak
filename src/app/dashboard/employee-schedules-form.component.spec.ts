@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DashboardStore } from './dashboard.store';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 
 describe('EmployeeSchedulesFormComponent', () => {
@@ -7,6 +10,13 @@ describe('EmployeeSchedulesFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [
+        DashboardStore,
+        MessageService,
+        ConfirmationService,
+        DynamicDialogRef,
+        { provide: DynamicDialogConfig, useValue: { data: {} } },
+      ],
       imports: [EmployeeSchedulesFormComponent],
     }).compileComponents();
 

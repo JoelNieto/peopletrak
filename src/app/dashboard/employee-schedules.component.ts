@@ -23,7 +23,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
       <p-button
         label="Agregar"
         icon="pi pi-plus-circle"
-        (click)="editSchedule()"
+        (click)="editSchedule(employeeId())"
       />
     </div>
     <p-table [value]="employeeSchedules()">
@@ -44,7 +44,12 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
           <td>{{ schedule.schedule.name }}</td>
           <td>{{ schedule.schedule.start_date }}</td>
           <td>{{ schedule.schedule.end_date }}</td>
-          <td></td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              (click)="editSchedule(schedule.employee_id)"
+            />
+          </td>
         </tr>
       </ng-template>
     </p-table>`,
@@ -77,9 +82,10 @@ export class EmployeeSchedulesComponent implements OnInit {
     this.employeeSchedules.set(data);
   }
 
-  public editSchedule(): void {
+  public editSchedule(employee_id?: string): void {
     this.dialogRef = this.dialog.open(EmployeeSchedulesFormComponent, {
       header: 'Editar horario',
+      data: { employee_id },
     });
   }
 }

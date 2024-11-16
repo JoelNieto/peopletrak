@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DashboardStore } from './dashboard.store';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 
 describe('EmployeeSchedulesComponent', () => {
@@ -7,6 +9,7 @@ describe('EmployeeSchedulesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [DashboardStore, MessageService, ConfirmationService],
       imports: [EmployeeSchedulesComponent],
     }).compileComponents();
 

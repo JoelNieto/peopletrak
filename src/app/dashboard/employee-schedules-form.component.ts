@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -6,11 +12,15 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { v4 } from 'uuid';
+import { TrimPipe } from '../pipes/trim.pipe';
+import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
@@ -23,6 +33,7 @@ import { DashboardStore } from './dashboard.store';
     CalendarModule,
     FormsModule,
     ReactiveFormsModule,
+    TrimPipe,
   ],
   template: `<form [formGroup]="form">
     <div class="grid grid-cols-2 gap-4">
@@ -31,16 +42,17 @@ import { DashboardStore } from './dashboard.store';
         <p-dropdown
           formControlName="employee_id"
           [options]="store.employees()"
+          optionValue="id"
           placeholder="Seleccionar empleado"
           filter
           filterBy="first_name,father_name"
           appendTo="body"
         >
           <ng-template pTemplate="selectedItem" let-selected>
-            {{ selected.father_name }}, {{ selected.first_name }}
+            {{ selected.father_name | trim }}, {{ selected.first_name | trim }}
           </ng-template>
           <ng-template let-item pTemplate="item">
-            {{ item.father_name }}, {{ item.first_name }}
+            {{ item.father_name | trim }}, {{ item.first_name | trim }}
           </ng-template>
         </p-dropdown>
       </div>
@@ -52,6 +64,7 @@ import { DashboardStore } from './dashboard.store';
           optionValue="id"
           formControlName="schedule_id"
           appendTo="body"
+          placeholder="Seleccionar turno"
         />
       </div>
       <div class="input-container">
@@ -73,7 +86,7 @@ import { DashboardStore } from './dashboard.store';
       <p-button
         label="Guardar cambios"
         type="submit"
-        [loading]="store.loading()"
+        [loading]="loading()"
         [disabled]="form.invalid || form.pristine"
       />
     </div>
@@ -81,8 +94,9 @@ import { DashboardStore } from './dashboard.store';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeSchedulesFormComponent {
+export class EmployeeSchedulesFormComponent implements OnInit {
   public form = new FormGroup({
+    id: new FormControl(v4(), { nonNullable: true }),
     employee_id: new FormControl('', {
       validators: [Validators.required],
       nonNullable: true,
@@ -91,15 +105,64 @@ export class EmployeeSchedulesFormComponent {
       validators: [Validators.required],
       nonNullable: true,
     }),
-    start_date: new FormControl('', {
+    start_date: new FormControl(new Date(), {
       validators: [Validators.required],
       nonNullable: true,
     }),
-    end_date: new FormControl('', {
+    end_date: new FormControl(new Date(), {
       validators: [Validators.required],
       nonNullable: true,
     }),
   });
   public store = inject(DashboardStore);
   public dialogRef = inject(DynamicDialogRef);
+  private dialog = inject(DynamicDialogConfig);
+  public loading = signal<boolean>(false);
+  private supabase = inject(SupabaseService);
+  private message = inject(MessageService);
+
+  ngOnInit(): void {
+    const { employeeSchedule, employee_id } = this.dialog.data;
+    if (employee_id) {
+      this.form.patchValue({ employee_id });
+      this.form.get('employee_id')?.disable();
+      return;
+    }
+    if (employeeSchedule) {
+      const { id, employee_id, schedule_id, start_date, end_date } =
+        employeeSchedule;
+      this.form.patchValue({
+        id,
+        employee_id,
+        schedule_id,
+        start_date,
+        end_date,
+      });
+    }
+  }
+
+  async saveChanges(): Promise<void> {
+    this.loading.set(true);
+
+    const { error } = await this.supabase.client
+      .from('employee_schedules')
+      .upsert(this.form.getRawValue());
+    if (error) {
+      console.error(error);
+      this.loading.set(false);
+      this.message.add({
+        severity: 'error',
+        summary: 'Error al guardar',
+        detail: 'Ocurrió un error al guardar los cambios.',
+      });
+      return;
+    }
+    this.message.add({
+      severity: 'success',
+      summary: 'Cambios guardados',
+      detail: 'Los cambios se guardaron correctamente.',
+    });
+
+    this.dialogRef.close();
+  }
 }
