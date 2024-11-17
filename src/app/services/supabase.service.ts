@@ -7,7 +7,6 @@ import {
   SupabaseClient,
   User,
 } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
 
 export interface Profile {
   id?: string;
@@ -23,7 +22,10 @@ export class SupabaseService {
   public client: SupabaseClient;
 
   constructor() {
-    this.client = createClient(environment.SUPABASE_URL, environment.API_KEY);
+    this.client = createClient(
+      process.env['ENV_SUPABASE_URL'] ?? '',
+      process.env['ENV_SUPABASE_API_KEY'] ?? ''
+    );
   }
 
   private _session: AuthSession | null = null;
@@ -59,10 +61,9 @@ export class SupabaseService {
   }
 
   signIn(email: string) {
-    console.log(environment.APP_URL);
     return this.client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: environment.APP_URL },
+      options: { emailRedirectTo: process.env['ENV_APP_URL'] },
     });
   }
 
