@@ -88,7 +88,7 @@ import { SupabaseService } from './services/supabase.service';
             <div class="input-container">
               <p-dropdown
                 formControlName="type"
-                placeholder="Seleccionar tipo de entrada"
+                placeholder="Seleccionar tipo"
                 [options]="types"
                 optionLabel="label"
                 optionValue="value"

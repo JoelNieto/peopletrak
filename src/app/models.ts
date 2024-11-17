@@ -121,9 +121,9 @@ export type Schedule = {
 
 export enum TimelogType {
   entry = 'Entrada',
-  exit = 'Salida',
   lunch_start = 'Inicio Almuerzo',
   lunch_end = 'Fin Almuerzo',
+  exit = 'Salida',
 }
 
 export type TimeLogs = {
