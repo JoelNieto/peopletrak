@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
@@ -19,7 +18,6 @@ import { DashboardStore } from './dashboard.store';
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    NgClass,
     ToastModule,
     AccordionModule,
     RippleModule,
@@ -64,7 +62,7 @@ import { DashboardStore } from './dashboard.store';
     </nav>
     <div class="flex pt-16 overflow-hidden">
       <aside
-        class="fixed py-4  min-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64 "
+        class="fixed py-4  max-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64 "
       >
         <ul class="flex flex-col list-none p-2 px-4">
           <li pRipple>
