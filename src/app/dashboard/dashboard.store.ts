@@ -125,6 +125,7 @@ export const DashboardStore = signalStore(
       employees().map((item) => ({
         ...item,
         full_name: `${item.first_name} ${item.middle_name} ${item.father_name} ${item.mother_name}`,
+        short_name: `${item.first_name} ${item.father_name}`,
         months: differenceInMonths(new Date(), item.start_date ?? new Date()),
         probatory:
           differenceInMonths(new Date(), item.start_date ?? new Date()) < 3,

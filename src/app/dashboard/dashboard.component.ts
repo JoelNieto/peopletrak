@@ -97,7 +97,7 @@ import { DashboardStore } from './dashboard.store';
           </li>
           <li pRipple>
             <a
-              routerLink="timestamps"
+              routerLink="timelogs"
               class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
               routerLinkActive="selected"
             >
@@ -166,7 +166,6 @@ import { DashboardStore } from './dashboard.store';
           </li>
         </ul>
       </aside>
-
       <main class="overflow-auto relative w-full p-4 h-full ms-64">
         <router-outlet />
       </main>
