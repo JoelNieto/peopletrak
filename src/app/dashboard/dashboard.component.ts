@@ -12,21 +12,21 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-dashboard',
-  providers: [DashboardStore, MessageService, ConfirmationService],
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    ToastModule,
-    AccordionModule,
-    RippleModule,
-    CardModule,
-    ConfirmDialogModule,
-    DropdownModule,
-    FormsModule,
-  ],
-  template: `
+    selector: 'app-dashboard',
+    providers: [DashboardStore, MessageService, ConfirmationService],
+    imports: [
+        RouterOutlet,
+        RouterLink,
+        RouterLinkActive,
+        ToastModule,
+        AccordionModule,
+        RippleModule,
+        CardModule,
+        ConfirmDialogModule,
+        DropdownModule,
+        FormsModule,
+    ],
+    template: `
     <p-toast />
     <p-confirmDialog />
     <nav
@@ -171,15 +171,14 @@ import { DashboardStore } from './dashboard.store';
       </main>
     </div>
   `,
-  styles: `
+    styles: `
       .selected {
         @apply bg-indigo-100 text-indigo-500 transition-all duration-300 ease-in-out;
       }
 
       main {
         min-width: 0;
-      }`,
-  standalone: true,
+      }`
 })
 export class DashboardComponent {
   public isHandset = signal(false);

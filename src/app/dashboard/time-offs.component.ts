@@ -21,17 +21,16 @@ import { TimeOff } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-time-offs',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    DropdownModule,
-    CalendarModule,
-    InputSwitchModule,
-    InputTextareaModule,
-    ButtonModule,
-  ],
-  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-time-offs',
+    imports: [
+        ReactiveFormsModule,
+        DropdownModule,
+        CalendarModule,
+        InputSwitchModule,
+        InputTextareaModule,
+        ButtonModule,
+    ],
+    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col md:grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
@@ -93,8 +92,8 @@ import { DashboardStore } from './dashboard.store';
       <p-button type="submit" label="Guardar cambios" icon="pi pi-save" />
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeOffsComponent implements OnInit {
   public store = inject(DashboardStore);

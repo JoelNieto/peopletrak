@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -32,9 +32,7 @@ import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
   selector: 'app-employee-list',
-  standalone: true,
   imports: [
-    DecimalPipe,
     DatePipe,
     ReactiveFormsModule,
     RouterLink,

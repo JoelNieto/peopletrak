@@ -19,16 +19,15 @@ import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-companies-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    InputTextareaModule,
-    ButtonModule,
-    InputSwitchModule,
-  ],
-  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-companies-form',
+    imports: [
+        ReactiveFormsModule,
+        InputTextModule,
+        InputTextareaModule,
+        ButtonModule,
+        InputSwitchModule,
+    ],
+    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -62,8 +61,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CompaniesFormComponent implements OnInit {
   form = new FormGroup({

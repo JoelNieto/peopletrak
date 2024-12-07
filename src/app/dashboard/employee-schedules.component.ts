@@ -15,11 +15,10 @@ import { SupabaseService } from '../services/supabase.service';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 
 @Component({
-  selector: 'app-employee-schedules',
-  standalone: true,
-  imports: [TableModule, ButtonModule],
-  providers: [DynamicDialogRef, DialogService],
-  template: `<div class="flex justify-end">
+    selector: 'app-employee-schedules',
+    imports: [TableModule, ButtonModule],
+    providers: [DynamicDialogRef, DialogService],
+    template: `<div class="flex justify-end">
       <p-button
         label="Agregar"
         icon="pi pi-plus-circle"
@@ -53,8 +52,8 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
         </tr>
       </ng-template>
     </p-table>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmployeeSchedulesComponent implements OnInit {
   public employeeId = input.required<string>();

@@ -9,11 +9,10 @@ import { DashboardStore } from './dashboard.store';
 import { PositionsFormComponent } from './positions-form.component';
 
 @Component({
-  selector: 'app-positions',
-  standalone: true,
-  imports: [TableModule, CardModule, ButtonModule],
-  providers: [DynamicDialogRef, DialogService],
-  template: `
+    selector: 'app-positions',
+    imports: [TableModule, CardModule, ButtonModule],
+    providers: [DynamicDialogRef, DialogService],
+    template: `
     <p-card header="Cargos" subheader="Listado de cargos de la empresa">
       <div class="w-full flex justify-end">
         <p-button label="Agregar" (click)="editPosition()" />
@@ -62,8 +61,8 @@ import { PositionsFormComponent } from './positions-form.component';
       </p-table>
     </p-card>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PositionsComponent {
   readonly state = inject(DashboardStore);

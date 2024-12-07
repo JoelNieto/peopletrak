@@ -22,17 +22,16 @@ import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-schedules-form',
-  standalone: true,
-  imports: [
-    CalendarModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    InputNumberModule,
-    ButtonModule,
-  ],
-  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-schedules-form',
+    imports: [
+        CalendarModule,
+        FormsModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        InputNumberModule,
+        ButtonModule,
+    ],
+    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-4 gap-3">
       <div class="input-container col-span-4">
         <label for="name">Nombre</label>
@@ -102,8 +101,8 @@ import { DashboardStore } from './dashboard.store';
       />
     </div>
   </form> `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SchedulesFormComponent implements OnInit {
   public form = new FormGroup({

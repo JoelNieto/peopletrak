@@ -16,10 +16,9 @@ import { Employee } from './models';
 import { SupabaseService } from './services/supabase.service';
 
 @Component({
-  selector: 'app-qr-generator',
-  standalone: true,
-  imports: [CardModule, ButtonModule, DropdownModule, FormsModule],
-  template: `<div class="flex h-screen items-center justify-center w-full">
+    selector: 'app-qr-generator',
+    imports: [CardModule, ButtonModule, DropdownModule, FormsModule],
+    template: `<div class="flex h-screen items-center justify-center w-full">
     <div class="w-full px-6 lg:w-1/3">
       <p-card header="Creacion de codigo QR">
         <div class="input-container">
@@ -44,8 +43,8 @@ import { SupabaseService } from './services/supabase.service';
       </p-card>
     </div>
   </div> `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QrGeneratorComponent {
   private supabase = inject(SupabaseService);

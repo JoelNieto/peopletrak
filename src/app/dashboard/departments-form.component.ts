@@ -19,10 +19,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-departments-form',
-  standalone: true,
-  imports: [ReactiveFormsModule, Button, InputTextModule, DropdownModule],
-  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-departments-form',
+    imports: [ReactiveFormsModule, Button, InputTextModule, DropdownModule],
+    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -56,8 +55,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DepartmentsFormComponent implements OnInit {
   form = new FormGroup({

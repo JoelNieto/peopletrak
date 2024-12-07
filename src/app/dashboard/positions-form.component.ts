@@ -19,10 +19,9 @@ import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-positions-form',
-  standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DropdownModule],
-  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-positions-form',
+    imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DropdownModule],
+    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -68,8 +67,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PositionsFormComponent implements OnInit {
   form = new FormGroup({

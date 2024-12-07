@@ -8,16 +8,15 @@ import { ToastModule } from 'primeng/toast';
 import { SupabaseService } from '../services/supabase.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    ToastModule,
-  ],
-  template: `
+    selector: 'app-login',
+    imports: [
+        ReactiveFormsModule,
+        CardModule,
+        InputTextModule,
+        ButtonModule,
+        ToastModule,
+    ],
+    template: `
     <div class="w-full h-screen flex flex-col items-center justify-center p-4">
       <p-toast />
       <p-card
@@ -39,8 +38,8 @@ import { SupabaseService } from '../services/supabase.service';
       </p-card>
     </div>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   email = new FormControl('', {

@@ -21,17 +21,16 @@ import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-termination-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    ButtonModule,
-    DropdownModule,
-    CalendarModule,
-    InputTextareaModule,
-  ],
-  template: `
+    selector: 'app-termination-form',
+    imports: [
+        ReactiveFormsModule,
+        InputTextModule,
+        ButtonModule,
+        DropdownModule,
+        CalendarModule,
+        InputTextareaModule,
+    ],
+    template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
       <div class="grid grid-cols-2 gap-4">
         <div class="input-container">
@@ -97,8 +96,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </form>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TerminationFormComponent implements OnInit {
   public store = inject(DashboardStore);

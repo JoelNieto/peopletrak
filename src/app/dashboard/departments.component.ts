@@ -9,11 +9,10 @@ import { DashboardStore } from './dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 @Component({
-  selector: 'app-departments',
-  standalone: true,
-  imports: [TableModule, ButtonModule, CardModule],
-  providers: [DynamicDialogRef, DialogService],
-  template: `
+    selector: 'app-departments',
+    imports: [TableModule, ButtonModule, CardModule],
+    providers: [DynamicDialogRef, DialogService],
+    template: `
     <p-card
       header="Areas"
       subheader="Listado de areas/departamentos de la empresa"
@@ -62,8 +61,8 @@ import { DepartmentsFormComponent } from './departments-form.component';
       </div>
     </p-card>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DepartmentsComponent {
   readonly state = inject(DashboardStore);

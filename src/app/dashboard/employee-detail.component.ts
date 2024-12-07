@@ -23,21 +23,20 @@ import { TerminationFormComponent } from './termination-form.component';
 import { TimeOffsComponent } from './time-offs.component';
 
 @Component({
-  selector: 'app-employee-detail',
-  standalone: true,
-  imports: [
-    CardModule,
-    DatePipe,
-    CurrencyPipe,
-    MenuModule,
-    ButtonModule,
-    AgePipe,
-    SeniorityPipe,
-    TabViewModule,
-    EmployeeSchedulesComponent,
-  ],
-  providers: [DynamicDialogRef, DialogService],
-  template: `
+    selector: 'app-employee-detail',
+    imports: [
+        CardModule,
+        DatePipe,
+        CurrencyPipe,
+        MenuModule,
+        ButtonModule,
+        AgePipe,
+        SeniorityPipe,
+        TabViewModule,
+        EmployeeSchedulesComponent,
+    ],
+    providers: [DynamicDialogRef, DialogService],
+    template: `
     <div class="mx-4 md:mx-6 flex flex-col gap-2">
       <div class="flex w-full justify-between items-center">
         <h2>
@@ -170,7 +169,7 @@ import { TimeOffsComponent } from './time-offs.component';
       </p-tabView>
     </div>
   `,
-  styles: `
+    styles: `
       p {
         margin-bottom: 0 !important;
       }
@@ -179,7 +178,7 @@ import { TimeOffsComponent } from './time-offs.component';
         @apply text-indigo-400 text-sm;
       }
     `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmployeeDetailComponent implements OnInit {
   protected readonly state = inject(DashboardStore);

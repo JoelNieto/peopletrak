@@ -30,17 +30,16 @@ import { Employee, UniformSize } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-employee-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    InputNumberModule,
-    CalendarModule,
-    DropdownModule,
-    CheckboxModule,
-  ],
-  template: `
+    selector: 'app-employee-form',
+    imports: [
+        ReactiveFormsModule,
+        InputTextModule,
+        InputNumberModule,
+        CalendarModule,
+        DropdownModule,
+        CheckboxModule,
+    ],
+    template: `
     <h1>Datos del empleado</h1>
     <p-button
       text
@@ -251,8 +250,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </form>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmployeeFormComponent implements OnInit {
   public state = inject(DashboardStore);

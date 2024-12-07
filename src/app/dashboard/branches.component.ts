@@ -10,11 +10,10 @@ import { BranchesFormComponent } from './branches-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-branches',
-  standalone: true,
-  imports: [ButtonModule, CardModule, TableModule, DialogModule],
-  providers: [DynamicDialogRef, DialogService],
-  template: `
+    selector: 'app-branches',
+    imports: [ButtonModule, CardModule, TableModule, DialogModule],
+    providers: [DynamicDialogRef, DialogService],
+    template: `
     <p-card
       header="Sucursales"
       subheader="Listado de sucursales/localidades activas en la empresa"
@@ -68,8 +67,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </p-card>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchesComponent {
   readonly state = inject(DashboardStore);

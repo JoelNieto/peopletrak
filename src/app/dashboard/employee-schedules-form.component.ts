@@ -24,18 +24,17 @@ import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-employee-schedules-form',
-  standalone: true,
-  imports: [
-    DropdownModule,
-    InputTextModule,
-    ButtonModule,
-    CalendarModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TrimPipe,
-  ],
-  template: `<form [formGroup]="form">
+    selector: 'app-employee-schedules-form',
+    imports: [
+        DropdownModule,
+        InputTextModule,
+        ButtonModule,
+        CalendarModule,
+        FormsModule,
+        ReactiveFormsModule,
+        TrimPipe,
+    ],
+    template: `<form [formGroup]="form">
     <div class="grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
@@ -91,8 +90,8 @@ import { DashboardStore } from './dashboard.store';
       />
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmployeeSchedulesFormComponent implements OnInit {
   public form = new FormGroup({

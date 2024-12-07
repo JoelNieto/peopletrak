@@ -8,11 +8,10 @@ import { CompaniesFormComponent } from './companies-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-companies',
-  standalone: true,
-  imports: [CardModule, ButtonModule, TableModule],
-  providers: [DynamicDialogRef, DialogService],
-  template: `<p-card header="Empresas" subheader="Listado de empresas">
+    selector: 'app-companies',
+    imports: [CardModule, ButtonModule, TableModule],
+    providers: [DynamicDialogRef, DialogService],
+    template: `<p-card header="Empresas" subheader="Listado de empresas">
     <div class="w-full flex justify-end">
       <p-button
         label="Agregar"
@@ -65,8 +64,8 @@ import { DashboardStore } from './dashboard.store';
       </p-table>
     </div>
   </p-card>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CompaniesComponent {
   protected store = inject(DashboardStore);

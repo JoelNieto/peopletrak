@@ -6,15 +6,14 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 import es from '../../public/i18n/es.json';
 
 @Component({
-  standalone: true,
-  imports: [RouterOutlet, NgxSpinnerComponent],
-  providers: [MessageService],
-  selector: 'app-root',
-  template: ` <router-outlet />
+    imports: [RouterOutlet, NgxSpinnerComponent],
+    providers: [MessageService],
+    selector: 'app-root',
+    template: ` <router-outlet />
     <ngx-spinner type="ball-scale-multiple" bdColor="rgb(99, 102, 241, 0.8)">
       <p class="text-white">Cargando...</p></ngx-spinner
     >`,
-  styles: ``,
+    styles: ``
 })
 export class AppComponent implements OnInit {
   private config = inject(PrimeNGConfig);

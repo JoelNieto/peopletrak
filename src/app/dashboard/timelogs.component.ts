@@ -20,17 +20,16 @@ import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-timelogs',
-  standalone: true,
-  imports: [
-    CardModule,
-    DropdownModule,
-    CalendarModule,
-    FormsModule,
-    DatePipe,
-    TableModule,
-  ],
-  template: `<p-card
+    selector: 'app-timelogs',
+    imports: [
+        CardModule,
+        DropdownModule,
+        CalendarModule,
+        FormsModule,
+        DatePipe,
+        TableModule,
+    ],
+    template: `<p-card
     header="Marcaciones"
     subheader="Listado de marcaciones de empleados"
   >
@@ -87,8 +86,8 @@ import { DashboardStore } from './dashboard.store';
       </ng-template>
     </p-table>
   </p-card>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelogsComponent implements OnInit {
   public store = inject(DashboardStore);

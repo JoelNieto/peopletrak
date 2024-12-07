@@ -20,20 +20,19 @@ import { Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SupabaseService } from './services/supabase.service';
 @Component({
-  selector: 'app-timeclock',
-  standalone: true,
-  imports: [
-    InputOtpModule,
-    DropdownModule,
-    ButtonModule,
-    ReactiveFormsModule,
-    ToastModule,
-    CardModule,
-    ConfirmDialogModule,
-    TrimPipe,
-  ],
-  providers: [ConfirmationService],
-  template: `<p-confirmDialog /><p-toast />
+    selector: 'app-timeclock',
+    imports: [
+        InputOtpModule,
+        DropdownModule,
+        ButtonModule,
+        ReactiveFormsModule,
+        ToastModule,
+        CardModule,
+        ConfirmDialogModule,
+        TrimPipe,
+    ],
+    providers: [ConfirmationService],
+    template: `<p-confirmDialog /><p-toast />
     <div
       class="flex flex-col items-center w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
     >
@@ -111,8 +110,8 @@ import { SupabaseService } from './services/supabase.service';
         </p-card>
       </div>
     </div>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeclockComponent {
   protected supabase = inject(SupabaseService);

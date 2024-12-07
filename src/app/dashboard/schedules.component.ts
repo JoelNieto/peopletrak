@@ -9,11 +9,10 @@ import { DashboardStore } from './dashboard.store';
 import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
-  selector: 'app-schedules',
-  standalone: true,
-  imports: [CardModule, TableModule, ButtonModule, TimePipe],
-  providers: [DynamicDialogRef, DialogService],
-  template: `<p-card
+    selector: 'app-schedules',
+    imports: [CardModule, TableModule, ButtonModule, TimePipe],
+    providers: [DynamicDialogRef, DialogService],
+    template: `<p-card
     header="Horarios"
     subheader="Listado de horarios disponibles"
   >
@@ -77,8 +76,8 @@ import { SchedulesFormComponent } from './schedules-form.component';
       </ng-template>
     </p-table>
   </p-card>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SchedulesComponent {
   public store = inject(DashboardStore);

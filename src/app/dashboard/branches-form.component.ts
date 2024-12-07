@@ -21,17 +21,16 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-branches-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    InputTextareaModule,
-    InputSwitchModule,
-    DropdownModule,
-  ],
-  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+    selector: 'app-branches-form',
+    imports: [
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        InputTextareaModule,
+        InputSwitchModule,
+        DropdownModule,
+    ],
+    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -73,8 +72,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchesFormComponent implements OnInit {
   form = new FormGroup({
