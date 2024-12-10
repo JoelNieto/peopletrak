@@ -10,6 +10,7 @@ export type Company = {
 export type Branch = {
   id: string;
   name: string;
+  short_name: string;
   address: string;
   is_active: boolean;
   created_at?: Date;

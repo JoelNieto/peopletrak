@@ -21,20 +21,29 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-branches-form',
-    imports: [
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        InputTextareaModule,
-        InputSwitchModule,
-        DropdownModule,
-    ],
-    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-branches-form',
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    InputTextareaModule,
+    InputSwitchModule,
+    DropdownModule,
+  ],
+  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
         <input type="text" pInputText formControlName="name" id="name" />
+      </div>
+      <div class="input-container">
+        <label for="short_name">Abreviatura</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="short_name"
+          id="short_name"
+        />
       </div>
       <div class="input-container">
         <label for="company_id">Empresa</label>
@@ -72,13 +81,17 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesFormComponent implements OnInit {
   form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    short_name: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),

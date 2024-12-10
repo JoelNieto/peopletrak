@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DashboardStore } from './dashboard.store';
 import { TimelogsComponent } from './timelogs.component';
 
 describe('TimelogsComponent', () => {
@@ -7,6 +9,7 @@ describe('TimelogsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [DashboardStore, ConfirmationService, MessageService],
       imports: [TimelogsComponent],
     }).compileComponents();
 

@@ -10,10 +10,10 @@ import { BranchesFormComponent } from './branches-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-branches',
-    imports: [ButtonModule, CardModule, TableModule, DialogModule],
-    providers: [DynamicDialogRef, DialogService],
-    template: `
+  selector: 'app-branches',
+  imports: [ButtonModule, CardModule, TableModule, DialogModule],
+  providers: [DynamicDialogRef, DialogService],
+  template: `
     <p-card
       header="Sucursales"
       subheader="Listado de sucursales/localidades activas en la empresa"
@@ -34,6 +34,10 @@ import { DashboardStore } from './dashboard.store';
                 Nombre
                 <p-sortIcon field="name" />
               </th>
+              <th pSortableColumn="short_name">
+                Abreviatura
+                <p-sortIcon field="name" />
+              </th>
               <th pSortableColumn="address">
                 Direccion
                 <p-sortIcon field="address" />
@@ -44,6 +48,7 @@ import { DashboardStore } from './dashboard.store';
           <ng-template pTemplate="body" let-item>
             <tr>
               <td>{{ item.name }}</td>
+              <td>{{ item.short_name }}</td>
               <td>{{ item.address }}</td>
               <td>
                 <p-button
@@ -67,8 +72,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </p-card>
   `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesComponent {
   readonly state = inject(DashboardStore);

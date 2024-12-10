@@ -93,8 +93,15 @@ export const DashboardStore = signalStore(
     const birthDates = computed(() =>
       employees()
         .filter((x) => x.is_active)
-        .filter((x) =>
-          x.birth_date ? getMonth(x.birth_date) === getMonth(new Date()) : false
+        .filter(
+          (x) =>
+            x.birth_date && (x.birth_date as unknown as string) !== '1970-01-01'
+        )
+        .filter((x) => getMonth(x.birth_date!) === getMonth(new Date()))
+        .sort(
+          (a, b) =>
+            new Date(a.birth_date!).getDate() -
+            new Date(b.birth_date!).getDate()
         )
         .map(({ first_name, father_name, birth_date, branch }) => ({
           first_name,
