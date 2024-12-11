@@ -14,14 +14,16 @@ import {
 import { FormsModule } from '@angular/forms';
 import { addDays, format, startOfMonth } from 'date-fns';
 import { trim } from 'lodash';
+import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
-import { Branch } from '../models';
+import { Branch, Employee } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 @Component({
@@ -35,6 +37,7 @@ import { DashboardStore } from './dashboard.store';
     TableModule,
     TooltipModule,
     AvatarModule,
+    ToastModule,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -46,8 +49,9 @@ import { DashboardStore } from './dashboard.store';
           [options]="store.employeesList()"
           optionLabel="short_name"
           optionValue="id"
-          placeholder="Seleccione un empleado"
+          placeholder="--TODOS--"
           filter
+          showClear
           appendTo="body"
           [(ngModel)]="employeeId"
         />
@@ -63,6 +67,7 @@ import { DashboardStore } from './dashboard.store';
       <div>
         <p-button
           icon="pi pi-file-excel"
+          [loading]="loading()"
           (click)="generateReport()"
           severity="success"
           [disabled]="timelogsReport().length === 0"
@@ -72,6 +77,7 @@ import { DashboardStore } from './dashboard.store';
     <p-table [value]="dayLogs()" [rows]="10" paginator>
       <ng-template pTemplate="header">
         <tr>
+          <th>Empleado</th>
           <th>Día</th>
           <th>Entrada</th>
           <th>Inicio de almuerzo</th>
@@ -81,6 +87,7 @@ import { DashboardStore } from './dashboard.store';
       </ng-template>
       <ng-template pTemplate="body" let-log>
         <tr>
+          <td>{{ log.employee.first_name }} {{ log.employee.father_name }}</td>
           <td>{{ log.day | date : 'mediumDate' }}</td>
           <td>
             <div class="flex gap-1 items-center">
@@ -145,6 +152,8 @@ export class TimelogsComponent implements OnInit {
   private injector = inject(Injector);
   private supabase = inject(SupabaseService);
   public logs = signal<any[]>([]);
+  public loading = signal(false);
+  private message = inject(MessageService);
 
   private selectedEmployee = computed(() =>
     this.store.employeesList().find((x) => x.id === this.employeeId())
@@ -155,6 +164,7 @@ export class TimelogsComponent implements OnInit {
       .map((x) => ({ ...x, day: format(x.created_at, 'yyyy-MM-dd') }))
       .reduce<
         {
+          employee: Partial<Employee>;
           day: string;
           entry?: { date: Date; branch: Branch; id: string };
           lunch_start?: { date: Date; branch: Branch };
@@ -162,9 +172,12 @@ export class TimelogsComponent implements OnInit {
           exit?: { date: Date; branch: Branch };
         }[]
       >((acc, x) => {
-        const index = acc.findIndex((y) => y.day === x.day);
+        const index = acc.findIndex(
+          (y) => y.day === x.day && y.employee.id === x.employee.id
+        );
         if (index === -1) {
           acc.push({
+            employee: x.employee,
             day: x.day,
             [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
           });
@@ -180,7 +193,7 @@ export class TimelogsComponent implements OnInit {
 
   public timelogsReport = computed(() =>
     this.dayLogs().map((x) => ({
-      EMPLEADO: this.selectedEmployee()?.full_name,
+      EMPLEADO: x.employee.first_name + ' ' + x.employee.father_name,
       DIA: x.day,
       ENTRADA: x.entry?.date ? format(x.entry?.date, 'hh:mm a') : '',
       INICIO_DESCANSO: x.lunch_start?.date
@@ -198,13 +211,18 @@ export class TimelogsComponent implements OnInit {
       async () => {
         const start = this.dateRange()?.[0];
         const end = this.dateRange()?.[1];
-        if (this.employeeId() && start && end) {
-          const { data, error } = await this.supabase.client
+        if (start && end) {
+          const query = this.supabase.client
             .from('timelogs')
-            .select('*, branch:branches(*)')
-            .eq('employee_id', this.employeeId())
+            .select(
+              '*, branch:branches(*), employee:employees(id, first_name, father_name)'
+            )
             .gte('created_at', format(start, 'yyyy-MM-dd'))
             .lte('created_at', format(addDays(end, 1), 'yyyy-MM-dd'));
+          if (this.employeeId()) {
+            query.eq('employee_id', this.employeeId());
+          }
+          const { data, error } = await query;
           if (error) {
             console.error(error);
             return;
@@ -218,19 +236,35 @@ export class TimelogsComponent implements OnInit {
   }
 
   generateReport() {
-    const ws = utils.json_to_sheet(this.timelogsReport());
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, this.selectedEmployee()?.short_name);
-    const name = trim(
-      this.selectedEmployee()?.short_name.toUpperCase()
-    ).replace(' ', '_');
+    try {
+      this.loading.set(true);
+      const ws = utils.json_to_sheet(this.timelogsReport());
+      const wb = utils.book_new();
 
-    writeFile(
-      wb,
-      `${name}_${format(this.dateRange()[0], 'yyyyMMdd')}-${format(
-        this.dateRange()[1],
-        'yyyyMMdd'
-      )}.xlsx`
-    );
+      utils.book_append_sheet(wb, ws, this.selectedEmployee()?.short_name);
+      const name = this.selectedEmployee()
+        ? trim(this.selectedEmployee()?.short_name.toUpperCase()).replace(
+            ' ',
+            '_'
+          )
+        : 'GLOBAL';
+
+      writeFile(
+        wb,
+        `${name}_${format(this.dateRange()[0], 'yyyyMMdd')}-${format(
+          this.dateRange()[1],
+          'yyyyMMdd'
+        )}.xlsx`
+      );
+    } catch (error) {
+      console.error(error);
+      this.message.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Algo salio mal, intente nuevamente',
+      });
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
