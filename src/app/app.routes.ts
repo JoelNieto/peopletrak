@@ -24,4 +24,5 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./login/login.component').then((x) => x.LoginComponent),
   },
+  { path: '**', redirectTo: 'login', pathMatch: 'full' },
 ];

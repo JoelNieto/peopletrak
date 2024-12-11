@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -8,15 +9,16 @@ import { ToastModule } from 'primeng/toast';
 import { SupabaseService } from '../services/supabase.service';
 
 @Component({
-    selector: 'app-login',
-    imports: [
-        ReactiveFormsModule,
-        CardModule,
-        InputTextModule,
-        ButtonModule,
-        ToastModule,
-    ],
-    template: `
+  selector: 'app-login',
+  imports: [
+    ReactiveFormsModule,
+    CardModule,
+    InputTextModule,
+    ButtonModule,
+    ToastModule,
+    RouterLink,
+  ],
+  template: `
     <div class="w-full h-screen flex flex-col items-center justify-center p-4">
       <p-toast />
       <p-card
@@ -29,17 +31,25 @@ import { SupabaseService } from '../services/supabase.service';
           <input type="email" pInputText id="email" [formControl]="email" />
         </div>
         <ng-template pTemplate="footer">
-          <p-button
-            label="Entrar"
-            [disabled]="email.invalid"
-            (click)="signIn()"
-          />
+          <div class="flex gap-4">
+            <p-button
+              label="Entrar al dashboard"
+              [disabled]="email.invalid"
+              (click)="signIn()"
+            />
+            <a
+              routerLink="/timeclock"
+              class="p-button font-bold p-button-outlined"
+            >
+              Ir al reloj
+            </a>
+          </div>
         </ng-template>
       </p-card>
     </div>
   `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   email = new FormControl('', {

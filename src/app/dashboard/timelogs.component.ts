@@ -220,13 +220,14 @@ export class TimelogsComponent implements OnInit {
   generateReport() {
     const ws = utils.json_to_sheet(this.timelogsReport());
     const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, this.selectedEmployee()?.full_name);
+    utils.book_append_sheet(wb, ws, this.selectedEmployee()?.short_name);
+    const name = trim(
+      this.selectedEmployee()?.short_name.toUpperCase()
+    ).replace(' ', '_');
+
     writeFile(
       wb,
-      `${trim(this.selectedEmployee()?.short_name.toUpperCase()).replace(
-        ' ',
-        '_'
-      )}_${format(this.dateRange()[0], 'yyyyMMdd')}-${format(
+      `${name}_${format(this.dateRange()[0], 'yyyyMMdd')}-${format(
         this.dateRange()[1],
         'yyyyMMdd'
       )}.xlsx`
