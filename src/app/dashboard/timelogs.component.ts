@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,6 +38,7 @@ import { DashboardStore } from './dashboard.store';
     TooltipModule,
     AvatarModule,
     ToastModule,
+    JsonPipe,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -159,6 +160,18 @@ export class TimelogsComponent implements OnInit {
     this.store.employeesList().find((x) => x.id === this.employeeId())
   );
 
+  days = computed(() => {
+    const days = [];
+    for (
+      let date = this.dateRange()?.[0];
+      date <= this.dateRange()?.[1];
+      date = addDays(date, 1)
+    ) {
+      days.push(format(date, 'yyyy-MM-dd'));
+    }
+    return days;
+  });
+
   public dayLogs = linkedSignal(() =>
     this.logs()
       .map((x) => ({ ...x, day: format(x.created_at, 'yyyy-MM-dd') }))
@@ -175,6 +188,20 @@ export class TimelogsComponent implements OnInit {
         const index = acc.findIndex(
           (y) => y.day === x.day && y.employee.id === x.employee.id
         );
+        const leftDays = this.days().filter(
+          (day) =>
+            !acc.find((y) => y.day === day && y.employee.id === x.employee.id)
+        );
+
+        if (leftDays.length) {
+          leftDays.forEach((day) => {
+            acc.push({
+              employee: x.employee,
+              day,
+            });
+          });
+        }
+
         if (index === -1) {
           acc.push({
             employee: x.employee,
@@ -189,20 +216,23 @@ export class TimelogsComponent implements OnInit {
         };
         return acc;
       }, [])
+      .sort((a, b) =>
+        (a.employee.first_name || '').localeCompare(b.employee.first_name || '')
+      )
   );
 
   public timelogsReport = computed(() =>
     this.dayLogs().map((x) => ({
       EMPLEADO: x.employee.first_name + ' ' + x.employee.father_name,
       DIA: x.day,
-      ENTRADA: x.entry?.date ? format(x.entry?.date, 'hh:mm a') : '',
+      ENTRADA: x.entry?.date ? format(x.entry?.date, 'hh:mm a') : 'SIN MARCA',
       INICIO_DESCANSO: x.lunch_start?.date
         ? format(x.lunch_start?.date, 'hh:mm a')
-        : '',
+        : 'SIN MARCA',
       FIN_DESCANSO: x.lunch_end?.date
         ? format(x.lunch_end?.date, 'hh:mm a')
-        : '',
-      SALIDA: x.exit?.date ? format(x.exit?.date, 'hh:mm a') : '',
+        : 'SIN MARCA',
+      SALIDA: x.exit?.date ? format(x.exit?.date, 'hh:mm a') : 'SIN MARCA',
     }))
   );
 
@@ -227,7 +257,6 @@ export class TimelogsComponent implements OnInit {
             console.error(error);
             return;
           }
-
           this.logs.set(data);
         }
       },
