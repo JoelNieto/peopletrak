@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +38,6 @@ import { DashboardStore } from './dashboard.store';
     TooltipModule,
     AvatarModule,
     ToastModule,
-    JsonPipe,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -179,37 +178,29 @@ export class TimelogsComponent implements OnInit {
         {
           employee: Partial<Employee>;
           day: string;
-          entry?: { date: Date; branch: Branch; id: string };
+          entry?: { date: Date; branch: Branch };
           lunch_start?: { date: Date; branch: Branch };
           lunch_end?: { date: Date; branch: Branch };
           exit?: { date: Date; branch: Branch };
         }[]
       >((acc, x) => {
-        const index = acc.findIndex(
-          (y) => y.day === x.day && y.employee.id === x.employee.id
-        );
-        const leftDays = this.days().filter(
-          (day) =>
-            !acc.find((y) => y.day === day && y.employee.id === x.employee.id)
-        );
-
-        if (leftDays.length) {
-          leftDays.forEach((day) => {
+        if (!acc.filter((day) => day.employee.id === x.employee.id).length) {
+          this.days().forEach((day) => {
             acc.push({
               employee: x.employee,
               day,
+              entry: undefined,
+              lunch_start: undefined,
+              lunch_end: undefined,
+              exit: undefined,
             });
           });
         }
 
-        if (index === -1) {
-          acc.push({
-            employee: x.employee,
-            day: x.day,
-            [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
-          });
-          return acc;
-        }
+        const index = acc.findIndex(
+          (y) => y.day === x.day && y.employee.id === x.employee.id
+        );
+
         acc[index] = {
           ...acc[index],
           [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
