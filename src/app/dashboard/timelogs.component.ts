@@ -232,14 +232,15 @@ export class TimelogsComponent implements OnInit {
       async () => {
         const start = this.dateRange()?.[0];
         const end = this.dateRange()?.[1];
+
         if (start && end) {
           const query = this.supabase.client
             .from('timelogs')
             .select(
               '*, branch:branches(*), employee:employees(id, first_name, father_name)'
             )
-            .gte('created_at', format(start, 'yyyy-MM-dd'))
-            .lte('created_at', format(addDays(end, 1), 'yyyy-MM-dd'));
+            .gte('created_at', format(start, 'yyyy-MM-dd 06:00:00'))
+            .lte('created_at', format(addDays(end, 1), 'yyyy-MM-dd 06:00:00'));
           if (this.employeeId()) {
             query.eq('employee_id', this.employeeId());
           }
