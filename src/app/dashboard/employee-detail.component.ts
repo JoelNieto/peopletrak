@@ -23,20 +23,20 @@ import { TerminationFormComponent } from './termination-form.component';
 import { TimeOffsComponent } from './time-offs.component';
 
 @Component({
-    selector: 'app-employee-detail',
-    imports: [
-        CardModule,
-        DatePipe,
-        CurrencyPipe,
-        MenuModule,
-        ButtonModule,
-        AgePipe,
-        SeniorityPipe,
-        TabViewModule,
-        EmployeeSchedulesComponent,
-    ],
-    providers: [DynamicDialogRef, DialogService],
-    template: `
+  selector: 'app-employee-detail',
+  imports: [
+    CardModule,
+    DatePipe,
+    CurrencyPipe,
+    MenuModule,
+    ButtonModule,
+    AgePipe,
+    SeniorityPipe,
+    TabViewModule,
+    EmployeeSchedulesComponent,
+  ],
+  providers: [DynamicDialogRef, DialogService],
+  template: `
     <div class="mx-4 md:mx-6 flex flex-col gap-2">
       <div class="flex w-full justify-between items-center">
         <h2>
@@ -148,6 +148,24 @@ import { TimeOffsComponent } from './time-offs.component';
                   {{ employee()?.uniform_size }}
                 </p>
               </div>
+              <div>
+                <p class="label">Banco</p>
+                <p class="info">
+                  {{ employee()?.bank }}
+                </p>
+              </div>
+              <div>
+                <p class="label">Nro. Cuenta</p>
+                <p class="info">
+                  {{ employee()?.account_number }}
+                </p>
+              </div>
+              <div>
+                <p class="label">Tipo de cuenta</p>
+                <p class="info">
+                  {{ employee()?.bank_account_type }}
+                </p>
+              </div>
             </div>
           </p-card>
         </p-tabPanel>
@@ -169,7 +187,7 @@ import { TimeOffsComponent } from './time-offs.component';
       </p-tabView>
     </div>
   `,
-    styles: `
+  styles: `
       p {
         margin-bottom: 0 !important;
       }
@@ -178,7 +196,7 @@ import { TimeOffsComponent } from './time-offs.component';
         @apply text-indigo-400 text-sm;
       }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeDetailComponent implements OnInit {
   protected readonly state = inject(DashboardStore);

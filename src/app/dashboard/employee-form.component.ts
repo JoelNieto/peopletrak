@@ -30,16 +30,16 @@ import { Employee, UniformSize } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-employee-form',
-    imports: [
-        ReactiveFormsModule,
-        InputTextModule,
-        InputNumberModule,
-        CalendarModule,
-        DropdownModule,
-        CheckboxModule,
-    ],
-    template: `
+  selector: 'app-employee-form',
+  imports: [
+    ReactiveFormsModule,
+    InputTextModule,
+    InputNumberModule,
+    CalendarModule,
+    DropdownModule,
+    CheckboxModule,
+  ],
+  template: `
     <h1>Datos del empleado</h1>
     <p-button
       text
@@ -212,6 +212,37 @@ import { DashboardStore } from './dashboard.store';
           />
         </div>
         <div class="input-container">
+          <label for="bank">Banco</label>
+          <p-dropdown
+            inputId="bank"
+            [options]="banks"
+            formControlName="bank"
+            appendTo="body"
+            filter
+            placeholder="Seleccione un banco"
+          />
+        </div>
+        <div class="input-container">
+          <label for="account_number">Nro. de cuenta</label>
+          <input
+            type="text"
+            id="account_number"
+            pInputText
+            formControlName="account_number"
+            placeholder="Nro. de cuenta"
+          />
+        </div>
+        <div class="input-container">
+          <label for="bank_account_type">Tipo de cuenta</label>
+          <p-dropdown
+            inputId="bank_account_type"
+            [options]="['Ahorros', 'Corriente']"
+            formControlName="bank_account_type"
+            appendTo="body"
+            placeholder="Seleccione un tipo de cuenta"
+          />
+        </div>
+        <div class="input-container">
           <label for="company">Empresa</label>
           <p-dropdown
             [options]="state.companies()"
@@ -250,12 +281,37 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </form>
   `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeFormComponent implements OnInit {
   public state = inject(DashboardStore);
   public sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+  public banks = [
+    'Banco General',
+    'Banco Nacional de Panama',
+    'Caja de Ahorros',
+    'Bac/Credomatic',
+    'Banistmo',
+    'Banesco',
+    'Banisi',
+    'Global Bank',
+    'Credicorp Bank',
+    'Multibank',
+    'Metrobank',
+    'Scotiabank',
+    'St. Georges Bank',
+    'Banco Hipotecario Nacional',
+    'Banco Aliado',
+    'Banco Azteca',
+    'Banco Panamá',
+    'Banco Prival',
+    'Banco Pichincha',
+    'Banco Lafise',
+    'Banco Delta',
+    'Banco Ficohsa',
+    'Banco Promerica',
+  ];
   public employee_id = input<string>();
   private injector = inject(Injector);
   private message = inject(MessageService);
@@ -317,6 +373,11 @@ export class EmployeeFormComponent implements OnInit {
     monthly_salary: new FormControl(0, { nonNullable: true }),
     qr_code: new FormControl('', { nonNullable: true }),
     code_uri: new FormControl('', { nonNullable: true }),
+    bank: new FormControl('', { nonNullable: true }),
+    account_number: new FormControl('', { nonNullable: true }),
+    bank_account_type: new FormControl<'Ahorros' | 'Corriente'>('Ahorros', {
+      nonNullable: true,
+    }),
   });
 
   private confirmationService = inject(ConfirmationService);

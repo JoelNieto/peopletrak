@@ -58,6 +58,9 @@ export type Employee = {
   timeoffs?: TimeOff[];
   qr_code?: string;
   code_uri?: string;
+  bank?: string;
+  account_number?: string;
+  bank_account_type?: 'Ahorros' | 'Corriente';
 };
 
 export type TimeOffType = {
