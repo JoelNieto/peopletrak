@@ -15,22 +15,22 @@ import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { v4 } from 'uuid';
 import { TimeOff } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-time-offs',
-    imports: [
-        ReactiveFormsModule,
-        DropdownModule,
-        CalendarModule,
-        InputSwitchModule,
-        InputTextareaModule,
-        ButtonModule,
-    ],
-    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-time-offs',
+  imports: [
+    ReactiveFormsModule,
+    DropdownModule,
+    CalendarModule,
+    InputSwitchModule,
+    TextareaModule,
+    ButtonModule,
+  ],
+  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col md:grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
@@ -92,8 +92,8 @@ import { DashboardStore } from './dashboard.store';
       <p-button type="submit" label="Guardar cambios" icon="pi pi-save" />
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeOffsComponent implements OnInit {
   public store = inject(DashboardStore);

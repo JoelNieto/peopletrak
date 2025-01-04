@@ -10,20 +10,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FilterService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
@@ -38,18 +37,18 @@ import { EmployeeFormComponent } from './employee-form.component';
     RouterLink,
     AgePipe,
     CurrencyPipe,
-    ButtonModule,
     DropdownModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
-    InputSwitchModule,
+    ToggleSwitchModule,
     ProgressBarModule,
     TableModule,
     MenuModule,
     CardModule,
     TagModule,
     FormsModule,
+    Button,
     MultiSelectModule,
   ],
   providers: [DynamicDialogRef, DialogService],
@@ -60,7 +59,7 @@ import { EmployeeFormComponent } from './employee-form.component';
     >
       <div class="w-full flex justify-between items-center">
         <section class="pt-2 flex items-center gap-2">
-          <p-inputSwitch [formControl]="inactiveToggle" inputId="active" />
+          <p-toggleswitch [formControl]="inactiveToggle" inputId="active" />
           <label for="active">Incluir inactivos</label>
         </section>
         <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
@@ -89,7 +88,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             />
             <p-button
               icon="pi pi-file-pdf"
-              severity="warning"
+              severity="warn"
               label="PDF"
               (onClick)="generateReport()"
             />

@@ -16,6 +16,7 @@ import { addDays, format, startOfMonth } from 'date-fns';
 import { trim } from 'lodash';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
+import { Button } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
@@ -29,6 +30,7 @@ import { DashboardStore } from './dashboard.store';
 @Component({
   selector: 'app-timelogs',
   imports: [
+    Button,
     CardModule,
     DropdownModule,
     CalendarModule,

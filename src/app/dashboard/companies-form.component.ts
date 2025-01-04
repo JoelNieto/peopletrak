@@ -14,20 +14,20 @@ import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-companies-form',
-    imports: [
-        ReactiveFormsModule,
-        InputTextModule,
-        InputTextareaModule,
-        ButtonModule,
-        InputSwitchModule,
-    ],
-    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-companies-form',
+  imports: [
+    ReactiveFormsModule,
+    InputTextModule,
+    TextareaModule,
+    ButtonModule,
+    InputSwitchModule,
+  ],
+  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -61,8 +61,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompaniesFormComponent implements OnInit {
   form = new FormGroup({

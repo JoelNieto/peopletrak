@@ -18,6 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { toDate } from 'date-fns-tz';
 import * as OTPAuth from 'otpauth';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Button } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
@@ -38,6 +39,7 @@ import { DashboardStore } from './dashboard.store';
     CalendarModule,
     DropdownModule,
     CheckboxModule,
+    Button,
   ],
   template: `
     <h1>Datos del empleado</h1>

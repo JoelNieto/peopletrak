@@ -14,7 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { v4 } from 'uuid';
 
 import { DropdownModule } from 'primeng/dropdown';
@@ -26,7 +26,7 @@ import { DashboardStore } from './dashboard.store';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    InputTextareaModule,
+    TextareaModule,
     InputSwitchModule,
     DropdownModule,
   ],
