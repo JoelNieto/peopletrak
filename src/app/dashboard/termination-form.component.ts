@@ -11,31 +11,23 @@ import {
   Validators,
 } from '@angular/forms';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
+import { Textarea } from 'primeng/textarea';
 import { v4 } from 'uuid';
 
+import { DatePicker } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'app-termination-form',
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    DropdownModule,
-    CalendarModule,
-    TextareaModule,
-    Button,
-  ],
+  imports: [ReactiveFormsModule, SelectModule, DatePicker, Textarea, Button],
   template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
       <div class="grid grid-cols-2 gap-4">
         <div class="input-container">
           <label for="employee">Empleado</label>
-          <p-dropdown
+          <p-select
             formControlName="employee_id"
             inputId="employee"
             [options]="store.employeesList()"
@@ -47,12 +39,12 @@ import { DashboardStore } from './dashboard.store';
             <ng-template let-item pTemplate="item">
               {{ item.first_name }} {{ item.father_name }}
             </ng-template>
-          </p-dropdown>
+          </p-select>
         </div>
 
         <div class="input-container">
           <label for="date">Fecha efectiva</label>
-          <p-calendar
+          <p-datepicker
             inputId="date"
             formControlName="date"
             [showIcon]="true"
@@ -61,7 +53,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="reason">Motivo</label>
-          <p-dropdown
+          <p-select
             inputId="reason"
             formControlName="reason"
             [options]="reasons"
@@ -71,11 +63,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container md:col-span-2">
           <label for="notes">Apuntes</label>
-          <textarea
-            pInputTextarea
-            id="notes"
-            formControlName="notes"
-          ></textarea>
+          <textarea pTextarea id="notes" formControlName="notes"></textarea>
         </div>
       </div>
 

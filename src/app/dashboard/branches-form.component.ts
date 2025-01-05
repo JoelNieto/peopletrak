@@ -10,25 +10,25 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
+import { InputText } from 'primeng/inputtext';
+import { Textarea } from 'primeng/textarea';
 import { v4 } from 'uuid';
 
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'app-branches-form',
   imports: [
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    TextareaModule,
-    InputSwitchModule,
-    DropdownModule,
+    Button,
+    InputText,
+    Textarea,
+    ToggleSwitch,
+    Select,
   ],
   template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
@@ -47,7 +47,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="company_id">Empresa</label>
-        <p-dropdown
+        <p-select
           formControlName="company_id"
           [options]="state.companies()"
           optionLabel="name"
@@ -58,10 +58,10 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="address">Direccion</label>
-        <textarea pInputTextarea formControlName="address"></textarea>
+        <textarea pTextarea formControlName="address"></textarea>
       </div>
       <div class="flex items-center gap-2">
-        <p-inputSwitch formControlName="is_active" inputId="active" />
+        <p-toggleswitch formControlName="is_active" inputId="active" />
         <label for="active">Activo</label>
       </div>
 

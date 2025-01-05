@@ -10,23 +10,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
+import { InputText } from 'primeng/inputtext';
+import { Textarea } from 'primeng/textarea';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'app-companies-form',
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    TextareaModule,
-    ButtonModule,
-    InputSwitchModule,
-  ],
+  imports: [ReactiveFormsModule, InputText, Textarea, Button, ToggleSwitch],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
@@ -35,14 +29,14 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="address">Direccion</label>
-        <textarea pInputTextarea formControlName="address"></textarea>
+        <textarea pTextarea formControlName="address"></textarea>
       </div>
       <div class="input-container">
         <label for="address">Nro. de Telefono</label>
         <input pInputText type="tel" formControlName="phone_number" />
       </div>
       <div class="flex items-center gap-2">
-        <p-inputSwitch formControlName="is_active" inputId="active" />
+        <p-toggleswitch formControlName="is_active" inputId="active" />
         <label for="active">Activo</label>
       </div>
       <div class="flex gap-4 items-center justify-end">

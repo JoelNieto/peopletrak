@@ -9,7 +9,7 @@ import { ToastModule } from 'primeng/toast';
 
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
@@ -24,7 +24,7 @@ import { DashboardStore } from './dashboard.store';
     RippleModule,
     CardModule,
     ConfirmDialogModule,
-    DropdownModule,
+    Select,
     FormsModule,
     Button,
   ],
@@ -50,7 +50,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="w-64">
         <div class="input-container">
-          <p-dropdown
+          <p-select
             [options]="store.companies()"
             [ngModel]="store.selectedCompanyId()"
             (onChange)="toggleCompany($event.value)"
@@ -151,19 +151,22 @@ import { DashboardStore } from './dashboard.store';
 
           <li>
             <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
-              <p-accordionTab header="SUCURSALES">
-                <ul class="flex flex-col list-none px-2">
-                  @for (branch of store.branches(); track branch.id) {
-                  <li pRipple>
-                    <a
-                      class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-                      [routerLink]="['branches', branch.id]"
-                      >{{ branch.name }}</a
-                    >
-                  </li>
-                  }
-                </ul>
-              </p-accordionTab>
+              <p-accordion-panel value="0">
+                <p-accordion-header>Sucursales</p-accordion-header>
+                <p-accordion-content>
+                  <ul class="flex flex-col list-none px-2">
+                    @for (branch of store.branches(); track branch.id) {
+                    <li pRipple>
+                      <a
+                        class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
+                        [routerLink]="['branches', branch.id]"
+                        >{{ branch.name }}</a
+                      >
+                    </li>
+                    }
+                  </ul></p-accordion-content
+                >
+              </p-accordion-panel>
             </p-accordion>
           </li>
         </ul>

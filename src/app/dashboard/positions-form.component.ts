@@ -10,18 +10,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
+import { Select } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-positions-form',
-    imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DropdownModule],
-    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-positions-form',
+  imports: [ReactiveFormsModule, Button, InputText, Select],
+  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -29,7 +29,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="company"> Empresa</label>
-        <p-dropdown
+        <p-select
           id="company"
           appendTo="body"
           [options]="state.companies()"
@@ -41,7 +41,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="department"> Area</label>
-        <p-dropdown
+        <p-select
           id="department"
           appendTo="body"
           [options]="state.departments()"
@@ -67,8 +67,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PositionsFormComponent implements OnInit {
   form = new FormGroup({

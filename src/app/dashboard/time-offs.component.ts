@@ -10,12 +10,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
+import { Button } from 'primeng/button';
+import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { Textarea } from 'primeng/textarea';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
 import { TimeOff } from '../models';
 import { DashboardStore } from './dashboard.store';
@@ -24,17 +24,17 @@ import { DashboardStore } from './dashboard.store';
   selector: 'app-time-offs',
   imports: [
     ReactiveFormsModule,
-    DropdownModule,
-    CalendarModule,
-    InputSwitchModule,
-    TextareaModule,
-    ButtonModule,
+    SelectModule,
+    DatePicker,
+    ToggleSwitch,
+    Textarea,
+    Button,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col md:grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
-        <p-dropdown
+        <p-select
           formControlName="employee_id"
           inputId="employee"
           [options]="store.employeesList()"
@@ -49,11 +49,11 @@ import { DashboardStore } from './dashboard.store';
           <ng-template let-item pTemplate="item">
             {{ item.first_name }} {{ item.father_name }}
           </ng-template>
-        </p-dropdown>
+        </p-select>
       </div>
       <div class="input-container">
         <label for="type">Tipo</label>
-        <p-dropdown
+        <p-select
           formControlName="type_id"
           inputId="type"
           [options]="store.timeoff_types()"
@@ -64,7 +64,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="star_date">Duracion</label>
-        <p-calendar
+        <p-datepicker
           formControlName="start_date"
           inputId="start_date"
           selectionMode="range"
@@ -73,12 +73,12 @@ import { DashboardStore } from './dashboard.store';
         />
       </div>
       <div class="flex items-center gap-2">
-        <p-inputSwitch formControlName="is_approved" inputId="is_approved" />
+        <p-toggleswitch formControlName="is_approved" inputId="is_approved" />
         <label for="is_approved">Aprobado</label>
       </div>
       <div class="input-container md:col-span-2">
         <label for="notes">Comentarios</label>
-        <textarea pInputTextarea formControlName="notes" rows="4"></textarea>
+        <textarea pTextarea formControlName="notes" rows="4"></textarea>
       </div>
     </div>
     <div class="dialog-actions">

@@ -13,25 +13,25 @@ import {
 } from '@angular/forms';
 import { format } from 'date-fns';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { Button } from 'primeng/button';
+import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputNumber } from 'primeng/inputnumber';
+import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-schedules-form',
-    imports: [
-        CalendarModule,
-        FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        InputNumberModule,
-        ButtonModule,
-    ],
-    template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-schedules-form',
+  imports: [
+    DatePicker,
+    FormsModule,
+    ReactiveFormsModule,
+    InputText,
+    InputNumber,
+    Button,
+  ],
+  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-4 gap-3">
       <div class="input-container col-span-4">
         <label for="name">Nombre</label>
@@ -39,7 +39,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="calendar-timeonly">Hora entrada</label>
-        <p-calendar
+        <p-datepicker
           inputId="calendar-timeonly"
           timeOnly
           formControlName="entry_time"
@@ -49,7 +49,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="formatted-hour">Hora inicio almuerzo</label>
-        <p-calendar
+        <p-datepicker
           timeOnly
           formControlName="lunch_start_time"
           hourFormat="12"
@@ -58,7 +58,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="formatted-hour">Hora fin almuerzo</label>
-        <p-calendar
+        <p-datepicker
           timeOnly
           formControlName="lunch_end_time"
           hourFormat="12"
@@ -67,7 +67,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="formatted-hour">Hora salida</label>
-        <p-calendar
+        <p-datepicker
           timeOnly
           formControlName="exit_time"
           hourFormat="12"
@@ -101,8 +101,8 @@ import { DashboardStore } from './dashboard.store';
       />
     </div>
   </form> `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulesFormComponent implements OnInit {
   public form = new FormGroup({

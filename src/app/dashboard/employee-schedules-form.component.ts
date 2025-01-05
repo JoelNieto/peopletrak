@@ -13,32 +13,30 @@ import {
   Validators,
 } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
+import { Button } from 'primeng/button';
+import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { v4 } from 'uuid';
 import { TrimPipe } from '../pipes/trim.pipe';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-employee-schedules-form',
-    imports: [
-        DropdownModule,
-        InputTextModule,
-        ButtonModule,
-        CalendarModule,
-        FormsModule,
-        ReactiveFormsModule,
-        TrimPipe,
-    ],
-    template: `<form [formGroup]="form">
+  selector: 'app-employee-schedules-form',
+  imports: [
+    SelectModule,
+    Button,
+    DatePicker,
+    FormsModule,
+    ReactiveFormsModule,
+    TrimPipe,
+  ],
+  template: `<form [formGroup]="form">
     <div class="grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
-        <p-dropdown
+        <p-select
           formControlName="employee_id"
           [options]="store.employees()"
           optionValue="id"
@@ -53,11 +51,11 @@ import { DashboardStore } from './dashboard.store';
           <ng-template let-item pTemplate="item">
             {{ item.father_name | trim }}, {{ item.first_name | trim }}
           </ng-template>
-        </p-dropdown>
+        </p-select>
       </div>
       <div class="input-container">
         <label for="schedule_id">Turno</label>
-        <p-dropdown
+        <p-select
           [options]="store.schedules()"
           optionLabel="name"
           optionValue="id"
@@ -68,11 +66,11 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="start_date">Fecha inicio</label>
-        <p-calendar formControlName="start_date" appendTo="body" />
+        <p-datepicker formControlName="start_date" appendTo="body" />
       </div>
       <div class="input-container">
         <label for="end_date">Fecha fin</label>
-        <p-calendar formControlName="end_date" appendTo="body" />
+        <p-datepicker formControlName="end_date" appendTo="body" />
       </div>
     </div>
     <div class="flex justify-end gap-4 mt-4">
@@ -90,8 +88,8 @@ import { DashboardStore } from './dashboard.store';
       />
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeSchedulesFormComponent implements OnInit {
   public form = new FormGroup({

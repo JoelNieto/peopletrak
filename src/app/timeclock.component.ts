@@ -9,44 +9,44 @@ import {
 import { format } from 'date-fns';
 import * as OTPAuth from 'otpauth';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputOtpModule } from 'primeng/inputotp';
+import { InputOtp } from 'primeng/inputotp';
+import { Select } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { from, map } from 'rxjs';
 import { Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SupabaseService } from './services/supabase.service';
 @Component({
-    selector: 'app-timeclock',
-    imports: [
-        InputOtpModule,
-        DropdownModule,
-        ButtonModule,
-        ReactiveFormsModule,
-        ToastModule,
-        CardModule,
-        ConfirmDialogModule,
-        TrimPipe,
-    ],
-    providers: [ConfirmationService],
-    template: `<p-confirmDialog /><p-toast />
+  selector: 'app-timeclock',
+  imports: [
+    InputOtp,
+    Select,
+    Button,
+    ReactiveFormsModule,
+    ToastModule,
+    Card,
+    ConfirmDialogModule,
+    TrimPipe,
+  ],
+  providers: [ConfirmationService],
+  template: `<p-confirmDialog /><p-toast />
     <div
       class="flex flex-col items-center w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
     >
       <div
         class="flex flex-col gap-6 w-full lg:w-1/2 items-center h-screen justify-center px-6"
       >
-        <p-card
-          class="w-full"
-          header="Reloj de Marcación"
-          subheader="Seleccione la empresa, sucursal y empleado"
-        >
+        <p-card class="w-full">
+          <ng-template #title>Reloj de Marcación</ng-template>
+          <ng-template #subtitle
+            >Seleccione la empresa, sucursal y empleado</ng-template
+          >
           <form [formGroup]="form" class="flex flex-col gap-3 items-center">
             <div class="input-container">
-              <p-dropdown
+              <p-select
                 formControlName="company_id"
                 [options]="companies() ?? []"
                 placeholder="Seleccionar empresa"
@@ -57,7 +57,7 @@ import { SupabaseService } from './services/supabase.service';
               />
             </div>
             <div class="input-container">
-              <p-dropdown
+              <p-select
                 formControlName="branch_id"
                 [options]="branches() ?? []"
                 placeholder="Seleccionar sucursal"
@@ -68,7 +68,7 @@ import { SupabaseService } from './services/supabase.service';
               />
             </div>
             <div class="input-container">
-              <p-dropdown
+              <p-select
                 formControlName="employee"
                 [options]="employees() ?? []"
                 placeholder="Seleccionar empleado"
@@ -82,10 +82,10 @@ import { SupabaseService } from './services/supabase.service';
                 <ng-template let-item pTemplate="item">
                   {{ item.father_name | trim }}, {{ item.first_name | trim }}
                 </ng-template>
-              </p-dropdown>
+              </p-select>
             </div>
             <div class="input-container">
-              <p-dropdown
+              <p-select
                 formControlName="type"
                 placeholder="Seleccionar tipo"
                 [options]="types"
@@ -110,8 +110,8 @@ import { SupabaseService } from './services/supabase.service';
         </p-card>
       </div>
     </div>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeclockComponent {
   protected supabase = inject(SupabaseService);

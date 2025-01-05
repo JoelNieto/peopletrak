@@ -40,11 +40,11 @@ th {
     @apply text-xs text-slate-500;
   }
 
-  .p-dropdown,
+  .p-select,
   .p-icon-field,
   input,
   .p-inputnumber,
-  .p-calendar {
+  .p-datepicker {
     @apply w-full;
   }
 }
@@ -78,4 +78,11 @@ h2 {
 
 .p-card {
   @apply shadow-none border border-slate-200;
+  .p-card-content {
+    @apply mt-4;
+  }
+}
+
+.p-select-overlay {
+  width: 100%;
 }

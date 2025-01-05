@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Company } from '../models';
@@ -8,10 +8,12 @@ import { CompaniesFormComponent } from './companies-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-companies',
-    imports: [CardModule, ButtonModule, TableModule],
-    providers: [DynamicDialogRef, DialogService],
-    template: `<p-card header="Empresas" subheader="Listado de empresas">
+  selector: 'app-companies',
+  imports: [Card, Button, TableModule],
+  providers: [DynamicDialogRef, DialogService],
+  template: `<p-card>
+    <ng-template #subtitle>Listado de empresas</ng-template>
+    <ng-template #title>Empresas</ng-template>
     <div class="w-full flex justify-end">
       <p-button
         label="Agregar"
@@ -64,18 +66,17 @@ import { DashboardStore } from './dashboard.store';
       </p-table>
     </div>
   </p-card>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompaniesComponent {
   protected store = inject(DashboardStore);
-  private ref = inject(DynamicDialogRef);
   private dialog = inject(DialogService);
 
   editCompany(company?: Company) {
     this.dialog.open(CompaniesFormComponent, {
       header: 'Agregar empresa',
-      width: '70%',
+      width: '36rem',
       data: { company },
     });
   }

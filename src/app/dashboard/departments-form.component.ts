@@ -12,16 +12,16 @@ import {
 } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-departments-form',
-    imports: [ReactiveFormsModule, Button, InputTextModule, DropdownModule],
-    template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
+  selector: 'app-departments-form',
+  imports: [ReactiveFormsModule, Button, InputText, Select],
+  template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
         <label for="name">Nombre</label>
@@ -29,7 +29,7 @@ import { DashboardStore } from './dashboard.store';
       </div>
       <div class="input-container">
         <label for="company_id">Empresa</label>
-        <p-dropdown
+        <p-select
           formControlName="company_id"
           [options]="state.companies()"
           optionLabel="name"
@@ -55,8 +55,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </form>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsFormComponent implements OnInit {
   form = new FormGroup({

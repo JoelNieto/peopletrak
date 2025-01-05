@@ -19,11 +19,11 @@ import { toDate } from 'date-fns-tz';
 import * as OTPAuth from 'otpauth';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
+import { Checkbox } from 'primeng/checkbox';
+import { DatePicker } from 'primeng/datepicker';
+import { InputNumber } from 'primeng/inputnumber';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
 import QRCode from 'qrcode';
 import { markGroupDirty } from 'src/app/services/util.service';
 import { v4 } from 'uuid';
@@ -34,11 +34,11 @@ import { DashboardStore } from './dashboard.store';
   selector: 'app-employee-form',
   imports: [
     ReactiveFormsModule,
-    InputTextModule,
-    InputNumberModule,
-    CalendarModule,
-    DropdownModule,
-    CheckboxModule,
+    InputText,
+    InputNumber,
+    DatePicker,
+    Select,
+    Checkbox,
     Button,
   ],
   template: `
@@ -93,7 +93,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="birth_date">Fecha de nacimiento</label>
-          <p-calendar
+          <p-datepicker
             inputId="birth_date"
             formControlName="birth_date"
             iconDisplay="input"
@@ -138,7 +138,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="gender">Sexo</label>
-          <p-dropdown
+          <p-select
             inputId="gender"
             [options]="['F', 'M']"
             formControlName="gender"
@@ -148,7 +148,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="branch">Sucursal</label>
-          <p-dropdown
+          <p-select
             [options]="state.branches()"
             optionLabel="name"
             optionValue="id"
@@ -160,7 +160,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="department">Area</label>
-          <p-dropdown
+          <p-select
             [options]="state.departments()"
             optionLabel="name"
             optionValue="id"
@@ -172,7 +172,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="position">Cargo</label>
-          <p-dropdown
+          <p-select
             [options]="state.positions()"
             optionLabel="name"
             optionValue="id"
@@ -194,7 +194,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="size">Talla</label>
-          <p-dropdown
+          <p-select
             inputId="size"
             [options]="sizes"
             formControlName="uniform_size"
@@ -204,7 +204,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="start_date">Fecha de inicio</label>
-          <p-calendar
+          <p-datepicker
             inputId="start_date"
             formControlName="start_date"
             iconDisplay="input"
@@ -215,7 +215,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="bank">Banco</label>
-          <p-dropdown
+          <p-select
             inputId="bank"
             [options]="banks"
             formControlName="bank"
@@ -236,7 +236,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="bank_account_type">Tipo de cuenta</label>
-          <p-dropdown
+          <p-select
             inputId="bank_account_type"
             [options]="['Ahorros', 'Corriente']"
             formControlName="bank_account_type"
@@ -246,7 +246,7 @@ import { DashboardStore } from './dashboard.store';
         </div>
         <div class="input-container">
           <label for="company">Empresa</label>
-          <p-dropdown
+          <p-select
             [options]="state.companies()"
             optionLabel="name"
             optionValue="id"

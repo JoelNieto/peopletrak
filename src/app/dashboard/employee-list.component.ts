@@ -11,18 +11,15 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FilterService } from 'primeng/api';
 import { Button } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
+import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressBar } from 'primeng/progressbar';
+import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { Tag } from 'primeng/tag';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
@@ -37,26 +34,24 @@ import { EmployeeFormComponent } from './employee-form.component';
     RouterLink,
     AgePipe,
     CurrencyPipe,
-    DropdownModule,
-    InputTextModule,
-    InputIconModule,
-    IconFieldModule,
-    ToggleSwitchModule,
-    ProgressBarModule,
+    Select,
+    ToggleSwitch,
+    ProgressBar,
     TableModule,
     MenuModule,
-    CardModule,
-    TagModule,
+    Card,
+    Tag,
     FormsModule,
     Button,
     MultiSelectModule,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
-    <p-card
-      header="Empleados"
-      subheader="Listado de colaboradores de la empresa"
-    >
+    <p-card>
+      <ng-template #title> Empleados </ng-template>
+      <ng-template #subtitle
+        >Listado de colaboradores de la empresa</ng-template
+      >
       <div class="w-full flex justify-between items-center">
         <section class="pt-2 flex items-center gap-2">
           <p-toggleswitch [formControl]="inactiveToggle" inputId="active" />
@@ -242,7 +237,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                   let-value
                   let-filter="filterCallback"
                 >
-                  <p-dropdown
+                  <p-select
                     [options]="probatories"
                     [ngModel]="value"
                     (onChange)="filter($event.value)"
@@ -255,7 +250,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                         [severity]="option.value ? 'danger' : 'secondary'"
                       />
                     </ng-template>
-                  </p-dropdown>
+                  </p-select>
                 </ng-template>
               </p-columnFilter>
             </th>

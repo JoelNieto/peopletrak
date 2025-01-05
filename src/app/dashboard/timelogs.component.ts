@@ -15,11 +15,11 @@ import { FormsModule } from '@angular/forms';
 import { addDays, format, startOfMonth } from 'date-fns';
 import { trim } from 'lodash';
 import { MessageService } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
+import { Avatar } from 'primeng/avatar';
 import { Button } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
+import { Card } from 'primeng/card';
+import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -31,14 +31,14 @@ import { DashboardStore } from './dashboard.store';
   selector: 'app-timelogs',
   imports: [
     Button,
-    CardModule,
-    DropdownModule,
-    CalendarModule,
+    Card,
+    Select,
+    DatePicker,
     FormsModule,
     DatePipe,
     TableModule,
     TooltipModule,
-    AvatarModule,
+    Avatar,
     ToastModule,
   ],
   template: `<p-card
@@ -47,7 +47,7 @@ import { DashboardStore } from './dashboard.store';
   >
     <div class="flex gap-3">
       <div class="input-container">
-        <p-dropdown
+        <p-select
           [options]="store.employeesList()"
           optionLabel="short_name"
           optionValue="id"
@@ -59,7 +59,7 @@ import { DashboardStore } from './dashboard.store';
         />
       </div>
       <div class="input-container">
-        <p-calendar
+        <p-datepicker
           placeholder="Fecha"
           selectionMode="range"
           appendTo="body"
