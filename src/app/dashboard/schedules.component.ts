@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -9,10 +14,10 @@ import { DashboardStore } from './dashboard.store';
 import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
-    selector: 'app-schedules',
-    imports: [CardModule, TableModule, ButtonModule, TimePipe],
-    providers: [DynamicDialogRef, DialogService],
-    template: `<p-card
+  selector: 'app-schedules',
+  imports: [CardModule, TableModule, ButtonModule, TimePipe],
+  providers: [DynamicDialogRef, DialogService],
+  template: `<p-card
     header="Horarios"
     subheader="Listado de horarios disponibles"
   >
@@ -24,7 +29,7 @@ import { SchedulesFormComponent } from './schedules-form.component';
       />
     </div>
     <p-table
-      [value]="store.schedules()"
+      [value]="schedules()"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 20]"
     >
@@ -76,11 +81,12 @@ import { SchedulesFormComponent } from './schedules-form.component';
       </ng-template>
     </p-table>
   </p-card>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulesComponent {
   public store = inject(DashboardStore);
+  public schedules = computed(() => this.store.schedules());
 
   public dialogService = inject(DialogService);
   private ref = inject(DynamicDialogRef);

@@ -12,6 +12,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { toDate } from 'date-fns-tz';
 import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
@@ -32,7 +33,7 @@ import { DashboardStore } from './dashboard.store';
     ReactiveFormsModule,
     TrimPipe,
   ],
-  template: `<form [formGroup]="form">
+  template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
@@ -119,32 +120,46 @@ export class EmployeeSchedulesFormComponent implements OnInit {
   private message = inject(MessageService);
 
   ngOnInit(): void {
-    const { employeeSchedule, employee_id } = this.dialog.data;
+    const { employee_schedule, employee_id } = this.dialog.data;
     if (employee_id) {
       this.form.patchValue({ employee_id });
       this.form.get('employee_id')?.disable();
       return;
     }
-    if (employeeSchedule) {
+
+    console.log(employee_schedule);
+    if (employee_schedule) {
       const { id, employee_id, schedule_id, start_date, end_date } =
-        employeeSchedule;
+        employee_schedule;
       this.form.patchValue({
         id,
         employee_id,
         schedule_id,
-        start_date,
-        end_date,
       });
+      this.form
+        .get('start_date')
+        ?.patchValue(toDate(start_date, { timeZone: 'America/Panama' }));
+      this.form
+        .get('end_date')
+        ?.patchValue(toDate(end_date, { timeZone: 'America/Panama' }));
     }
   }
 
   async saveChanges(): Promise<void> {
     this.loading.set(true);
+    try {
+      const { error } = await this.supabase.client
+        .from('employee_schedules')
+        .upsert(this.form.getRawValue());
+      if (error) throw error;
+      this.message.add({
+        severity: 'success',
+        summary: 'Cambios guardados',
+        detail: 'Los cambios se guardaron correctamente.',
+      });
 
-    const { error } = await this.supabase.client
-      .from('employee_schedules')
-      .upsert(this.form.getRawValue());
-    if (error) {
+      this.dialogRef.close();
+    } catch (error) {
       console.error(error);
       this.loading.set(false);
       this.message.add({
@@ -153,13 +168,8 @@ export class EmployeeSchedulesFormComponent implements OnInit {
         detail: 'Ocurrió un error al guardar los cambios.',
       });
       return;
+    } finally {
+      this.loading.set(false);
     }
-    this.message.add({
-      severity: 'success',
-      summary: 'Cambios guardados',
-      detail: 'Los cambios se guardaron correctamente.',
-    });
-
-    this.dialogRef.close();
   }
 }

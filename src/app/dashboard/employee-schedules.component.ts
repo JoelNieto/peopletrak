@@ -1,90 +1,188 @@
+import { JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
-  OnInit,
-  signal,
+  resource,
 } from '@angular/core';
-import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
+import { eachDayOfInterval } from 'date-fns';
+import { toDate } from 'date-fns-tz';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Button } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TableModule } from 'primeng/table';
+import { Popover } from 'primeng/popover';
+import { Tooltip } from 'primeng/tooltip';
+import { CalendarComponent } from '../calendar.component';
 import { EmployeeSchedule } from '../models';
+import { TimePipe } from '../pipes/time.pipe';
 import { SupabaseService } from '../services/supabase.service';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
-
 @Component({
-    selector: 'app-employee-schedules',
-    imports: [TableModule, ButtonModule],
-    providers: [DynamicDialogRef, DialogService],
-    template: `<div class="flex justify-end">
-      <p-button
-        label="Agregar"
-        icon="pi pi-plus-circle"
-        (click)="editSchedule(employeeId())"
-      />
-    </div>
-    <p-table [value]="employeeSchedules()">
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="name">Turno<p-sortIcon field="name" /></th>
-          <th pSortableColumn="start_date">
-            Inicio<p-sortIcon field="start_date" />
-          </th>
-          <th pSortableColumn="end_date">
-            Inicio<p-sortIcon field="end_date" />
-          </th>
-          <th></th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-schedule>
-        <tr>
-          <td>{{ schedule.schedule.name }}</td>
-          <td>{{ schedule.schedule.start_date }}</td>
-          <td>{{ schedule.schedule.end_date }}</td>
-          <td>
-            <p-button
-              icon="pi pi-pencil"
-              (click)="editSchedule(schedule.employee_id)"
-            />
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-employee-schedules',
+  imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, JsonPipe],
+  providers: [DynamicDialogRef, DialogService],
+  template: `
+    <app-calendar
+      [markers]="employeeSchedules() ?? []"
+      [markerTpl]="markerTpl"
+    />
+    <p-button
+      class="fixed bottom-6 right-12"
+      label="Nuevo"
+      icon="pi pi-plus-circle"
+      (onClick)="editSchedule({ employee_id: employeeId() })"
+    />
+    <ng-template #markerTpl let-data>
+      <div class="flex items-center justify-center">
+        <ul class="flex flex-col gap-1">
+          @for(marker of data; track marker){
+          <li
+            class="flex bg-primary text-primary-contrast text-sm font-semibold rounded-md px-2 py-1 items-center cursor-pointer"
+            [pTooltip]="tooltipContent"
+            tooltipPosition="top"
+            (click)="options.toggle($event)"
+          >
+            {{ marker.data.schedule.name }}
+          </li>
+          <ng-template #tooltipContent>
+            <div class="flex flex-col gap-1">
+              <div>
+                Entrada:
+                <span class="font-bold">{{
+                  marker.data.schedule.entry_time | time
+                }}</span>
+              </div>
+              <div>
+                Salida:
+                <span class="font-bold">{{
+                  marker.data.schedule.exit_time | time
+                }}</span>
+              </div>
+            </div>
+          </ng-template>
+          <p-popover #options>
+            <div>
+              <span class="font-medium block mb-2">Opciones</span>
+              <ul class="list-non flex flex-col">
+                <li
+                  class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                  (click)="editSchedule({ employee_schedule: marker.data })"
+                >
+                  <i class="pi pi-pencil text-green-600"></i>
+                  Editar
+                </li>
+                <li
+                  class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                  (click)="deleteSchedule(marker.data.id)"
+                >
+                  <i class="pi pi-trash text-red-700"></i>
+                  Eliminar
+                </li>
+              </ul>
+            </div>
+          </p-popover>
+          }
+        </ul>
+      </div>
+    </ng-template>
+    {{ employeeSchedules() | json }}
+  `,
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeeSchedulesComponent implements OnInit {
+export class EmployeeSchedulesComponent {
   public employeeId = input.required<string>();
   private supabase = inject(SupabaseService);
   private message = inject(MessageService);
-  public employeeSchedules = signal<EmployeeSchedule[]>([]);
-  private dialogRef = inject(DynamicDialogRef);
+  private confirm = inject(ConfirmationService);
+  public employeeSchedules = computed(() =>
+    this.resourceSchedules
+      .value()
+      ?.map((data) =>
+        eachDayOfInterval({
+          start: toDate(data.start_date, { timeZone: 'America/Panama' }),
+          end: toDate(data.end_date, { timeZone: 'America/Panama' }),
+        }).map((date) => ({ date, data }))
+      )
+      .flat()
+  );
   private dialog = inject(DialogService);
 
-  async ngOnInit(): Promise<void> {
-    const { data, error } = await this.supabase.client
-      .from('employee_schedules')
-      .select('*, schedule:schedules(*)')
-      .eq('employee_id', this.employeeId());
-    if (error) {
-      console.error(error);
-      this.message.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Ha ocurrido un error al cargar los horarios del empleado',
-      });
-      return;
-    }
+  private resourceSchedules = resource({
+    request: () => ({ id: this.employeeId() }),
+    loader: async ({ request }) => {
+      const { data, error } = await this.supabase.client
+        .from('employee_schedules')
+        .select('*, schedule:schedules(*)')
+        .eq('employee_id', request.id);
+      if (error) {
+        console.error(error);
+        this.message.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Ha ocurrido un error al cargar los horarios del empleado',
+        });
+        return [];
+      }
+      return data;
+    },
+  });
 
-    this.employeeSchedules.set(data);
+  public editSchedule({
+    employee_id,
+    employee_schedule,
+  }: {
+    employee_id?: string;
+    employee_schedule?: EmployeeSchedule;
+  } = {}): void {
+    this.dialog
+      .open(EmployeeSchedulesFormComponent, {
+        header: 'Editar horario',
+        data: { employee_id, employee_schedule },
+        width: '40%',
+      })
+      .onClose.subscribe(() => {
+        this.resourceSchedules.reload();
+      });
   }
 
-  public editSchedule(employee_id?: string): void {
-    this.dialogRef = this.dialog.open(EmployeeSchedulesFormComponent, {
-      header: 'Editar horario',
-      data: { employee_id },
+  deleteSchedule(id: string) {
+    this.confirm.confirm({
+      header: 'Eliminar horario',
+      message: '¿Estás seguro de eliminar este horario?',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Eliminar',
+        severity: 'danger',
+      },
+      accept: async () => {
+        const { error } = await this.supabase.client
+          .from('employee_schedules')
+          .delete()
+          .eq('id', id);
+        if (error) {
+          console.error(error);
+          this.message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Ha ocurrido un error al eliminar el horario',
+          });
+          return;
+        }
+        this.message.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Horario eliminado correctamente',
+        });
+        this.resourceSchedules.reload();
+      },
     });
   }
 }
