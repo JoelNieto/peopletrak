@@ -262,7 +262,11 @@ import { EmployeeFormComponent } from './employee-form.component';
         </ng-template>
         <ng-template pTemplate="body" let-item let-columns="columns">
           <tr>
-            <td pFrozenColumn>{{ item.first_name }} {{ item.father_name }}</td>
+            <td pFrozenColumn>
+              <a [routerLink]="item.id" class="text-primary hover:underline"
+                >{{ item.first_name }} {{ item.father_name }}</a
+              >
+            </td>
             @if (inactiveValue()) {
             <td>
               <p-tag

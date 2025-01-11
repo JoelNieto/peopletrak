@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -23,12 +28,12 @@ import { DashboardStore } from './dashboard.store';
     </div>
     <div>
       <p-table
-        [value]="store.companies()"
+        [value]="companies()"
         [paginator]="true"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
       >
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th pSortableColumn="name">Nombre <p-sortIcon field="name" /></th>
             <th pSortableColumn="phone_number">
@@ -40,7 +45,7 @@ import { DashboardStore } from './dashboard.store';
             <th></th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item>
+        <ng-template #body let-item>
           <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.phone_number }}</td>
@@ -72,6 +77,7 @@ import { DashboardStore } from './dashboard.store';
 export class CompaniesComponent {
   protected store = inject(DashboardStore);
   private dialog = inject(DialogService);
+  public companies = computed(() => this.store.companies());
 
   editCompany(company?: Company) {
     this.dialog.open(CompaniesFormComponent, {

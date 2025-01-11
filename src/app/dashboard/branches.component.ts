@@ -1,5 +1,10 @@
 import { DialogModule } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -14,21 +19,22 @@ import { DashboardStore } from './dashboard.store';
   imports: [ButtonModule, CardModule, TableModule, DialogModule],
   providers: [DynamicDialogRef, DialogService],
   template: `
-    <p-card
-      header="Sucursales"
-      subheader="Listado de sucursales/localidades activas en la empresa"
-    >
+    <p-card>
+      <ng-template #title>Sucursales</ng-template>
+      <ng-template #subtitle
+        >Listado de sucursales/localidades activas en la empresa"</ng-template
+      >
       <div class="w-full flex justify-end">
         <p-button label="Agregar" (click)="editBranch()" />
       </div>
       <div>
         <p-table
-          [value]="state.branches()"
+          [value]="branches()"
           [paginator]="true"
           [rows]="5"
           [rowsPerPageOptions]="[5, 10, 20]"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th pSortableColumn="name">
                 Nombre
@@ -45,7 +51,7 @@ import { DashboardStore } from './dashboard.store';
               <th></th>
             </tr>
           </ng-template>
-          <ng-template pTemplate="body" let-item>
+          <ng-template #body let-item>
             <tr>
               <td>{{ item.name }}</td>
               <td>{{ item.short_name }}</td>
@@ -79,6 +85,7 @@ export class BranchesComponent {
   readonly state = inject(DashboardStore);
   private ref = inject(DynamicDialogRef);
   private dialogService = inject(DialogService);
+  public branches = computed(() => [...this.state.branches()]);
 
   editBranch(branch?: Branch) {
     this.ref = this.dialogService.open(BranchesFormComponent, {

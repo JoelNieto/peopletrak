@@ -75,6 +75,11 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () =>
           import('./branches.component').then((x) => x.BranchesComponent),
       },
+      {
+        path: 'shifts',
+        loadComponent: () =>
+          import('./shifts.component').then((x) => x.ShiftsComponent),
+      },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },

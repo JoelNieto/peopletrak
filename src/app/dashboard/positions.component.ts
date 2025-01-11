@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
@@ -9,21 +14,23 @@ import { DashboardStore } from './dashboard.store';
 import { PositionsFormComponent } from './positions-form.component';
 
 @Component({
-    selector: 'app-positions',
-    imports: [TableModule, CardModule, ButtonModule],
-    providers: [DynamicDialogRef, DialogService],
-    template: `
-    <p-card header="Cargos" subheader="Listado de cargos de la empresa">
+  selector: 'app-positions',
+  imports: [TableModule, Card, Button],
+  providers: [DynamicDialogRef, DialogService],
+  template: `
+    <p-card>
+      <ng-template #title>Cargos</ng-template>
+      <ng-template #subtitle>Listado de cargos de la empresa</ng-template>
       <div class="w-full flex justify-end">
         <p-button label="Agregar" (click)="editPosition()" />
       </div>
       <p-table
-        [value]="state.positions()"
+        [value]="positions()"
         [paginator]="true"
         [rowsPerPageOptions]="[5, 10, 20]"
         [rows]="5"
       >
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th pSortableColumn="name">
               Nombre
@@ -36,7 +43,7 @@ import { PositionsFormComponent } from './positions-form.component';
             <th></th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item>
+        <ng-template #body let-item>
           <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.department?.name }}</td>
@@ -61,14 +68,15 @@ import { PositionsFormComponent } from './positions-form.component';
       </p-table>
     </p-card>
   `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PositionsComponent {
   readonly state = inject(DashboardStore);
 
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
+  public positions = computed(() => [...this.state.positions()]);
 
   editPosition(position?: Position) {
     this.ref = this.dialog.open(PositionsFormComponent, {

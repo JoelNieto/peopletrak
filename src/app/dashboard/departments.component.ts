@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
@@ -9,25 +14,26 @@ import { DashboardStore } from './dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 @Component({
-    selector: 'app-departments',
-    imports: [TableModule, ButtonModule, CardModule],
-    providers: [DynamicDialogRef, DialogService],
-    template: `
-    <p-card
-      header="Areas"
-      subheader="Listado de areas/departamentos de la empresa"
-    >
+  selector: 'app-departments',
+  imports: [TableModule, Button, Card],
+  providers: [DynamicDialogRef, DialogService],
+  template: `
+    <p-card>
+      <ng-template #title>Areas</ng-template>
+      <ng-template #subtitle
+        >Listado de areas/departamentos de la empresa</ng-template
+      >
       <div class="w-full flex justify-end">
         <p-button (click)="editDepartment()" label="Agregar" />
       </div>
       <div>
         <p-table
-          [value]="state.departments()"
+          [value]="departments()"
           [paginator]="true"
           [rows]="5"
           [rowsPerPageOptions]="[5, 10, 20]"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th pSortableColumn="name">
                 Nombre
@@ -36,7 +42,7 @@ import { DepartmentsFormComponent } from './departments-form.component';
               <th></th>
             </tr>
           </ng-template>
-          <ng-template pTemplate="body" let-item>
+          <ng-template #body let-item>
             <tr>
               <td>{{ item.name }}</td>
               <td>
@@ -61,13 +67,14 @@ import { DepartmentsFormComponent } from './departments-form.component';
       </div>
     </p-card>
   `,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsComponent {
   readonly state = inject(DashboardStore);
   private ref = inject(DynamicDialogRef);
   private dialog = inject(DialogService);
+  public departments = computed(() => [...this.state.departments()]);
 
   editDepartment(department?: Department) {
     this.ref = this.dialog.open(DepartmentsFormComponent, {

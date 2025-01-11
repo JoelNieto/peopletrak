@@ -14,6 +14,7 @@ import {
   endOfMonth,
   format,
   isSameDay,
+  isSameMonth,
   startOfMonth,
   startOfToday,
   subMonths,
@@ -25,23 +26,30 @@ import { Button } from 'primeng/button';
   selector: 'app-calendar',
   imports: [Button, NgClass, DatePipe, NgTemplateOutlet],
   template: `<div class="calendar-container">
-    <header class="calendar-header mb-4 flex items-center justify-between">
-      <h2 class="text-xl font-bold">{{ this.currentMonth() }}</h2>
-      <div class="flex items-center gap-2 text-sm">
-        <p-button (onClick)="this.toCurrentMonth()" label="Hoy" text />
-        <div class="flex items-center gap-1">
-          <p-button icon="pi pi-fast-backward" (onClick)="prevMonth()" />
-          <p-button icon="pi pi-fast-forward" (onClick)="nextMonth()" />
-        </div>
+    <header class="calendar-header my-4 flex items-center justify-between">
+      <h2 class="text-xl font-semibold">
+        {{ this.currentMonth() }}
+      </h2>
+
+      <div class="flex items-center gap-1">
+        <p-button
+          (onClick)="this.toCurrentMonth()"
+          label="Hoy"
+          text
+          [disabled]="isCurrentMonth()"
+        />
+        <p-button icon="pi pi-chevron-left" (onClick)="prevMonth()" />
+        <p-button icon="pi pi-chevron-right" (onClick)="nextMonth()" />
       </div>
     </header>
     <div
-      class="mt-10 grid grid-cols-7 text-center text-xs leading-6 text-surface-600"
+      class="mt-4 grid grid-cols-7 text-center text-xs leading-6 text-surface-600"
     >
       @for (item of this.dayNamesFormatted; track item.dayName) {
       <div
+        class="uppercase"
         [ngClass]="[
-          item.isToday ? 'text-primary' : 'text-tertiary',
+          item.isToday ? 'text-primary' : 'text-slate-500',
           item.isToday ? 'font-bold' : 'font-normal'
         ]"
       >
@@ -154,6 +162,10 @@ export class CalendarComponent {
   );
 
   readonly #dayNames = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+
+  protected isCurrentMonth = computed(() =>
+    isSameMonth(new Date(), this.currentDate())
+  );
 
   protected readonly dayNamesFormatted = this.#dayNames.map((dayName) => ({
     dayName,

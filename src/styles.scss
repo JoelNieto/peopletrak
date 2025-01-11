@@ -83,6 +83,7 @@ h2 {
   }
 }
 
-.p-select-overlay {
-  width: 100%;
+.p-select-overlay,
+.p-select-fluid {
+  @apply w-full;
 }

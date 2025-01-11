@@ -4,8 +4,8 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Schedule } from '../models';
@@ -15,12 +15,11 @@ import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
   selector: 'app-schedules',
-  imports: [CardModule, TableModule, ButtonModule, TimePipe],
+  imports: [Card, TableModule, Button, TimePipe],
   providers: [DynamicDialogRef, DialogService],
-  template: `<p-card
-    header="Horarios"
-    subheader="Listado de horarios disponibles"
-  >
+  template: `<p-card>
+    <ng-template #title>Horarios</ng-template>
+    <ng-template #subtitle>Listado de horarios disponibles</ng-template>
     <div class="flex w-full justify-end">
       <p-button
         label="Agregar"
@@ -32,25 +31,30 @@ import { SchedulesFormComponent } from './schedules-form.component';
       [value]="schedules()"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 20]"
+      sortField="entry_time"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th pSortableColumn="name">Nombre<p-sortIcon field="name" /></th>
-          <th pSortableColumn="start">Inicio<p-sortIcon field="start" /></th>
+          <th pSortableColumn="entry_time">
+            Inicio<p-sortIcon field="entry_time" />
+          </th>
           <th pSortableColumn="lunch_start_time">
             Inicio de almuerzo<p-sortIcon field="lunch_start_time" />
           </th>
           <th pSortableColumn="lunch_end_time">
             Fin de almuerzo<p-sortIcon field="lunch_end_time" />
           </th>
-          <th pSortableColumn="end">Fin<p-sortIcon field="end" /></th>
+          <th pSortableColumn="exit_time">
+            Fin<p-sortIcon field="exit_time" />
+          </th>
           <th pSortableColumn="minutes_tolerance">
             Tolerancia<p-sortIcon field="minutes_tolerance" />
           </th>
           <th></th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-schedule>
+      <ng-template #body let-schedule>
         <tr>
           <td>{{ schedule.name }}</td>
           <td>{{ schedule.entry_time | time }}</td>
@@ -86,7 +90,7 @@ import { SchedulesFormComponent } from './schedules-form.component';
 })
 export class SchedulesComponent {
   public store = inject(DashboardStore);
-  public schedules = computed(() => this.store.schedules());
+  public schedules = computed(() => [...this.store.schedules()]);
 
   public dialogService = inject(DialogService);
   private ref = inject(DynamicDialogRef);

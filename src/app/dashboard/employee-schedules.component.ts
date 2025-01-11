@@ -1,4 +1,3 @@
-import { JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +20,7 @@ import { SupabaseService } from '../services/supabase.service';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 @Component({
   selector: 'app-employee-schedules',
-  imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, JsonPipe],
+  imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <app-calendar
@@ -29,7 +28,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
       [markerTpl]="markerTpl"
     />
     <p-button
-      class="fixed bottom-6 right-12"
+      class="fixed bottom-24 right-12"
       label="Nuevo"
       icon="pi pi-plus-circle"
       (onClick)="editSchedule({ employee_id: employeeId() })"
@@ -87,7 +86,6 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
         </ul>
       </div>
     </ng-template>
-    {{ employeeSchedules() | json }}
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,

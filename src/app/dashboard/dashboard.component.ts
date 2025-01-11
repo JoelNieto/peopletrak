@@ -144,11 +144,20 @@ import { DashboardStore } from './dashboard.store';
               class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
               routerLinkActive="selected"
             >
-              <i class="pi pi-calendar-clock mr-2"></i>
+              <i class="pi pi-calendar mr-2"></i>
               Horarios
             </a>
           </li>
-
+          <li pRipple>
+            <a
+              routerLink="shifts"
+              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
+              routerLinkActive="selected"
+            >
+              <i class="pi pi-calendar-clock mr-2"></i>
+              Turnos
+            </a>
+          </li>
           <li>
             <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
               <p-accordion-panel value="0">

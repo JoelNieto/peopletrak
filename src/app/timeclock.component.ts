@@ -75,11 +75,11 @@ import { SupabaseService } from './services/supabase.service';
                 filter
                 filterBy="first_name,father_name"
               >
-                <ng-template pTemplate="selectedItem" let-selected>
+                <ng-template #selectedItem let-selected>
                   {{ selected.father_name | trim }},
                   {{ selected.first_name | trim }}
                 </ng-template>
-                <ng-template let-item pTemplate="item">
+                <ng-template let-item #item>
                   {{ item.father_name | trim }}, {{ item.first_name | trim }}
                 </ng-template>
               </p-select>
