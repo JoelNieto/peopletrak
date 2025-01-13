@@ -9,10 +9,11 @@ import {
   linkedSignal,
   model,
   OnInit,
+  resource,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { addDays, format, startOfMonth } from 'date-fns';
+import { addDays, differenceInMinutes, format, startOfMonth } from 'date-fns';
 import { trim } from 'lodash';
 import { MessageService } from 'primeng/api';
 import { Avatar } from 'primeng/avatar';
@@ -81,6 +82,7 @@ import { DashboardStore } from './dashboard.store';
         <tr>
           <th>Empleado</th>
           <th>Día</th>
+          <th>Horario</th>
           <th>Entrada</th>
           <th>Inicio de almuerzo</th>
           <th>Fin de almuerzo</th>
@@ -91,9 +93,15 @@ import { DashboardStore } from './dashboard.store';
         <tr>
           <td>{{ log.employee.first_name }} {{ log.employee.father_name }}</td>
           <td>{{ log.day | date : 'mediumDate' }}</td>
+          <td>{{ log.schedule?.schedule.name }}</td>
           <td>
             <div class="flex gap-1 items-center">
-              {{ log.entry?.date | date : 'hh:mm a' }}
+              <span
+                [class.text-red-500]="log.delay"
+                [pTooltip]="log.delay ? 'Retraso de ' + log.delay + ' min' : ''"
+                tooltipPosition="top"
+                >{{ log.entry?.date | date : 'hh:mm a' }}</span
+              >
               @if(log.entry) {
               <p-avatar
                 shape="circle"
@@ -173,6 +181,24 @@ export class TimelogsComponent implements OnInit {
     return days;
   });
 
+  public schedules = resource({
+    request: () => ({
+      dateRange: this.dateRange(),
+    }),
+    loader: async ({ request }) => {
+      const { data, error } = await this.supabase.client
+        .from('employee_schedules')
+        .select('*, schedule:schedules(*)')
+        .gte('start_date', format(request.dateRange[0], 'yyyy-MM-dd 06:00:00'))
+        .lte('end_date', format(request.dateRange[1], 'yyyy-MM-dd 06:00:00'));
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data;
+    },
+  });
+
   public dayLogs = linkedSignal(() =>
     this.logs()
       .map((x) => ({ ...x, day: format(x.created_at, 'yyyy-MM-dd') }))
@@ -180,6 +206,8 @@ export class TimelogsComponent implements OnInit {
         {
           employee: Partial<Employee>;
           day: string;
+          schedule?: any;
+          delay?: number;
           entry?: { date: Date; branch: Branch };
           lunch_start?: { date: Date; branch: Branch };
           lunch_end?: { date: Date; branch: Branch };
@@ -188,9 +216,20 @@ export class TimelogsComponent implements OnInit {
       >((acc, x) => {
         if (!acc.filter((day) => day.employee.id === x.employee.id).length) {
           this.days().forEach((day) => {
+            const schedule = this.schedules
+              .value()
+              ?.find(
+                (schedule) =>
+                  schedule.employee_id === x.employee.id &&
+                  schedule.start_date <= day &&
+                  schedule.end_date >= day
+              );
+
             acc.push({
               employee: x.employee,
               day,
+              schedule,
+              delay: undefined,
               entry: undefined,
               lunch_start: undefined,
               lunch_end: undefined,
@@ -207,6 +246,14 @@ export class TimelogsComponent implements OnInit {
           ...acc[index],
           [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
         };
+        if (acc[index].entry && acc[index].schedule) {
+          const entryTime = format(acc[index].entry.date, 'hh:mm:ss');
+          const scheduleTime = acc[index].schedule.schedule.entry_time;
+          const delay = this.calcTimeDiff(entryTime, scheduleTime);
+          if (delay > 0) {
+            acc[index].delay = delay;
+          }
+        }
         return acc;
       }, [])
       .sort((a, b) =>
@@ -214,10 +261,24 @@ export class TimelogsComponent implements OnInit {
       )
   );
 
+  calcTimeDiff = (time1: string, time2: string) => {
+    const timeStart = new Date();
+    const timeEnd = new Date();
+    const valueStart = time1.split(':');
+    const valueEnd = time2.split(':');
+
+    timeStart.setHours(+valueStart[0], +valueStart[1], 0, 0);
+    timeEnd.setHours(+valueEnd[0], +valueEnd[1], 0, 0);
+
+    return differenceInMinutes(timeStart, timeEnd);
+  };
+
   public timelogsReport = computed(() =>
     this.dayLogs().map((x) => ({
       EMPLEADO: x.employee.first_name + ' ' + x.employee.father_name,
       DIA: x.day,
+      HORARIO: x.schedule?.schedule.name,
+      RETRASO: x.delay ?? x.delay + ' min',
       ENTRADA: x.entry?.date ? format(x.entry?.date, 'hh:mm a') : 'SIN MARCA',
       INICIO_DESCANSO: x.lunch_start?.date
         ? format(x.lunch_start?.date, 'hh:mm a')
