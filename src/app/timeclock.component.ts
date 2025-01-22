@@ -22,7 +22,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputOtp } from 'primeng/inputotp';
 import { Select } from 'primeng/select';
 import { Toast } from 'primeng/toast';
-import { from, map } from 'rxjs';
+import { catchError, from, map, of } from 'rxjs';
 import { Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SupabaseService } from './services/supabase.service';
@@ -138,7 +138,14 @@ export class TimeclockComponent {
   private confirmation = inject(ConfirmationService);
   private http = inject(HttpClient);
   public currentIP = toSignal(
-    this.http.get<{ ip: string }>('https://jsonip.com')
+    this.http
+      .get<{ ip: string }>('https://jsonip.com', {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+      .pipe(catchError(() => of({ ip: '' })))
   );
 
   public validIP = computed(() =>
