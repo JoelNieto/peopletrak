@@ -141,8 +141,7 @@ export class TimeclockComponent {
     this.http
       .get<{ ip: string }>('https://jsonip.com', {
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', // CORS
         },
       })
       .pipe(catchError(() => of({ ip: '' })))
