@@ -2,9 +2,6 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 export const markGroupDirty = (formGroup: FormGroup) =>
   Object.keys(formGroup.controls).forEach((key) => {
-    console.log(key);
-    console.log(formGroup.get(key)?.constructor.name);
-
     switch (formGroup.get(key)?.constructor.name) {
       case 'FormGroup':
         markGroupDirty(formGroup.get(key) as FormGroup);

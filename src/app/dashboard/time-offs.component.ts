@@ -123,7 +123,6 @@ export class TimeOffsComponent implements OnInit {
     const {
       data: { employee, timeoff },
     } = this.dialog;
-    console.log({ employee, timeoff });
     if (employee) {
       this.form.get('employee_id')?.setValue(employee.id);
       this.form.get('employee_id')?.disable({ emitEvent: false });

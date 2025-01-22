@@ -263,7 +263,6 @@ export class TimelogsComponent implements OnInit {
           [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
         };
         if (acc[index].schedule) {
-          console.log(acc[index].schedule.schedule);
           if (acc[index].schedule.schedule.day_off) {
             acc[index].delay = 'DIA LIBRE';
           } else {

@@ -151,8 +151,6 @@ export class EmployeeSchedulesFormComponent implements OnInit {
       this.form.get('employee_id')?.disable();
       return;
     }
-
-    console.log(employee_schedule);
     if (employee_schedule) {
       const { id, employee_id, schedule_id, start_date, end_date } =
         employee_schedule;

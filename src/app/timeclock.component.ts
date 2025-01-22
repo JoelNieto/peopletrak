@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -14,7 +21,7 @@ import { Card } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputOtp } from 'primeng/inputotp';
 import { Select } from 'primeng/select';
-import { ToastModule } from 'primeng/toast';
+import { Toast } from 'primeng/toast';
 import { from, map } from 'rxjs';
 import { Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
@@ -26,13 +33,25 @@ import { SupabaseService } from './services/supabase.service';
     Select,
     Button,
     ReactiveFormsModule,
-    ToastModule,
+    Toast,
     Card,
     ConfirmDialogModule,
     TrimPipe,
+    NgClass,
   ],
   providers: [ConfirmationService],
-  template: `<p-confirmDialog /><p-toast />
+  template: `<p-confirmDialog key="confirm1" />
+    <p-confirmDialog key="confirm2">
+      <ng-template #message let-message>
+        <div
+          class="flex flex-col items-center w-full gap-4 dark:border-surface-700"
+        >
+          <i [ngClass]="message.icon" class="!text-6xl text-orange-500"></i>
+          <p>{{ message.message }}</p>
+        </div>
+      </ng-template>
+    </p-confirmDialog>
+    <p-toast />
     <div
       class="flex flex-col items-center w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
     >
@@ -117,6 +136,14 @@ export class TimeclockComponent {
   protected supabase = inject(SupabaseService);
   private message = inject(MessageService);
   private confirmation = inject(ConfirmationService);
+  private http = inject(HttpClient);
+  public currentIP = toSignal(
+    this.http.get<{ ip: string }>('https://jsonip.com')
+  );
+
+  public validIP = computed(() =>
+    this.branches()?.some((branch) => branch.ip === this.currentIP()?.ip)
+  );
 
   public types = Object.entries(TimelogType).map(([key, value]) => ({
     value: key,
@@ -197,6 +224,8 @@ export class TimeclockComponent {
         branch_id,
         company_id,
         type,
+        ip: this.currentIP()?.ip,
+        invalid_ip: !this.validIP(),
       });
       if (error) {
         console.error(error);
@@ -212,6 +241,7 @@ export class TimeclockComponent {
           new Date(),
           'h:mm:ss aaa'
         )}</b>`,
+        key: 'confirm1',
         header: 'Éxito',
         icon: 'pi pi-check',
         acceptLabel: 'Aceptar',
@@ -219,8 +249,22 @@ export class TimeclockComponent {
         accept: () => {
           this.form.get('otp')?.reset();
           this.form.get('employee')?.reset();
+          if (!this.validIP()) {
+            this.alertInvalidIP();
+          }
         },
       });
     }
+  }
+
+  private alertInvalidIP() {
+    this.confirmation.confirm({
+      message: `La IP actual no coincide con la IP de ninguna sucursal, por favor verifique con Recursos Humanos`,
+      header: 'Advertencia',
+      key: 'confirm2',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Aceptar',
+      rejectVisible: false,
+    });
   }
 }

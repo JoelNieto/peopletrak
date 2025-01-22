@@ -441,7 +441,7 @@ export class EmployeeFormComponent implements OnInit {
     await this.state
       .updateEmployee(this.form.getRawValue())
       .then(() => this.router.navigate(['..'], { relativeTo: this.route }))
-      .catch((error) => console.log({ error }));
+      .catch((error) => console.error({ error }));
   }
 
   cancelChanges(list = false) {

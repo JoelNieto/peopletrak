@@ -138,6 +138,8 @@ export type TimeLogs = {
   company_id: string;
   branch_id: string;
   type: TimelogType;
+  ip?: string;
+  invalid_id?: boolean;
   created_at: Date;
 };
 

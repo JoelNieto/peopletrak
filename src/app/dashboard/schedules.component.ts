@@ -1,4 +1,4 @@
-import { JsonPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,7 +16,7 @@ import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
   selector: 'app-schedules',
-  imports: [Card, TableModule, Button, TimePipe, JsonPipe, NgClass],
+  imports: [Card, TableModule, Button, TimePipe, NgClass],
   providers: [DynamicDialogRef, DialogService],
   template: `<p-card>
     <ng-template #title>Horarios</ng-template>

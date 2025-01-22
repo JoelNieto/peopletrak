@@ -16,6 +16,7 @@ import {
 import Aura from '@primeng/themes/aura';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
+import { provideHttpClient } from '@angular/common/http';
 import { definePreset } from '@primeng/themes';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { providePrimeNG } from 'primeng/config';
@@ -51,6 +52,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions()
     ),
     provideAnimationsAsync(),
+    provideHttpClient(),
     providePrimeNG({
       theme: {
         preset: MyPreset,
