@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,6 +20,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
 import { v4 } from 'uuid';
+import { colorVariants } from '../models';
 import { TrimPipe } from '../pipes/trim.pipe';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
@@ -32,6 +34,7 @@ import { DashboardStore } from './dashboard.store';
     FormsModule,
     ReactiveFormsModule,
     TrimPipe,
+    NgClass,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-2 gap-4">
@@ -46,10 +49,10 @@ import { DashboardStore } from './dashboard.store';
           filterBy="first_name,father_name"
           appendTo="body"
         >
-          <ng-template pTemplate="selectedItem" let-selected>
+          <ng-template #selectedItem let-selected>
             {{ selected.father_name | trim }}, {{ selected.first_name | trim }}
           </ng-template>
-          <ng-template let-item pTemplate="item">
+          <ng-template let-item #item>
             {{ item.father_name | trim }}, {{ item.first_name | trim }}
           </ng-template>
         </p-select>
@@ -63,7 +66,28 @@ import { DashboardStore } from './dashboard.store';
           formControlName="schedule_id"
           appendTo="body"
           placeholder="Seleccionar turno"
-        />
+        >
+          <ng-template #item let-item>
+            <div class="flex items-center ">
+              <div
+                class="px-3 py-1.5 text-sm rounded"
+                [ngClass]="colorVariants[item.color]"
+              >
+                {{ item.name }}
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #selectedItem let-selected>
+            <div class="flex items-center ">
+              <div
+                class="text-sm rounded"
+                [ngClass]="colorVariants[selected.color]"
+              >
+                {{ selected.name }}
+              </div>
+            </div>
+          </ng-template>
+        </p-select>
       </div>
       <div class="input-container">
         <label for="start_date">Fecha inicio</label>
@@ -118,6 +142,7 @@ export class EmployeeSchedulesFormComponent implements OnInit {
   public loading = signal<boolean>(false);
   private supabase = inject(SupabaseService);
   private message = inject(MessageService);
+  public colorVariants = colorVariants;
 
   ngOnInit(): void {
     const { employee_schedule, employee_id } = this.dialog.data;

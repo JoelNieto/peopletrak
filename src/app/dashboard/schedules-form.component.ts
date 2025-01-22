@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -18,7 +19,10 @@ import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
+import { colorVariants } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
@@ -30,6 +34,9 @@ import { DashboardStore } from './dashboard.store';
     InputText,
     InputNumber,
     Button,
+    ToggleSwitch,
+    Select,
+    NgClass,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-4 gap-3">
@@ -85,6 +92,32 @@ import { DashboardStore } from './dashboard.store';
           step="5"
         />
       </div>
+      <div class="input-container">
+        <label for="color">Color</label>
+        <p-select
+          formControlName="color"
+          [options]="colors"
+          optionValue="key"
+          appendTo="body"
+        >
+          <ng-template #item let-color>
+            <span
+              class="rounded h-6 w-full flex items-center justify-center"
+              [ngClass]="colorVariants[color.key]"
+            ></span>
+          </ng-template>
+          <ng-template #selectedItem let-color>
+            <span
+              class="rounded h-6 w-full flex items-center justify-center"
+              [ngClass]="colorVariants[color.key]"
+            ></span>
+          </ng-template>
+        </p-select>
+      </div>
+      <div class="flex items-center mt-2 gap-2">
+        <p-toggleswitch formControlName="day_off" inputId="day_off" />
+        <label for="day_off">Dia Libre</label>
+      </div>
     </div>
     <div class="flex justify-end gap-4 items-center">
       <p-button
@@ -111,23 +144,13 @@ export class SchedulesFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    entry_time: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    lunch_start_time: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    lunch_end_time: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    exit_time: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+    entry_time: new FormControl<string | null>(null),
+    lunch_start_time: new FormControl<string | null>(null),
+    lunch_end_time: new FormControl<string | null>(null),
+    exit_time: new FormControl<string | null>(null),
+    day_off: new FormControl(false, { nonNullable: true }),
     minutes_tolerance: new FormControl(0, { nonNullable: true }),
+    color: new FormControl('', { nonNullable: true }),
   });
 
   public dialogRef = inject(DynamicDialogRef);
@@ -135,10 +158,16 @@ export class SchedulesFormComponent implements OnInit {
   public state = inject(DashboardStore);
   private message = inject(MessageService);
 
+  public colorVariants = colorVariants;
+  public colors = Object.entries(colorVariants).map(([key, value]) => ({
+    key,
+    value,
+  }));
+
   ngOnInit() {
     const { schedule } = this.dialog.data;
     if (schedule) {
-      const { id, name, minutes_tolerance } = schedule;
+      const { id, name, minutes_tolerance, color } = schedule;
       let { entry_time, lunch_end_time, lunch_start_time, exit_time } =
         schedule;
       entry_time = this.setTime(entry_time);
@@ -148,6 +177,7 @@ export class SchedulesFormComponent implements OnInit {
       this.form.patchValue({
         id,
         name,
+        color,
         minutes_tolerance,
         entry_time,
         lunch_end_time,
@@ -167,23 +197,28 @@ export class SchedulesFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const { id, name, minutes_tolerance } = this.form.getRawValue();
+    const { id, name, minutes_tolerance, day_off, color } =
+      this.form.getRawValue();
     let { entry_time, lunch_end_time, lunch_start_time, exit_time } =
       this.form.getRawValue();
-    entry_time = format(entry_time, 'HH:mm:ss');
-    lunch_end_time = format(lunch_end_time, 'HH:mm:ss');
-    lunch_start_time = format(lunch_start_time, 'HH:mm:ss');
-    exit_time = format(exit_time, 'HH:mm:ss');
+    entry_time = entry_time ? format(entry_time, 'HH:mm:ss') : null;
+    lunch_end_time = lunch_end_time ? format(lunch_end_time, 'HH:mm:ss') : null;
+    lunch_start_time = lunch_start_time
+      ? format(lunch_start_time, 'HH:mm:ss')
+      : null;
+    exit_time = exit_time ? format(exit_time, 'HH:mm:ss') : null;
     this.state
       .updateItem({
         request: {
           id,
           name,
+          color,
           entry_time,
           lunch_end_time,
           lunch_start_time,
           exit_time,
           minutes_tolerance,
+          day_off,
         },
         collection: 'schedules',
       })

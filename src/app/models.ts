@@ -117,7 +117,9 @@ export type Schedule = {
   lunch_start_time: Date;
   lunch_end_time: Date;
   exit_time: Date;
+  color?: string;
   created_at?: Date;
+  day_off: boolean;
   minutes_tolerance: number;
   min_lunch_minutes: number;
   max_lunch_minutes: number;
@@ -147,4 +149,18 @@ export type EmployeeSchedule = {
   start_date: Date;
   end_date: Date;
   created_at?: Date;
+};
+
+export const colorVariants: Record<string, string> = {
+  slate: 'bg-slate-200 text-slate-800',
+  yellow: 'bg-yellow-200 text-yellow-800',
+  green: 'bg-green-200 text-green-800',
+  sky: 'bg-sky-200 text-sky-800',
+  indigo: 'bg-indigo-200 text-indigo-800',
+  orange: 'bg-orange-200 text-orange-800',
+  purple: 'bg-purple-200 text-purple-800',
+  red: 'bg-red-200 text-red-800',
+  pink: 'bg-pink-200 text-pink-800',
+  teal: 'bg-teal-200 text-teal-800',
+  cyan: 'bg-cyan-200 text-cyan-800',
 };

@@ -6,6 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TimePipe implements PipeTransform {
   transform(value: string, includeSeconds?: boolean): string {
+    if (!value) return '-';
     const [hours, minutes, seconds] = value.split(':').map(Number);
 
     if (hours <= 12) {

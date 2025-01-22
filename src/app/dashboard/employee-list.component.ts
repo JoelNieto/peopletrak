@@ -73,7 +73,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         dataKey="id"
         styleClass="p-datatable-striped"
       >
-        <ng-template pTemplate="caption">
+        <ng-template #caption>
           <div class="flex gap-2">
             <p-button
               icon="pi pi-file-excel"
@@ -89,7 +89,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             />
           </div>
         </ng-template>
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th style="width:22%" pFrozenColumn pSortableColumn="full_name">
               Nombre <p-sortIcon field="first_name" />
@@ -244,7 +244,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                     placeholder="Elija uno"
                     [showClear]="true"
                   >
-                    <ng-template let-option pTemplate="item">
+                    <ng-template let-option #item>
                       <p-tag
                         [value]="option.value ? 'PROBATORIO' : 'NORMAL'"
                         [severity]="option.value ? 'danger' : 'secondary'"
@@ -260,7 +260,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th pFrozenColumn alignFrozen="right"></th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item let-columns="columns">
+        <ng-template #body let-item let-columns="columns">
           <tr>
             <td pFrozenColumn>
               <a [routerLink]="item.id" class="text-primary hover:underline"

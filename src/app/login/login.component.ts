@@ -2,36 +2,29 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
+import { InputText } from 'primeng/inputtext';
+import { Toast } from 'primeng/toast';
 import { SupabaseService } from '../services/supabase.service';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    ReactiveFormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    ToastModule,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, Card, InputText, Button, Toast, RouterLink],
   template: `
     <div class="w-full h-screen flex flex-col items-center justify-center p-4">
       <p-toast />
-      <p-card
-        header="Iniciar sesion"
-        subheader="Introduzca su correo y revise su buzon para el enlace"
-        class="w-full md:w-2/5"
-      >
+      <p-card class="w-full md:w-2/5">
+        <ng-template #title>Iniciar sesion</ng-template>
+        <ng-template #subtitle
+          >Introduzca su correo y revise su buzon para el enlace</ng-template
+        >
         <div class="flex flex-col gap-2">
           <label for="email">Email</label>
           <input type="email" pInputText id="email" [formControl]="email" />
         </div>
-        <ng-template pTemplate="footer">
-          <div class="flex gap-4">
+        <ng-template #footer>
+          <div class="flex flex-col sm:flex-row gap-4 sm:justify-end">
             <p-button
               label="Entrar al dashboard"
               [disabled]="email.invalid"

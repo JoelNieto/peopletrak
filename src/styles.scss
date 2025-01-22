@@ -58,7 +58,7 @@ th {
 }
 
 .p-card .p-card-body {
-  row-gap: 0.25rem;
+  @apply gap-2;
 }
 
 h1,

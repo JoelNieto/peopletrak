@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,13 +15,13 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Popover } from 'primeng/popover';
 import { Tooltip } from 'primeng/tooltip';
 import { CalendarComponent } from '../calendar.component';
-import { EmployeeSchedule } from '../models';
+import { colorVariants, EmployeeSchedule } from '../models';
 import { TimePipe } from '../pipes/time.pipe';
 import { SupabaseService } from '../services/supabase.service';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 @Component({
   selector: 'app-employee-schedules',
-  imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe],
+  imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, NgClass],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <app-calendar
@@ -35,10 +36,11 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
     />
     <ng-template #markerTpl let-data>
       <div class="flex items-center justify-center">
-        <ul class="flex flex-col gap-1">
+        <ul class="flex flex-col gap-1 w-full">
           @for(marker of data; track marker){
           <li
-            class="flex bg-primary text-primary-contrast text-sm font-semibold rounded-md px-2 py-1 items-center cursor-pointer"
+            class="flex text-sm font-semibold rounded px-2 py-1 items-center cursor-pointer w-full"
+            [ngClass]="colorVariants[marker.data.schedule.color]"
             [pTooltip]="tooltipContent"
             tooltipPosition="top"
             (click)="options.toggle($event)"
@@ -107,6 +109,7 @@ export class EmployeeSchedulesComponent {
       .flat()
   );
   private dialog = inject(DialogService);
+  public colorVariants = colorVariants;
 
   private resourceSchedules = resource({
     request: () => ({ id: this.employeeId() }),

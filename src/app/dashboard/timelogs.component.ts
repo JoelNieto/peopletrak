@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,7 +25,7 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
-import { Branch, Employee } from '../models';
+import { Branch, colorVariants, Employee } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 @Component({
@@ -41,6 +41,7 @@ import { DashboardStore } from './dashboard.store';
     TooltipModule,
     Avatar,
     ToastModule,
+    NgClass,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -93,10 +94,23 @@ import { DashboardStore } from './dashboard.store';
         <tr>
           <td>{{ log.employee.first_name }} {{ log.employee.father_name }}</td>
           <td>{{ log.day | date : 'mediumDate' }}</td>
-          <td>{{ log.schedule?.schedule.name }}</td>
+          <td>
+            <span
+              class="rounded text-sm px-2 py-1 font-semibold"
+              [ngClass]="
+                log.schedule?.schedule
+                  ? colorVariants[log.schedule.schedule.color]
+                  : ''
+              "
+              >{{ log?.schedule?.schedule.name }}</span
+            >
+          </td>
           <td>
             <div class="flex gap-1 items-center">
               <span
+                [ngClass]="{
+                  'text-red-500 font-semibold cursor-pointer': log.delay
+                }"
                 [class.text-red-500]="log.delay"
                 [pTooltip]="log.delay ? 'Retraso de ' + log.delay + ' min' : ''"
                 tooltipPosition="top"
@@ -104,6 +118,7 @@ import { DashboardStore } from './dashboard.store';
               >
               @if(log.entry) {
               <p-avatar
+                class="cursor-pointer"
                 shape="circle"
                 [label]="log.entry?.branch.short_name"
                 [pTooltip]="log.entry?.branch.name"
@@ -164,6 +179,7 @@ export class TimelogsComponent implements OnInit {
   public logs = signal<any[]>([]);
   public loading = signal(false);
   private message = inject(MessageService);
+  public colorVariants = colorVariants;
 
   private selectedEmployee = computed(() =>
     this.store.employeesList().find((x) => x.id === this.employeeId())
@@ -207,7 +223,7 @@ export class TimelogsComponent implements OnInit {
           employee: Partial<Employee>;
           day: string;
           schedule?: any;
-          delay?: number;
+          delay?: number | string;
           entry?: { date: Date; branch: Branch };
           lunch_start?: { date: Date; branch: Branch };
           lunch_end?: { date: Date; branch: Branch };
@@ -246,12 +262,21 @@ export class TimelogsComponent implements OnInit {
           ...acc[index],
           [x.type]: { date: x.created_at, branch: x.branch, id: x.id },
         };
-        if (acc[index].entry && acc[index].schedule) {
-          const entryTime = format(acc[index].entry.date, 'hh:mm:ss');
-          const scheduleTime = acc[index].schedule.schedule.entry_time;
-          const delay = this.calcTimeDiff(entryTime, scheduleTime);
-          if (delay > 0) {
-            acc[index].delay = delay;
+        if (acc[index].schedule) {
+          console.log(acc[index].schedule.schedule);
+          if (acc[index].schedule.schedule.day_off) {
+            acc[index].delay = 'DIA LIBRE';
+          } else {
+            if (acc[index].entry) {
+              const entryTime = format(acc[index].entry.date, 'hh:mm:ss');
+              const scheduleTime = acc[index].schedule.schedule.entry_time;
+              const delay = this.calcTimeDiff(entryTime, scheduleTime);
+              if (delay > 0) {
+                acc[index].delay = delay;
+              }
+            } else {
+              acc[index].delay = 'SIN MARCA';
+            }
           }
         }
         return acc;
@@ -278,7 +303,8 @@ export class TimelogsComponent implements OnInit {
       EMPLEADO: x.employee.first_name + ' ' + x.employee.father_name,
       DIA: x.day,
       HORARIO: x.schedule?.schedule.name,
-      RETRASO: x.delay ?? x.delay + ' min',
+      RETRASO:
+        x.delay ?? (typeof x.delay === 'number' ? x.delay + ' min' : x.delay),
       ENTRADA: x.entry?.date ? format(x.entry?.date, 'hh:mm a') : 'SIN MARCA',
       INICIO_DESCANSO: x.lunch_start?.date
         ? format(x.lunch_start?.date, 'hh:mm a')
