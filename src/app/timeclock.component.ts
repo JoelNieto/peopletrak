@@ -139,11 +139,7 @@ export class TimeclockComponent {
   private http = inject(HttpClient);
   public currentIP = toSignal(
     this.http
-      .get<{ ip: string }>('https://jsonip.com', {
-        headers: {
-          'Access-Control-Allow-Origin': '*', // CORS
-        },
-      })
+      .get<{ ip: string }>('https://api.ipify.org?format=json', {})
       .pipe(catchError(() => of({ ip: '' })))
   );
 
