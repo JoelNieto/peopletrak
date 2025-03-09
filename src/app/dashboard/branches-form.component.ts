@@ -57,6 +57,10 @@ import { DashboardStore } from './dashboard.store';
         />
       </div>
       <div class="input-container">
+        <label for="ip">IP</label>
+        <input type="text" pInputText formControlName="ip" id="ip" />
+      </div>
+      <div class="input-container">
         <label for="address">Direccion</label>
         <textarea pTextarea formControlName="address"></textarea>
       </div>
@@ -102,6 +106,7 @@ export class BranchesFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    ip: new FormControl('', { nonNullable: true }),
     is_active: new FormControl(true, { nonNullable: true }),
   });
   public dialogRef = inject(DynamicDialogRef);

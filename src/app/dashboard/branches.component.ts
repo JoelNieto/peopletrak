@@ -22,7 +22,7 @@ import { DashboardStore } from './dashboard.store';
     <p-card>
       <ng-template #title>Sucursales</ng-template>
       <ng-template #subtitle
-        >Listado de sucursales/localidades activas en la empresa"</ng-template
+        >Listado de sucursales/localidades activas en la empresa</ng-template
       >
       <div class="w-full flex justify-end">
         <p-button label="Agregar" (click)="editBranch()" />
@@ -48,6 +48,7 @@ import { DashboardStore } from './dashboard.store';
                 Direccion
                 <p-sortIcon field="address" />
               </th>
+              <th>IP</th>
               <th></th>
             </tr>
           </ng-template>
@@ -56,6 +57,7 @@ import { DashboardStore } from './dashboard.store';
               <td>{{ item.name }}</td>
               <td>{{ item.short_name }}</td>
               <td>{{ item.address }}</td>
+              <td>{{ item.ip }}</td>
               <td>
                 <p-button
                   severity="success"
