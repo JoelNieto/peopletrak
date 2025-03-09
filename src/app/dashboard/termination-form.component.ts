@@ -20,7 +20,7 @@ import { SelectModule } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-termination-form',
+  selector: 'pt-termination-form',
   imports: [ReactiveFormsModule, SelectModule, DatePicker, Textarea, Button],
   template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">

@@ -66,6 +66,7 @@
     },
     "@nx/angular:component": {
       "style": "scss",
+      "prefix": "pt",
       "standalone": true,
       "inlineStyle": true,
       "inlineTemplate": true,

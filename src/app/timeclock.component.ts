@@ -27,7 +27,7 @@ import { Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SupabaseService } from './services/supabase.service';
 @Component({
-  selector: 'app-timeclock',
+  selector: 'pt-timeclock',
   imports: [
     InputOtp,
     Select,

@@ -23,7 +23,7 @@ import { es } from 'date-fns/locale';
 import { Button } from 'primeng/button';
 
 @Component({
-  selector: 'app-calendar',
+  selector: 'pt-calendar',
   imports: [Button, NgClass, DatePipe, NgTemplateOutlet],
   template: `<div class="calendar-container">
     <header class="calendar-header my-4 flex items-center justify-between">

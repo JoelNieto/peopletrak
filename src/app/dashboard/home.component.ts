@@ -14,9 +14,9 @@ import { es } from 'date-fns/locale';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-    selector: 'app-home',
-    imports: [BaseChartDirective, CardModule, DatePipe],
-    template: ` <div class="md:px-8">
+  selector: 'pt-home',
+  imports: [BaseChartDirective, CardModule, DatePipe],
+  template: ` <div class="md:px-8">
     <h1 class="text-gray-100 font-bold text-2xl">Dashboard</h1>
     <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
       <p-card
@@ -70,8 +70,8 @@ import { DashboardStore } from './dashboard.store';
       </div>
     </div>
   </div>`,
-    styles: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
   public state = inject(DashboardStore);

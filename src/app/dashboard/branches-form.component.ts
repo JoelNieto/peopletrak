@@ -21,7 +21,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-branches-form',
+  selector: 'pt-branches-form',
   imports: [
     ReactiveFormsModule,
     Button,

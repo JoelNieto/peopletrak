@@ -14,7 +14,7 @@ import { DashboardStore } from './dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 @Component({
-  selector: 'app-departments',
+  selector: 'pt-departments',
   imports: [TableModule, Button, Card],
   providers: [DynamicDialogRef, DialogService],
   template: `

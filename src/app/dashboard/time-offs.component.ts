@@ -21,7 +21,7 @@ import { TimeOff } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-time-offs',
+  selector: 'pt-time-offs',
   imports: [
     ReactiveFormsModule,
     SelectModule,

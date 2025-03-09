@@ -23,7 +23,7 @@ import { TerminationFormComponent } from './termination-form.component';
 import { TimeOffsComponent } from './time-offs.component';
 
 @Component({
-  selector: 'app-employee-detail',
+  selector: 'pt-employee-detail',
   imports: [
     Card,
     DatePipe,
@@ -182,7 +182,7 @@ import { TimeOffsComponent } from './time-offs.component';
             </p-card>
           </p-tabpanel>
           <p-tabpanel value="2">
-            <app-employee-schedules [employeeId]="employee_id()" />
+            <pt-employee-schedules [employeeId]="employee_id()" />
           </p-tabpanel>
           <p-tabpanel value="3">
             <img src="{{ employee()?.qr_code }}" alt="QR Code" />

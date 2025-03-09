@@ -19,7 +19,7 @@ import { Select } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-departments-form',
+  selector: 'pt-departments-form',
   imports: [ReactiveFormsModule, Button, InputText, Select],
   template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">

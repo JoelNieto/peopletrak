@@ -29,7 +29,7 @@ import { Branch, colorVariants, Employee } from '../models';
 import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 @Component({
-  selector: 'app-timelogs',
+  selector: 'pt-timelogs',
   imports: [
     Button,
     Card,

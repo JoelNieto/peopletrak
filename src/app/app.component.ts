@@ -7,7 +7,7 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 @Component({
   imports: [RouterOutlet, NgxSpinnerComponent],
   providers: [MessageService],
-  selector: 'app-root',
+  selector: 'pt-root',
   template: ` <router-outlet />
     <ngx-spinner type="ball-scale-multiple" bdColor="rgb(99, 102, 241, 0.8)">
       <p class="text-white">Cargando...</p></ngx-spinner

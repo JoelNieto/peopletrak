@@ -13,7 +13,7 @@ import { DashboardStore } from './dashboard.store';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 
 @Component({
-  selector: 'app-shifts',
+  selector: 'pt-shifts',
   imports: [
     Card,
     Select,
@@ -48,7 +48,7 @@ import { EmployeeSchedulesComponent } from './employee-schedules.component';
       </div>
     </div>
     @let id = employeeId(); @if(id) {
-    <app-employee-schedules [employeeId]="id" />
+    <pt-employee-schedules [employeeId]="id" />
     } @else {
     <div class="flex items-center justify-center h-40">
       <p>No hay empleado seleccionado</p>

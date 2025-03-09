@@ -26,7 +26,7 @@ import { colorVariants } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-schedules-form',
+  selector: 'pt-schedules-form',
   imports: [
     DatePicker,
     FormsModule,

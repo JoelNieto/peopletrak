@@ -27,7 +27,7 @@ import { DashboardStore } from './dashboard.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
-  selector: 'app-employee-list',
+  selector: 'pt-employee-list',
   imports: [
     DatePipe,
     ReactiveFormsModule,

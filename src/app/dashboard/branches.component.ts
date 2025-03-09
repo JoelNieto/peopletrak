@@ -15,7 +15,7 @@ import { BranchesFormComponent } from './branches-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-branches',
+  selector: 'pt-branches',
   imports: [ButtonModule, CardModule, TableModule, DialogModule],
   providers: [DynamicDialogRef, DialogService],
   template: `

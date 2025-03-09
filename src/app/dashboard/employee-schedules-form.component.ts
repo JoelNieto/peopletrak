@@ -26,7 +26,7 @@ import { SupabaseService } from '../services/supabase.service';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-employee-schedules-form',
+  selector: 'pt-employee-schedules-form',
   imports: [
     SelectModule,
     Button,

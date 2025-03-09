@@ -9,7 +9,7 @@ import { Toast } from 'primeng/toast';
 import { SupabaseService } from '../services/supabase.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'pt-login',
   imports: [ReactiveFormsModule, Card, InputText, Button, Toast, RouterLink],
   template: `
     <div class="w-full h-screen flex flex-col items-center justify-center p-4">

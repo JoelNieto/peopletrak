@@ -20,6 +20,13 @@ export const appRoutes: Route[] = [
       import('./qr-generator.component').then((m) => m.QrGeneratorComponent),
   },
   {
+    path: 'admin-schedules',
+    loadComponent: () =>
+      import('./admin-schedules.component').then(
+        (m) => m.AdminSchedulesComponent
+      ),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./login/login.component').then((x) => x.LoginComponent),

@@ -15,7 +15,7 @@ import { DashboardStore } from './dashboard.store';
 import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
-  selector: 'app-schedules',
+  selector: 'pt-schedules',
   imports: [Card, TableModule, Button, TimePipe, NgClass],
   providers: [DynamicDialogRef, DialogService],
   template: `<p-card>

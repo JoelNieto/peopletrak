@@ -13,7 +13,7 @@ import { Select } from 'primeng/select';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'pt-dashboard',
   providers: [DashboardStore, MessageService, ConfirmationService],
   imports: [
     RouterOutlet,

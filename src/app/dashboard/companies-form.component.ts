@@ -19,7 +19,7 @@ import { v4 } from 'uuid';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-companies-form',
+  selector: 'pt-companies-form',
   imports: [ReactiveFormsModule, InputText, Textarea, Button, ToggleSwitch],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">

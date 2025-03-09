@@ -31,7 +31,7 @@ import { Employee, UniformSize } from '../models';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-employee-form',
+  selector: 'pt-employee-form',
   imports: [
     ReactiveFormsModule,
     InputText,

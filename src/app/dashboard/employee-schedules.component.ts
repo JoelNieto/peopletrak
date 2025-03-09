@@ -20,11 +20,11 @@ import { TimePipe } from '../pipes/time.pipe';
 import { SupabaseService } from '../services/supabase.service';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 @Component({
-  selector: 'app-employee-schedules',
+  selector: 'pt-employee-schedules',
   imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, NgClass],
   providers: [DynamicDialogRef, DialogService],
   template: `
-    <app-calendar
+    <pt-calendar
       [markers]="employeeSchedules() ?? []"
       [markerTpl]="markerTpl"
     />

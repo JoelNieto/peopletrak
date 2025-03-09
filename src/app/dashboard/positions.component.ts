@@ -14,7 +14,7 @@ import { DashboardStore } from './dashboard.store';
 import { PositionsFormComponent } from './positions-form.component';
 
 @Component({
-  selector: 'app-positions',
+  selector: 'pt-positions',
   imports: [TableModule, Card, Button],
   providers: [DynamicDialogRef, DialogService],
   template: `

@@ -13,7 +13,7 @@ import { CompaniesFormComponent } from './companies-form.component';
 import { DashboardStore } from './dashboard.store';
 
 @Component({
-  selector: 'app-companies',
+  selector: 'pt-companies',
   imports: [Card, Button, TableModule],
   providers: [DynamicDialogRef, DialogService],
   template: `<p-card>
