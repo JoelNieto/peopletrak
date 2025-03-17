@@ -9,7 +9,7 @@ import { Card } from 'primeng/card';
 import { FluidModule } from 'primeng/fluid';
 import { Select } from 'primeng/select';
 import { TrimPipe } from '../pipes/trim.pipe';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 
 @Component({

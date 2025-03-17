@@ -16,7 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { AgePipe } from '../pipes/age.pipe';
 import { SeniorityPipe } from '../pipes/seniority.pipe';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeFormComponent } from './employee-form.component';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 import { TerminationFormComponent } from './termination-form.component';

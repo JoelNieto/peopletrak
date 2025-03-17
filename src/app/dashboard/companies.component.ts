@@ -9,8 +9,8 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Company } from '../models';
+import { DashboardStore } from '../stores/dashboard.store';
 import { CompaniesFormComponent } from './companies-form.component';
-import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'pt-companies',

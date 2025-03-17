@@ -23,7 +23,7 @@ import { v4 } from 'uuid';
 import { colorVariants } from '../models';
 import { TrimPipe } from '../pipes/trim.pipe';
 import { SupabaseService } from '../services/supabase.service';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-employee-schedules-form',

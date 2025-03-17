@@ -23,7 +23,8 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
@@ -60,7 +61,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
       </div>
 
-      @if (state.loading()) {
+      @if (employees.isLoading()) {
       <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
       }
       <p-table
@@ -322,6 +323,7 @@ import { EmployeeFormComponent } from './employee-form.component';
 })
 export class EmployeeListComponent implements OnInit {
   readonly state = inject(DashboardStore);
+  readonly employees = inject(EmployeesStore);
   public inactiveToggle = new FormControl(false, { nonNullable: true });
   public probatories = [
     { label: 'Probatorio', value: true },
@@ -334,7 +336,7 @@ export class EmployeeListComponent implements OnInit {
   public exportColumns!: ExportColumn[];
 
   public filtered = computed(() =>
-    this.state
+    this.employees
       .employeesList()
       .filter(
         (item) =>

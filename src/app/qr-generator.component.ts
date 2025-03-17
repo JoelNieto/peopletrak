@@ -39,7 +39,9 @@ import { SupabaseService } from './services/supabase.service';
           </p-dropdown>
         </div>
         <canvas id="canvas"></canvas>
-        <p-button (onClick)="generateQrCode()">Click</p-button>
+        <p-button (onClick)="generateQrCode()" [disabled]="employee()!"
+          >Click</p-button
+        >
       </p-card>
     </div>
   </div> `,
@@ -64,15 +66,12 @@ export class QrGeneratorComponent {
   );
 
   generateQrCode() {
-    this.employees()!.forEach((employee) => {
-      this.getQr(employee);
-    });
-  }
-
-  getQr(employee: Employee) {
+    if (!this.employee()) {
+      return;
+    }
     const totp = new OTPAuth.TOTP({
       issuer: 'Peopletrak Blackdog',
-      label: `${employee.first_name.trim()} ${employee.father_name.trim()}`,
+      label: `${this.employee()!.first_name.trim()} ${this.employee()!.father_name.trim()}`,
       algorithm: 'SHA1',
       digits: 6,
       period: 30,
@@ -89,7 +88,7 @@ export class QrGeneratorComponent {
       await this.supabase.client
         .from('employees')
         .update({ qr_code: qrUrl, code_uri: uri })
-        .eq('id', employee.id);
+        .eq('id', this.employee()!.id);
     });
   }
 }

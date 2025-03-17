@@ -5,7 +5,7 @@ import {
   DynamicDialogModule,
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 describe('DepartmentsFormComponent', () => {

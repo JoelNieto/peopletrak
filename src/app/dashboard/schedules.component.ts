@@ -11,7 +11,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { colorVariants, Schedule } from '../models';
 import { TimePipe } from '../pipes/time.pipe';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({

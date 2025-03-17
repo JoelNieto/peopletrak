@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { randomUUID } from 'crypto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TabViewModule } from 'primeng/tabview';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeDetailComponent } from './employee-detail.component';
 window.ResizeObserver =
   window.ResizeObserver ||

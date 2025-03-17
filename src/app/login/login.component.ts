@@ -49,27 +49,10 @@ export class LoginComponent {
     nonNullable: true,
     validators: [Validators.required, Validators.email],
   });
-  private supabase = inject(SupabaseService);
+  public supabase = inject(SupabaseService);
   private message = inject(MessageService);
 
   async signIn() {
-    try {
-      const { error } = await this.supabase.signIn(this.email.getRawValue());
-
-      if (error) throw error;
-      this.message.add({
-        severity: 'success',
-        summary: 'Exito',
-        detail: 'Link enviado exitosamente!',
-      });
-      this.email.reset();
-    } catch (error) {
-      console.error(error);
-      this.message.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Algo salio mal, intente nuevamente',
-      });
-    }
+    await this.supabase.signIn();
   }
 }

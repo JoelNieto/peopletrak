@@ -10,7 +10,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
 import { Department } from '../models';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 @Component({

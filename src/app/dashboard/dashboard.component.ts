@@ -10,11 +10,25 @@ import { ToastModule } from 'primeng/toast';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { Select } from 'primeng/select';
-import { DashboardStore } from './dashboard.store';
+import { BranchesStore } from '../stores/branches.store';
+import { CompaniesStore } from '../stores/companies.store';
+import { DashboardStore } from '../stores/dashboard.store';
+import { DepartmentsStore } from '../stores/departments.store';
+import { EmployeesStore } from '../stores/employees.store';
+import { PositionsStore } from '../stores/positions.store';
 
 @Component({
   selector: 'pt-dashboard',
-  providers: [DashboardStore, MessageService, ConfirmationService],
+  providers: [
+    DashboardStore,
+    MessageService,
+    ConfirmationService,
+    EmployeesStore,
+    BranchesStore,
+    CompaniesStore,
+    PositionsStore,
+    DepartmentsStore,
+  ],
   imports: [
     RouterOutlet,
     RouterLink,
@@ -48,6 +62,7 @@ import { DashboardStore } from './dashboard.store';
           <img src="images/pt-logo.svg" class="h-8" /> Peopletrak</a
         >
       </div>
+      {{ store.currentUser()?.name }}
       <div class="w-64">
         <div class="input-container">
           <p-select

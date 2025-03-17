@@ -11,7 +11,7 @@ import { CardModule } from 'primeng/card';
 import { DatePipe } from '@angular/common';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-home',

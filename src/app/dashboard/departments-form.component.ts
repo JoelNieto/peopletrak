@@ -16,7 +16,7 @@ import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
 import { Select } from 'primeng/select';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-departments-form',

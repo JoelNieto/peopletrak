@@ -5,6 +5,7 @@ import {
   withComputed,
   withHooks,
   withMethods,
+  withProps,
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
@@ -60,6 +61,9 @@ const initialState: State = {
 
 export const DashboardStore = signalStore(
   withState(initialState),
+  withProps(() => ({
+    currentUser: inject(SupabaseService).userInfo(),
+  })),
   withComputed(({ employees, branches, companies, selectedCompanyId }) => {
     const headCount = computed(
       () => employees().filter((x) => x.is_active).length

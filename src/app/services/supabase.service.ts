@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AuthService } from '@auth0/auth0-angular';
 import {
-  AuthChangeEvent,
   AuthSession,
   createClient,
-  Session,
   SupabaseClient,
-  User,
 } from '@supabase/supabase-js';
+import { lastValueFrom, Observable } from 'rxjs';
 
 export interface Profile {
   id?: string;
@@ -21,60 +21,36 @@ export interface Profile {
 export class SupabaseService {
   public client: SupabaseClient;
 
-  constructor() {
+  constructor(private auth0: AuthService) {
     this.client = createClient(
       process.env['ENV_SUPABASE_URL'] ?? '',
-      process.env['ENV_SUPABASE_API_KEY'] ?? ''
+      process.env['ENV_SUPABASE_API_KEY'] ?? '',
+      {
+        accessToken: async () => {
+          const token = await lastValueFrom(
+            this.auth0.getAccessTokenSilently()
+          );
+          return token;
+        },
+      }
     );
   }
 
   private _session: AuthSession | null = null;
 
-  get session() {
-    this.client.auth.getSession().then(({ data }) => {
-      this._session = data.session;
-    });
-    return this._session;
+  userInfo() {
+    return toSignal(this.auth0.user$);
   }
 
-  profile(user: User) {
-    return this.client
-      .from('profiles')
-      .select(`username, website, avatar_url`)
-      .eq('id', user.id)
-      .single();
+  signIn() {
+    this.auth0.loginWithRedirect({});
   }
 
-  updateProfile(profile: Profile) {
-    const update = {
-      ...profile,
-      updated_at: new Date(),
-    };
-
-    return this.client.from('profiles').upsert(update);
-  }
-
-  authChanges(
-    callback: (event: AuthChangeEvent, session: Session | null) => void
-  ) {
-    return this.client.auth.onAuthStateChange(callback);
-  }
-
-  signIn(email: string) {
-    return this.client.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: process.env['ENV_APP_URL'] },
-    });
-  }
-
-  public async isLoggedIn(): Promise<boolean> {
-    const {
-      data: { session },
-    } = await this.client.auth.getSession();
-    return !!session;
+  public isLoggedIn(): Observable<boolean> {
+    return this.auth0.isAuthenticated$;
   }
 
   signOut() {
-    return this.client.auth.signOut();
+    return this.auth0.logout();
   }
 }

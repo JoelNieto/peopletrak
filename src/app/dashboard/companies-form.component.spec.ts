@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DashboardStore } from '../stores/dashboard.store';
 import { CompaniesFormComponent } from './companies-form.component';
-import { DashboardStore } from './dashboard.store';
 
 describe('CompaniesFormComponent', () => {
   let component: CompaniesFormComponent;

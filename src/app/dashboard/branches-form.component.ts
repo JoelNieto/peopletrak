@@ -18,7 +18,8 @@ import { v4 } from 'uuid';
 
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { DashboardStore } from './dashboard.store';
+import { BranchesStore } from '../stores/branches.store';
+import { CompaniesStore } from '../stores/companies.store';
 
 @Component({
   selector: 'pt-branches-form',
@@ -49,7 +50,7 @@ import { DashboardStore } from './dashboard.store';
         <label for="company_id">Empresa</label>
         <p-select
           formControlName="company_id"
-          [options]="state.companies()"
+          [options]="companies.entities()"
           optionLabel="name"
           optionValue="id"
           placeholder="Seleccione una empresa"
@@ -79,7 +80,7 @@ import { DashboardStore } from './dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.loading()"
+          [loading]="state.isLoading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -111,7 +112,8 @@ export class BranchesFormComponent implements OnInit {
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(DashboardStore);
+  public state = inject(BranchesStore);
+  public companies = inject(CompaniesStore);
 
   ngOnInit() {
     const { branch } = this.dialog.data;
@@ -120,12 +122,11 @@ export class BranchesFormComponent implements OnInit {
     }
   }
 
-  async saveChanges() {
-    this.state
-      .updateItem({
-        request: this.form.getRawValue(),
-        collection: 'branches',
-      })
-      .then(() => this.dialogRef.close());
+  saveChanges() {
+    if (this.dialog.data.branch) {
+      this.state.editItem(this.form.getRawValue());
+    } else {
+      this.state.createItem(this.form.getRawValue());
+    }
   }
 }

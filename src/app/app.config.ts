@@ -16,12 +16,14 @@ import {
 import Aura from '@primeng/themes/aura';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAuth0 } from '@auth0/auth0-angular';
 import { definePreset } from '@primeng/themes';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { providePrimeNG } from 'primeng/config';
 import es from '../../public/i18n/es.json';
 import { appRoutes } from './app.routes';
+import { httpInterceptor } from './interceptors/http.interceptor';
 registerLocaleData(localeEs, 'es-MX');
 
 const MyPreset = definePreset(Aura, {
@@ -52,7 +54,15 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions()
     ),
     provideAnimationsAsync(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([httpInterceptor])),
+    provideAuth0({
+      domain: process.env['ENV_AUTH0_DOMAIN'] ?? '',
+      clientId: process.env['ENV_AUTH0_CLIENT_ID'] ?? '',
+      authorizationParams: {
+        redirect_uri: 'http://localhost:4200',
+        audience: process.env['ENV_AUTH0_AUDIENCE'] ?? '',
+      },
+    }),
     providePrimeNG({
       theme: {
         preset: MyPreset,

@@ -27,7 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
 import { Branch, colorVariants, Employee } from '../models';
 import { SupabaseService } from '../services/supabase.service';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 @Component({
   selector: 'pt-timelogs',
   imports: [

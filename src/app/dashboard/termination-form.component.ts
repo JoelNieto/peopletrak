@@ -17,7 +17,7 @@ import { v4 } from 'uuid';
 
 import { DatePicker } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-termination-form',
