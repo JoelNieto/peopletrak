@@ -39,7 +39,7 @@ import { SupabaseService } from './services/supabase.service';
           </p-dropdown>
         </div>
         <canvas id="canvas"></canvas>
-        <p-button (onClick)="generateQrCode()" [disabled]="employee()!"
+        <p-button (onClick)="generateQrCode()" [disabled]="!employee()"
           >Click</p-button
         >
       </p-card>
