@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QrGeneratorComponent } from './qr-generator.component';
 
@@ -7,6 +8,7 @@ describe('QrGeneratorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideHttpClient()],
       imports: [QrGeneratorComponent],
     }).compileComponents();
 
