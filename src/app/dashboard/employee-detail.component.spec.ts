@@ -1,9 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { randomUUID } from 'crypto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TabViewModule } from 'primeng/tabview';
-import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { EmployeeDetailComponent } from './employee-detail.component';
 window.ResizeObserver =
   window.ResizeObserver ||
@@ -19,7 +20,12 @@ describe('EmployeeDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [DashboardStore, MessageService, ConfirmationService],
+      providers: [
+        provideHttpClient(),
+        EmployeesStore,
+        MessageService,
+        ConfirmationService,
+      ],
       imports: [
         EmployeeDetailComponent,
         TabViewModule,

@@ -24,7 +24,6 @@ import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
 import { BranchesStore } from '../stores/branches.store';
-import { DashboardStore } from '../stores/dashboard.store';
 import { DepartmentsStore } from '../stores/departments.store';
 import { EmployeesStore } from '../stores/employees.store';
 import { PositionsStore } from '../stores/positions.store';
@@ -325,7 +324,6 @@ import { EmployeeFormComponent } from './employee-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeListComponent implements OnInit {
-  readonly state = inject(DashboardStore);
   readonly employees = inject(EmployeesStore);
   readonly positions = inject(PositionsStore);
   readonly branches = inject(BranchesStore);

@@ -18,12 +18,11 @@ import { catchError, EMPTY } from 'rxjs';
 import { CalendarComponent } from '../calendar.component';
 import { colorVariants, EmployeeSchedule } from '../models';
 import { TimePipe } from '../pipes/time.pipe';
-import { EmployeeScheduleStore } from '../stores/employee-schedules.store';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 @Component({
   selector: 'pt-employee-schedules',
   imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, NgClass],
-  providers: [DynamicDialogRef, DialogService, EmployeeScheduleStore],
+  providers: [DynamicDialogRef, DialogService],
   template: `
     <pt-calendar
       [markers]="employeeSchedules() ?? []"
@@ -104,7 +103,6 @@ export class EmployeeSchedulesComponent {
   private http = inject(HttpClient);
   private message = inject(MessageService);
   private confirm = inject(ConfirmationService);
-  public store = inject(EmployeeScheduleStore);
 
   public employeeSchedules = computed(() =>
     this.resourceSchedules

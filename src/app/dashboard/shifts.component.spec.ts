@@ -1,6 +1,7 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { ShiftsComponent } from './shifts.component';
 
 describe('ShiftsComponent', () => {
@@ -9,7 +10,12 @@ describe('ShiftsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [DashboardStore, MessageService, ConfirmationService],
+      providers: [
+        EmployeesStore,
+        MessageService,
+        ConfirmationService,
+        provideHttpClient(),
+      ],
       imports: [ShiftsComponent],
     }).compileComponents();
 

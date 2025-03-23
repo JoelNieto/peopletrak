@@ -27,7 +27,7 @@ import { v4 } from 'uuid';
 import { colorVariants } from '../models';
 import { TrimPipe } from '../pipes/trim.pipe';
 import { BranchesStore } from '../stores/branches.store';
-import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { SchedulesStore } from '../stores/schedules.store';
 
 @Component({
@@ -47,7 +47,7 @@ import { SchedulesStore } from '../stores/schedules.store';
         <label for="employee_id">Empleado</label>
         <p-select
           formControlName="employee_id"
-          [options]="store.employeesList()"
+          [options]="employees.employeesList()"
           optionValue="id"
           placeholder="Seleccionar empleado"
           filter
@@ -151,7 +151,6 @@ export class EmployeeSchedulesFormComponent implements OnInit {
       nonNullable: true,
     }),
   });
-  public store = inject(DashboardStore);
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
   public loading = signal<boolean>(false);
@@ -161,6 +160,7 @@ export class EmployeeSchedulesFormComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   public branches = inject(BranchesStore);
   public schedules = inject(SchedulesStore);
+  public employees = inject(EmployeesStore);
 
   ngOnInit(): void {
     const { employee_schedule, employee_id } = this.dialog.data;
