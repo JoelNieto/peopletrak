@@ -1,11 +1,11 @@
 import { NgClass } from '@angular/common';
+import { HttpClient, httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
-  resource,
 } from '@angular/core';
 import { eachDayOfInterval } from 'date-fns';
 import { toDate } from 'date-fns-tz';
@@ -14,15 +14,16 @@ import { Button } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Popover } from 'primeng/popover';
 import { Tooltip } from 'primeng/tooltip';
+import { catchError, EMPTY } from 'rxjs';
 import { CalendarComponent } from '../calendar.component';
 import { colorVariants, EmployeeSchedule } from '../models';
 import { TimePipe } from '../pipes/time.pipe';
-import { SupabaseService } from '../services/supabase.service';
+import { EmployeeScheduleStore } from '../stores/employee-schedules.store';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 @Component({
   selector: 'pt-employee-schedules',
   imports: [Button, CalendarComponent, Popover, Tooltip, TimePipe, NgClass],
-  providers: [DynamicDialogRef, DialogService],
+  providers: [DynamicDialogRef, DialogService, EmployeeScheduleStore],
   template: `
     <pt-calendar
       [markers]="employeeSchedules() ?? []"
@@ -61,6 +62,12 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
                   marker.data.schedule.exit_time | time
                 }}</span>
               </div>
+              <div>
+                Sucursal:
+                <span class="font-bold">{{
+                  marker.data.branch?.short_name
+                }}</span>
+              </div>
             </div>
           </ng-template>
           <p-popover #options>
@@ -94,9 +101,11 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
 })
 export class EmployeeSchedulesComponent {
   public employeeId = input.required<string>();
-  private supabase = inject(SupabaseService);
+  private http = inject(HttpClient);
   private message = inject(MessageService);
   private confirm = inject(ConfirmationService);
+  public store = inject(EmployeeScheduleStore);
+
   public employeeSchedules = computed(() =>
     this.resourceSchedules
       .value()
@@ -111,25 +120,13 @@ export class EmployeeSchedulesComponent {
   private dialog = inject(DialogService);
   public colorVariants = colorVariants;
 
-  private resourceSchedules = resource({
-    request: () => ({ id: this.employeeId() }),
-    loader: async ({ request }) => {
-      const { data, error } = await this.supabase.client
-        .from('employee_schedules')
-        .select('*, schedule:schedules(*)')
-        .eq('employee_id', request.id);
-      if (error) {
-        console.error(error);
-        this.message.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Ha ocurrido un error al cargar los horarios del empleado',
-        });
-        return [];
-      }
-      return data;
+  private resourceSchedules = httpResource<EmployeeSchedule[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+    params: {
+      select: '*,schedule:schedules(*),branch:branches(*)',
+      employee_id: `eq.${this.employeeId()}`,
     },
-  });
+  }));
 
   public editSchedule({
     employee_id,
@@ -163,26 +160,35 @@ export class EmployeeSchedulesComponent {
         label: 'Eliminar',
         severity: 'danger',
       },
-      accept: async () => {
-        const { error } = await this.supabase.client
-          .from('employee_schedules')
-          .delete()
-          .eq('id', id);
-        if (error) {
-          console.error(error);
-          this.message.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Ha ocurrido un error al eliminar el horario',
+      accept: () => {
+        this.http
+          .delete(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+            {
+              params: { id: `eq.${id}` },
+            }
+          )
+          .pipe(
+            catchError((error) => {
+              console.error(error);
+              this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Ha ocurrido un error al eliminar el horario',
+              });
+              return EMPTY;
+            })
+          )
+          .subscribe({
+            next: () => {
+              this.message.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Horario eliminado correctamente',
+              });
+              this.resourceSchedules.reload();
+            },
           });
-          return;
-        }
-        this.message.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Horario eliminado correctamente',
-        });
-        this.resourceSchedules.reload();
       },
     });
   }

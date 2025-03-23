@@ -14,6 +14,7 @@ export type Branch = {
   address: string;
   is_active: boolean;
   created_at?: Date;
+  ip: string;
 };
 
 export type Department = {
@@ -113,16 +114,16 @@ export interface Timestamp {
 export type Schedule = {
   id: string;
   name: string;
-  entry_time: Date;
-  lunch_start_time: Date;
-  lunch_end_time: Date;
-  exit_time: Date;
+  entry_time: Date | string | null;
+  lunch_start_time: Date | string | null;
+  lunch_end_time: Date | string | null;
+  exit_time: Date | string | null;
   color?: string;
   created_at?: Date;
   day_off: boolean;
   minutes_tolerance: number;
-  min_lunch_minutes: number;
-  max_lunch_minutes: number;
+  min_lunch_minutes?: number;
+  max_lunch_minutes?: number;
 };
 
 export enum TimelogType {
@@ -146,6 +147,8 @@ export type TimeLogs = {
 export type EmployeeSchedule = {
   id: string;
   employee_id: string;
+  branch_id?: string;
+  branch?: Branch;
   schedule_id: string;
   schedule?: Schedule;
   start_date: Date;

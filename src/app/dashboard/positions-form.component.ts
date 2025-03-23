@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
 } from '@angular/core';
@@ -15,8 +16,14 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MessageService } from 'primeng/api';
 import { Select } from 'primeng/select';
-import { DashboardStore } from '../stores/dashboard.store';
+import { tap } from 'rxjs';
+import { markGroupDirty } from '../services/util.service';
+import { CompaniesStore } from '../stores/companies.store';
+import { DepartmentsStore } from '../stores/departments.store';
+import { PositionsStore } from '../stores/positions.store';
 
 @Component({
   selector: 'pt-positions-form',
@@ -32,7 +39,7 @@ import { DashboardStore } from '../stores/dashboard.store';
         <p-select
           id="company"
           appendTo="body"
-          [options]="state.companies()"
+          [options]="companies.entities()"
           optionValue="id"
           optionLabel="name"
           formControlName="company_id"
@@ -44,7 +51,7 @@ import { DashboardStore } from '../stores/dashboard.store';
         <p-select
           id="department"
           appendTo="body"
-          [options]="state.departments()"
+          [options]="departments.entities()"
           optionValue="id"
           optionLabel="name"
           formControlName="department_id"
@@ -61,8 +68,7 @@ import { DashboardStore } from '../stores/dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.loading()"
-          [disabled]="form.invalid || form.pristine"
+          [loading]="store.isLoading()"
         />
       </div>
     </div>
@@ -86,9 +92,13 @@ export class PositionsFormComponent implements OnInit {
       validators: [Validators.required],
     }),
   });
-  public state = inject(DashboardStore);
+  public store = inject(PositionsStore);
+  public companies = inject(CompaniesStore);
+  public departments = inject(DepartmentsStore);
   public dialog = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
+  private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     const { position } = this.dialogConfig.data;
@@ -97,12 +107,45 @@ export class PositionsFormComponent implements OnInit {
     }
   }
 
-  async saveChanges() {
-    this.state
-      .updateItem({
-        request: this.form.getRawValue(),
-        collection: 'positions',
-      })
-      .then(() => this.dialog.close());
+  saveChanges() {
+    if (this.form.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Por favor, rellene todos los campos',
+      });
+      markGroupDirty(this.form);
+      return;
+    }
+
+    if (this.form.pristine) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'No se han realizado cambios',
+      });
+      return;
+    }
+
+    if (this.dialogConfig.data.position) {
+      this.store
+        .editItem(this.form.getRawValue())
+        .pipe(
+          tap(() => this.dialog.close()),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe();
+      return;
+    }
+
+    this.store
+      .createItem(this.form.getRawValue())
+      .pipe(
+        tap(() => this.dialog.close()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+
+    return;
   }
 }

@@ -1,22 +1,27 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { iif } from 'rxjs';
 import { v4 } from 'uuid';
-import { DashboardStore } from '../stores/dashboard.store';
+import { markGroupDirty } from '../services/util.service';
+import { CompaniesStore } from '../stores/companies.store';
 
 @Component({
   selector: 'pt-companies-form',
@@ -49,8 +54,7 @@ import { DashboardStore } from '../stores/dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.loading()"
-          [disabled]="form.invalid || form.pristine"
+          [loading]="state.isLoading()"
         />
       </div>
     </div>
@@ -65,13 +69,15 @@ export class CompaniesFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    address: new FormControl('', {}),
-    phone_number: new FormControl('', {}),
-    is_active: new FormControl(true, {}),
+    address: new FormControl('', { nonNullable: true }),
+    phone_number: new FormControl('', { nonNullable: true }),
+    is_active: new FormControl(true, { nonNullable: true }),
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(DashboardStore);
+  public state = inject(CompaniesStore);
+  private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     const { company } = this.dialog.data;
@@ -81,11 +87,26 @@ export class CompaniesFormComponent implements OnInit {
   }
 
   async saveChanges() {
-    this.state
-      .updateItem({
-        request: this.form.getRawValue(),
-        collection: 'companies',
-      })
-      .then(() => this.dialogRef.close());
+    if (this.form.invalid) {
+      markGroupDirty(this.form);
+      return;
+    }
+    if (this.form.pristine) {
+      this.messageService.add({
+        severity: 'info',
+        detail: 'No se realizaron cambios',
+        summary: 'Info',
+      });
+      this.dialogRef.close();
+      return;
+    }
+
+    iif(
+      () => this.dialog.data.company,
+      this.state.editItem(this.form.getRawValue()),
+      this.state.createItem(this.form.getRawValue())
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: () => this.dialogRef.close() });
   }
 }

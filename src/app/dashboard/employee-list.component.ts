@@ -23,8 +23,11 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
+import { BranchesStore } from '../stores/branches.store';
 import { DashboardStore } from '../stores/dashboard.store';
+import { DepartmentsStore } from '../stores/departments.store';
 import { EmployeesStore } from '../stores/employees.store';
+import { PositionsStore } from '../stores/positions.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
@@ -167,7 +170,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.branches()"
+                    [options]="branches.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -189,7 +192,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.departments()"
+                    [options]="departments.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -211,7 +214,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.positions()"
+                    [options]="positions.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -324,6 +327,9 @@ import { EmployeeFormComponent } from './employee-form.component';
 export class EmployeeListComponent implements OnInit {
   readonly state = inject(DashboardStore);
   readonly employees = inject(EmployeesStore);
+  readonly positions = inject(PositionsStore);
+  readonly branches = inject(BranchesStore);
+  readonly departments = inject(DepartmentsStore);
   public inactiveToggle = new FormControl(false, { nonNullable: true });
   public probatories = [
     { label: 'Probatorio', value: true },
@@ -382,8 +388,8 @@ export class EmployeeListComponent implements OnInit {
         return filter.map((x) => x.id).includes(value.id);
       }
     );
-    this.state.resetSelected();
-    this.state.fetchEmployees();
+    this.employees.clearSelectedEntity();
+    this.employees.fetchItems();
   }
 
   editEmployee(employee?: Employee) {

@@ -11,7 +11,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { colorVariants, Schedule } from '../models';
 import { TimePipe } from '../pipes/time.pipe';
-import { DashboardStore } from '../stores/dashboard.store';
+import { SchedulesStore } from '../stores/schedules.store';
 import { SchedulesFormComponent } from './schedules-form.component';
 
 @Component({
@@ -108,8 +108,8 @@ import { SchedulesFormComponent } from './schedules-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulesComponent {
-  public store = inject(DashboardStore);
-  public schedules = computed(() => [...this.store.schedules()]);
+  public store = inject(SchedulesStore);
+  public schedules = computed(() => [...this.store.entities()]);
 
   public dialogService = inject(DialogService);
   private ref = inject(DynamicDialogRef);

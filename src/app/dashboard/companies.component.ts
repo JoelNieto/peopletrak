@@ -9,7 +9,7 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Company } from '../models';
-import { DashboardStore } from '../stores/dashboard.store';
+import { CompaniesStore } from '../stores/companies.store';
 import { CompaniesFormComponent } from './companies-form.component';
 
 @Component({
@@ -75,9 +75,9 @@ import { CompaniesFormComponent } from './companies-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompaniesComponent {
-  protected store = inject(DashboardStore);
+  protected store = inject(CompaniesStore);
   private dialog = inject(DialogService);
-  public companies = computed(() => this.store.companies());
+  public companies = computed(() => this.store.entities());
 
   editCompany(company?: Company) {
     this.dialog.open(CompaniesFormComponent, {
@@ -88,6 +88,6 @@ export class CompaniesComponent {
   }
 
   deleteCompany(id: string) {
-    this.store.deleteItem({ id, collection: 'companies' });
+    this.store.deleteItem(id);
   }
 }

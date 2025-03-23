@@ -1,12 +1,11 @@
 import { NgClass } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -22,10 +21,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputOtp } from 'primeng/inputotp';
 import { Select } from 'primeng/select';
 import { Toast } from 'primeng/toast';
-import { catchError, from, map, of } from 'rxjs';
-import { Employee, TimelogType } from './models';
+import { catchError, EMPTY } from 'rxjs';
+import { Branch, Company, Employee, TimelogType } from './models';
 import { TrimPipe } from './pipes/trim.pipe';
-import { SupabaseService } from './services/supabase.service';
 @Component({
   selector: 'pt-timeclock',
   imports: [
@@ -67,7 +65,7 @@ import { SupabaseService } from './services/supabase.service';
             <div class="input-container">
               <p-select
                 formControlName="company_id"
-                [options]="companies() ?? []"
+                [options]="companiesResource.value()"
                 placeholder="Seleccionar empresa"
                 optionLabel="name"
                 optionValue="id"
@@ -78,7 +76,7 @@ import { SupabaseService } from './services/supabase.service';
             <div class="input-container">
               <p-select
                 formControlName="branch_id"
-                [options]="branches() ?? []"
+                [options]="branchesResource.value()"
                 placeholder="Seleccionar sucursal"
                 optionValue="id"
                 optionLabel="name"
@@ -89,7 +87,7 @@ import { SupabaseService } from './services/supabase.service';
             <div class="input-container">
               <p-select
                 formControlName="employee"
-                [options]="employees() ?? []"
+                [options]="employeesResource.value()"
                 placeholder="Seleccionar empleado"
                 filter
                 filterBy="first_name,father_name"
@@ -133,18 +131,18 @@ import { SupabaseService } from './services/supabase.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeclockComponent {
-  protected supabase = inject(SupabaseService);
   private message = inject(MessageService);
   private confirmation = inject(ConfirmationService);
   private http = inject(HttpClient);
-  public currentIP = toSignal(
-    this.http
-      .get<{ ip: string }>('https://api.ipify.org?format=json', {})
-      .pipe(catchError(() => of({ ip: '' })))
-  );
+  public currentIP = httpResource<{ ip: string }>(() => ({
+    url: 'https://api.ipify.org?format=json',
+    method: 'GET',
+  }));
 
   public validIP = computed(() =>
-    this.branches()?.some((branch) => branch.ip === this.currentIP()?.ip)
+    this.branchesResource
+      .value()
+      ?.some((branch) => branch.ip === this.currentIP.value()?.ip)
   );
 
   public types = Object.entries(TimelogType).map(([key, value]) => ({
@@ -152,36 +150,33 @@ export class TimeclockComponent {
     label: value,
   }));
 
-  public companies = toSignal(
-    from(this.supabase.client.from('companies').select('*').order('name')).pipe(
-      map((response) => response.data)
-    ),
-    {
-      initialValue: [],
-    }
-  );
+  public companiesResource = httpResource<Company[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/companies`,
+    method: 'GET',
+    params: {
+      select: '*',
+      order: 'name',
+    },
+  }));
 
-  public branches = toSignal(
-    from(this.supabase.client.from('branches').select('*').order('name')).pipe(
-      map((response) => response.data)
-    ),
-    {
-      initialValue: [],
-    }
-  );
+  public branchesResource = httpResource<Branch[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/branches`,
+    method: 'GET',
+    params: {
+      select: '*',
+      order: 'name',
+    },
+  }));
 
-  public employees = toSignal(
-    from(
-      this.supabase.client
-        .from('employees')
-        .select('*')
-        .order('father_name')
-        .eq('is_active', true)
-    ).pipe(map((response) => response.data)),
-    {
-      initialValue: [],
-    }
-  );
+  public employeesResource = httpResource<Partial<Employee>[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+    method: 'GET',
+    params: {
+      select: 'id,first_name,father_name,code_uri',
+      order: 'father_name',
+      is_active: 'eq.true',
+    },
+  }));
 
   public form = new FormGroup({
     company_id: new FormControl('', {
@@ -206,7 +201,7 @@ export class TimeclockComponent {
     }),
   });
 
-  async validateOtp() {
+  validateOtp() {
     const { employee, otp, branch_id, company_id, type } =
       this.form.getRawValue();
     if (employee?.code_uri) {
@@ -221,41 +216,48 @@ export class TimeclockComponent {
         this.form.get('otp')?.reset();
         return;
       }
-      const { error } = await this.supabase.client.from('timelogs').insert({
-        employee_id: employee.id,
-        branch_id,
-        company_id,
-        type,
-        ip: this.currentIP()?.ip,
-        invalid_ip: !this.validIP(),
-      });
-      if (error) {
-        console.error(error);
-        this.message.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Algo salió mal, intente nuevamente',
+      this.http
+        .post(`${process.env['ENV_SUPABASE_URL']}/rest/v1/timelogs`, {
+          employee_id: employee.id,
+          branch_id,
+          company_id,
+          type,
+          ip: this.currentIP.value()?.ip,
+          invalid_ip: !this.validIP(),
+        })
+        .pipe(
+          catchError((error) => {
+            console.error(error);
+            this.message.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Algo salió mal, intente nuevamente',
+            });
+            return EMPTY;
+          })
+        )
+        .subscribe({
+          next: () => {
+            this.confirmation.confirm({
+              message: `Marcación registrada exitosamente a las <b>${format(
+                new Date(),
+                'h:mm:ss aaa'
+              )}</b>`,
+              key: 'confirm1',
+              header: 'Éxito',
+              icon: 'pi pi-check',
+              acceptLabel: 'Aceptar',
+              rejectVisible: false,
+              accept: () => {
+                this.form.get('otp')?.reset();
+                this.form.get('employee')?.reset();
+                if (!this.validIP()) {
+                  this.alertInvalidIP();
+                }
+              },
+            });
+          },
         });
-        return;
-      }
-      this.confirmation.confirm({
-        message: `Marcación registrada exitosamente a las <b>${format(
-          new Date(),
-          'h:mm:ss aaa'
-        )}</b>`,
-        key: 'confirm1',
-        header: 'Éxito',
-        icon: 'pi pi-check',
-        acceptLabel: 'Aceptar',
-        rejectVisible: false,
-        accept: () => {
-          this.form.get('otp')?.reset();
-          this.form.get('employee')?.reset();
-          if (!this.validIP()) {
-            this.alertInvalidIP();
-          }
-        },
-      });
     }
   }
 

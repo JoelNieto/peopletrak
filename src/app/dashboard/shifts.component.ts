@@ -9,7 +9,7 @@ import { Card } from 'primeng/card';
 import { FluidModule } from 'primeng/fluid';
 import { Select } from 'primeng/select';
 import { TrimPipe } from '../pipes/trim.pipe';
-import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 
 @Component({
@@ -47,8 +47,8 @@ import { EmployeeSchedulesComponent } from './employee-schedules.component';
         </p-select>
       </div>
     </div>
-    @let id = employeeId(); @if(id) {
-    <pt-employee-schedules [employeeId]="id" />
+    @if(employeeId()) {
+    <pt-employee-schedules [employeeId]="employeeId()!" />
     } @else {
     <div class="flex items-center justify-center h-40">
       <p>No hay empleado seleccionado</p>
@@ -59,6 +59,6 @@ import { EmployeeSchedulesComponent } from './employee-schedules.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftsComponent {
-  public store = inject(DashboardStore);
+  public store = inject(EmployeesStore);
   employeeId = model<string>();
 }

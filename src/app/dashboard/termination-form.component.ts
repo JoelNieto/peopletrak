@@ -17,7 +17,7 @@ import { v4 } from 'uuid';
 
 import { DatePicker } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
-import { DashboardStore } from '../stores/dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 
 @Component({
   selector: 'pt-termination-form',
@@ -88,7 +88,7 @@ import { DashboardStore } from '../stores/dashboard.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TerminationFormComponent implements OnInit {
-  public store = inject(DashboardStore);
+  public store = inject(EmployeesStore);
   public reasons = [
     { value: 'DESPIDO', label: 'Despido' },
     {
@@ -127,8 +127,8 @@ export class TerminationFormComponent implements OnInit {
   }
 
   saveChanges() {
-    this.store
-      .terminateEmployee(this.form.getRawValue())
-      .then(() => this.dialog.close());
+    this.store.terminateEmployee(this.form.getRawValue()).subscribe({
+      next: () => this.dialog.close(),
+    });
   }
 }

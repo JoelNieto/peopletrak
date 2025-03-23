@@ -21,7 +21,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { differenceInSeconds } from 'date-fns';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { filter, pipe, switchMap, tap } from 'rxjs';
+import { filter, Observable, pipe, switchMap, tap } from 'rxjs';
 
 type State = {
   error: any;
@@ -33,9 +33,11 @@ type State = {
 export function withCustomEntities<T extends { id: EntityId }>({
   name,
   query = '*',
+  detailsQuery = '*',
 }: {
   name: string;
   query?: string;
+  detailsQuery?: string;
 }) {
   return signalStoreFeature(
     withState<State>({
@@ -57,15 +59,34 @@ export function withCustomEntities<T extends { id: EntityId }>({
       }),
     })),
     withMethods((state) => ({
-      selectEntity: (id: EntityId) =>
-        patchState(state, { selectedEntityId: id }),
+      selectEntity: (id: EntityId) => {
+        patchState(state, { selectedEntityId: id });
+        if (query === detailsQuery) {
+          return;
+        }
+        state._http
+          .get<T>(`${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`, {
+            params: { id: `eq.${id}`, select: detailsQuery },
+          })
+          .pipe(
+            tapResponse({
+              next: (changes) => {
+                patchState(state, updateEntity({ id: changes.id, changes }));
+              },
+              error: (error) => {
+                patchState(state, { error });
+              },
+            })
+          )
+          .subscribe();
+      },
       clearSelectedEntity: () => patchState(state, { selectedEntityId: null }),
       fetchItems: rxMethod<void>(
         pipe(
           filter(
             () =>
               state.lastUpdated() === null ||
-              differenceInSeconds(new Date(), state.lastUpdated()!) > 20
+              differenceInSeconds(new Date(), state.lastUpdated()!) > 30
           ),
           tap(() => patchState(state, { isLoading: true })),
           switchMap(() =>
@@ -88,79 +109,72 @@ export function withCustomEntities<T extends { id: EntityId }>({
           )
         )
       ),
-      createItem: rxMethod<T>(
-        pipe(
-          tap(() => patchState(state, { isLoading: true })),
-          switchMap((request) =>
-            state._http
-              .post<T>(
-                `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
-                request,
-                { params: { select: query } }
-              )
-              .pipe(
-                tapResponse({
-                  next: (item) => {
-                    console.log(item);
-                    patchState(state, addEntity(item)),
-                      state._message.add({
-                        severity: 'success',
-                        detail: 'Elemento creado con exito',
-                        summary: 'Exito',
-                      });
-                  },
-                  error: (error) => {
-                    state._message.add({
-                      severity: 'danger',
-                      detail: 'Algo salio mal, intente de nuevo',
-                      summary: 'Error',
-                    });
-                    console.error(error);
-                  },
-                  finalize: () => patchState(state, { isLoading: false }),
-                })
-              )
+      createItem(request: T): Observable<T[]> {
+        patchState(state, { isLoading: true });
+        return state._http
+          .post<T[]>(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
+            request,
+            { params: { select: query } }
           )
-        )
-      ),
-      editItem: rxMethod<T>(
-        pipe(
-          tap(() => patchState(state, { isLoading: true })),
-          switchMap((request) =>
-            state._http
-              .patch(
-                `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
-                request,
-                { params: { id: `eq.${request.id}` } }
-              )
-              .pipe(
-                tapResponse({
-                  next: () => {
-                    patchState(
-                      state,
-                      updateEntity({ id: request.id, changes: request })
-                    );
-                    state._message.add({
-                      severity: 'success',
-                      detail: 'Elemento actualizado con exito',
-                      summary: 'Exito',
-                    });
-                  },
-                  error: (error) => {
-                    patchState(state, { error });
-                    state._message.add({
-                      severity: 'danger',
-                      detail: 'Algo salio mal, intente de nuevo',
-                      summary: 'Error',
-                    });
-                    console.error(error);
-                  },
-                  finalize: () => patchState(state, { isLoading: false }),
-                })
-              )
+          .pipe(
+            tapResponse({
+              next: (item) => {
+                patchState(state, addEntity(item[0])),
+                  state._message.add({
+                    severity: 'success',
+                    detail: 'Elemento creado con exito',
+                    summary: 'Exito',
+                  });
+              },
+              error: (error) => {
+                state._message.add({
+                  severity: 'error',
+                  detail: 'Algo salio mal, intente de nuevo',
+                  summary: 'Error',
+                });
+                console.error(error);
+                throw error;
+              },
+              finalize: () => patchState(state, { isLoading: false }),
+            })
+          );
+      },
+      editItem(request: T) {
+        patchState(state, { isLoading: true });
+        return state._http
+          .patch(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
+            request,
+            { params: { id: `eq.${request.id}` } }
           )
-        )
-      ),
+          .pipe(
+            tapResponse({
+              next: () => {
+                patchState(
+                  state,
+                  updateEntity({ id: request.id, changes: request })
+                );
+                state._message.add({
+                  severity: 'success',
+                  detail: 'Elemento actualizado con exito',
+                  summary: 'Exito',
+                });
+              },
+              error: (error) => {
+                patchState(state, { error });
+                state._message.add({
+                  severity: 'error',
+                  detail: 'Algo salio mal, intente de nuevo',
+                  summary: 'Error',
+                });
+                console.error(error);
+                throw error;
+              },
+              finalize: () => patchState(state, { isLoading: false }),
+            })
+          );
+      },
       deleteItem(id: EntityId): void {
         state._confirm.confirm({
           header: 'Confirmación',
@@ -203,7 +217,8 @@ export function withCustomEntities<T extends { id: EntityId }>({
                     console.error(error);
                   },
                 })
-              );
+              )
+              .subscribe();
           },
         });
       },

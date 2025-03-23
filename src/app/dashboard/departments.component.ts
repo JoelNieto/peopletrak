@@ -10,7 +10,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
 import { Department } from '../models';
-import { DashboardStore } from '../stores/dashboard.store';
+import { DepartmentsStore } from '../stores/departments.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 @Component({
@@ -71,10 +71,10 @@ import { DepartmentsFormComponent } from './departments-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsComponent {
-  readonly state = inject(DashboardStore);
+  readonly state = inject(DepartmentsStore);
   private ref = inject(DynamicDialogRef);
   private dialog = inject(DialogService);
-  public departments = computed(() => [...this.state.departments()]);
+  public departments = computed(() => [...this.state.entities()]);
 
   editDepartment(department?: Department) {
     this.ref = this.dialog.open(DepartmentsFormComponent, {
@@ -85,6 +85,6 @@ export class DepartmentsComponent {
   }
 
   deleteDepartment(id: string) {
-    this.state.deleteItem({ id, collection: 'departments' });
+    this.state.deleteItem(id);
   }
 }

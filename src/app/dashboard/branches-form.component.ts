@@ -18,6 +18,7 @@ import { v4 } from 'uuid';
 
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { tap } from 'rxjs';
 import { BranchesStore } from '../stores/branches.store';
 import { CompaniesStore } from '../stores/companies.store';
 
@@ -75,7 +76,7 @@ import { CompaniesStore } from '../stores/companies.store';
           label="Cancelar"
           severity="secondary"
           [outlined]="true"
-          (click)="dialogRef.close()"
+          (click)="dialog.close()"
         />
         <p-button
           label="Guardar cambios"
@@ -110,23 +111,29 @@ export class BranchesFormComponent implements OnInit {
     ip: new FormControl('', { nonNullable: true }),
     is_active: new FormControl(true, { nonNullable: true }),
   });
-  public dialogRef = inject(DynamicDialogRef);
-  private dialog = inject(DynamicDialogConfig);
+  public dialog = inject(DynamicDialogRef);
+  private dialogConfig = inject(DynamicDialogConfig);
   public state = inject(BranchesStore);
   public companies = inject(CompaniesStore);
 
   ngOnInit() {
-    const { branch } = this.dialog.data;
+    const { branch } = this.dialogConfig.data;
     if (branch) {
       this.form.patchValue(branch);
     }
   }
 
   saveChanges() {
-    if (this.dialog.data.branch) {
-      this.state.editItem(this.form.getRawValue());
+    if (this.dialogConfig.data.branch) {
+      this.state
+        .editItem(this.form.getRawValue())
+        .pipe(tap(() => this.dialog.close()))
+        .subscribe();
     } else {
-      this.state.createItem(this.form.getRawValue());
+      this.state
+        .createItem(this.form.getRawValue())
+        .pipe(tap(() => this.dialog.close()))
+        .subscribe();
     }
   }
 }

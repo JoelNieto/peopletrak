@@ -281,7 +281,7 @@ import { PositionsStore } from '../stores/positions.store';
             label="Guardar cambios"
             type="submit"
             icon="pi pi-save"
-            [loading]="store.isLoading"
+            [loading]="store.isLoading()"
           />
         </div>
       </div>

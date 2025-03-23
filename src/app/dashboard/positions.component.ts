@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  OnInit,
 } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
@@ -10,7 +11,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
 import { Position } from '../models';
-import { DashboardStore } from '../stores/dashboard.store';
+import { PositionsStore } from '../stores/positions.store';
 import { PositionsFormComponent } from './positions-form.component';
 
 @Component({
@@ -71,12 +72,16 @@ import { PositionsFormComponent } from './positions-form.component';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PositionsComponent {
-  readonly state = inject(DashboardStore);
+export class PositionsComponent implements OnInit {
+  readonly store = inject(PositionsStore);
 
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
-  public positions = computed(() => [...this.state.positions()]);
+  public positions = computed(() => [...this.store.entities()]);
+
+  ngOnInit() {
+    this.store.fetchItems();
+  }
 
   editPosition(position?: Position) {
     this.ref = this.dialog.open(PositionsFormComponent, {
@@ -87,6 +92,6 @@ export class PositionsComponent {
   }
 
   deletePosition(id: string) {
-    this.state.deleteItem({ id, collection: 'positions' });
+    this.store.deleteItem(id);
   }
 }

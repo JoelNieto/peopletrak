@@ -1,82 +1,133 @@
 import { computed } from '@angular/core';
-import { signalStore, withComputed, withHooks } from '@ngrx/signals';
-import { differenceInMonths, getMonth } from 'date-fns';
-import { Branch, Employee } from '../models';
+import { tapResponse } from '@ngrx/operators';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
+import { differenceInMonths } from 'date-fns';
+import { exhaustMap } from 'rxjs';
+import { Employee, Termination, TimeOff } from '../models';
 import { withCustomEntities } from './entities.feature';
 
+type State = {
+  timeoff_types: TimeOff[];
+};
+
 export const EmployeesStore = signalStore(
+  withState<State>({ timeoff_types: [] }),
   withCustomEntities<Employee>({
     name: 'employees',
     query:
-      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,created_at,branch:branches(*),department:departments(*),position:positions(*)',
+      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,company_id,branch_id,position_id,bank,account_number,bank_account_type,created_at,branch:branches(*),department:departments(*),position:positions(*)',
+    detailsQuery:
+      '*, branch:branches(*), department:departments(*), position:positions(*)',
   }),
   withComputed((state) => ({
-    headCount: computed(
-      () => state.entities().filter((x) => x.is_active).length
-    ),
-    employeesByGender: computed(() =>
-      state.entities().reduce<
-        {
-          gender: string;
-          count: number;
-        }[]
-      >((acc, item) => {
-        const index = acc.findIndex((x) => x.gender === item.gender);
-        if (index !== -1) {
-          acc[index].count++;
-        } else {
-          acc.push({ gender: item.gender, count: 1 });
-        }
-        return acc;
-      }, [])
-    ),
-    employeesByBranch: computed(() =>
-      state.entities().reduce<
-        {
-          branch: Branch | undefined;
-          count: number;
-        }[]
-      >((acc, item) => {
-        const itemIndex = acc.findIndex((x) => x.branch?.id === item.branch_id);
-        if (itemIndex !== -1) {
-          acc[itemIndex].count++;
-        } else {
-          acc.push({ branch: item.branch, count: 1 });
-        }
-        return acc;
-      }, [])
-    ),
-    birthDates: computed(() =>
+    employeesList: computed(() =>
       state
         .entities()
-        .filter((x) => x.is_active)
-        .filter(
-          (x) =>
-            x.birth_date && (x.birth_date as unknown as string) !== '1970-01-01'
-        )
-        .filter((x) => getMonth(x.birth_date!) === getMonth(new Date()))
-        .sort(
-          (a, b) =>
-            new Date(a.birth_date!).getDate() -
-            new Date(b.birth_date!).getDate()
-        )
-        .map(({ first_name, father_name, birth_date, branch }) => ({
-          first_name,
-          father_name,
-          birth_date,
-          branch,
+        .map((item) => ({
+          ...item,
+          full_name: `${item.first_name} ${item.middle_name} ${item.father_name} ${item.mother_name}`,
+          short_name: `${item.first_name} ${item.father_name}`,
+          months: differenceInMonths(new Date(), item.start_date ?? new Date()),
+          probatory:
+            differenceInMonths(new Date(), item.start_date ?? new Date()) < 3,
         }))
+        .sort((a, b) => a.full_name.localeCompare(b.full_name))
     ),
-    employeesList: computed(() =>
-      state.entities().map((item) => ({
-        ...item,
-        full_name: `${item.first_name} ${item.middle_name} ${item.father_name} ${item.mother_name}`,
-        short_name: `${item.first_name} ${item.father_name}`,
-        months: differenceInMonths(new Date(), item.start_date ?? new Date()),
-        probatory:
-          differenceInMonths(new Date(), item.start_date ?? new Date()) < 3,
-      }))
-    ),
+  })),
+  withMethods((state) => ({
+    terminateEmployee(request: Termination) {
+      patchState(state, { isLoading: true, error: null });
+      return state._http
+        .post(
+          `${process.env['ENV_SUPABASE_URL']}/rest/v1/terminations`,
+          request
+        )
+        .pipe(
+          exhaustMap(() =>
+            state._http.patch(
+              `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+              { is_active: false },
+              {
+                params: { id: `eq.${request.employee_id}` },
+              }
+            )
+          ),
+          tapResponse({
+            next: () => {
+              state._message.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Empleado terminado exitosamente',
+              });
+            },
+            error: (error) => {
+              state._message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al terminar empleado',
+              });
+              patchState(state, { error });
+            },
+            finalize: () => patchState(state, { isLoading: false }),
+          })
+        );
+    },
+    saveTimeOff(request: TimeOff) {
+      patchState(state, { isLoading: true, error: null });
+      return state._http
+        .post(`${process.env['ENV_SUPABASE_URL']}/rest/v1/timeoffs`, request)
+        .pipe(
+          tapResponse({
+            next: () => {
+              state._message.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Solicitud de tiempo libre enviada',
+              });
+            },
+            error: (error) => {
+              state._message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al enviar solicitud de tiempo libre',
+              });
+              patchState(state, { error });
+            },
+            finalize: () => patchState(state, { isLoading: false }),
+          })
+        );
+    },
+    fetchTimeOffTypes() {
+      patchState(state, { isLoading: true });
+      return state._http
+        .get<TimeOff[]>(
+          `${process.env['ENV_SUPABASE_URL']}/rest/v1/timeoff_types`
+        )
+        .pipe(
+          tapResponse({
+            next: (items) => {
+              patchState(state, { timeoff_types: items });
+            },
+            error: (error) => {
+              state._message.add({
+                severity: 'error',
+                detail: 'Error al obtener tipos de tiempo libre',
+                summary: 'Error',
+              });
+              console.error(error);
+              throw error;
+            },
+            finalize: () => patchState(state, { isLoading: false }),
+          })
+        );
+    },
   })),
   withHooks({ onInit: ({ fetchItems }) => fetchItems() })
 );
