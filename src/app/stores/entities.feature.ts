@@ -34,10 +34,12 @@ export function withCustomEntities<T extends { id: EntityId }>({
   name,
   query = '*',
   detailsQuery = '*',
+  order = 'id',
 }: {
   name: string;
   query?: string;
   detailsQuery?: string;
+  order?: string;
 }) {
   return signalStoreFeature(
     withState<State>({
@@ -92,7 +94,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
           switchMap(() =>
             state._http
               .get<T[]>(`${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`, {
-                params: { select: query },
+                params: { select: query, order: order },
               })
               .pipe(
                 tapResponse({
@@ -142,6 +144,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
       },
       editItem(request: T) {
         patchState(state, { isLoading: true });
+        console.log('editItem');
         return state._http
           .patch(
             `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
@@ -149,6 +152,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
             { params: { id: `eq.${request.id}` } }
           )
           .pipe(
+            tap(() => console.log('editItem')),
             tapResponse({
               next: () => {
                 patchState(

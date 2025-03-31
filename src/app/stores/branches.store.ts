@@ -3,6 +3,6 @@ import { Branch } from '../models';
 import { withCustomEntities } from './entities.feature';
 
 export const BranchesStore = signalStore(
-  withCustomEntities<Branch>({ name: 'branches' }),
+  withCustomEntities<Branch>({ name: 'branches', order: 'name' }),
   withHooks({ onInit: ({ fetchItems }) => fetchItems() })
 );

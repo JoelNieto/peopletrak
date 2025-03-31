@@ -51,6 +51,13 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./timelogs.component').then((x) => x.TimelogsComponent),
       },
       {
+        path: 'timetables',
+        loadComponent: () =>
+          import('./employees-timetable.component').then(
+            (x) => x.EmployeesTimetableComponent
+          ),
+      },
+      {
         path: 'companies',
         loadComponent: () =>
           import('./companies.component').then((x) => x.CompaniesComponent),

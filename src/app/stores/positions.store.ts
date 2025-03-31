@@ -7,6 +7,7 @@ export const PositionsStore = signalStore(
     name: 'positions',
     query:
       'id, name, department_id, company_id, department:departments(*), company:companies(*)',
+    order: 'name',
   }),
   withHooks({ onInit: ({ fetchItems }) => fetchItems() })
 );

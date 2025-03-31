@@ -94,6 +94,15 @@ import { SchedulesStore } from '../stores/schedules.store';
           </ng-template>
         </p-select>
       </div>
+
+      <div class="input-container">
+        <label for="start_date">Fecha inicio</label>
+        <p-datepicker formControlName="start_date" appendTo="body" />
+      </div>
+      <div class="input-container">
+        <label for="end_date">Fecha fin</label>
+        <p-datepicker formControlName="end_date" appendTo="body" />
+      </div>
       <div class="input-container">
         <label for="branch_id">Sucursal</label>
         <p-select
@@ -105,14 +114,6 @@ import { SchedulesStore } from '../stores/schedules.store';
           placeholder="Seleccionar sucursal"
           appendTo="body"
         />
-      </div>
-      <div class="input-container">
-        <label for="start_date">Fecha inicio</label>
-        <p-datepicker formControlName="start_date" appendTo="body" />
-      </div>
-      <div class="input-container">
-        <label for="end_date">Fecha fin</label>
-        <p-datepicker formControlName="end_date" appendTo="body" />
       </div>
     </div>
     <div class="flex justify-end gap-4 mt-4">
@@ -170,12 +171,13 @@ export class EmployeeSchedulesFormComponent implements OnInit {
       return;
     }
     if (employee_schedule) {
-      const { id, employee_id, schedule_id, start_date, end_date } =
+      const { id, employee_id, schedule_id, start_date, end_date, branch_id } =
         employee_schedule;
       this.form.patchValue({
         id,
         employee_id,
         schedule_id,
+        branch_id,
       });
       this.form
         .get('start_date')

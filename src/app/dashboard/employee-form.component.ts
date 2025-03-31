@@ -410,6 +410,7 @@ export class EmployeeFormComponent implements OnInit {
 
   preloadForm(employee: Employee) {
     this.form.patchValue(employee);
+    console.log(employee);
     employee.birth_date &&
       this.form
         .get('birth_date')
@@ -423,7 +424,7 @@ export class EmployeeFormComponent implements OnInit {
     this.form.markAsUntouched();
   }
 
-  async saveChanges() {
+  saveChanges() {
     const { pristine, invalid } = this.form;
     if (invalid) {
       this.message.add({
@@ -447,9 +448,9 @@ export class EmployeeFormComponent implements OnInit {
       this.addTimeclockQR();
     }
     if (this.employee_id()) {
-      this.store.editItem(this.form.getRawValue());
+      this.store.editItem(this.form.getRawValue()).subscribe();
     } else {
-      this.store.createItem(this.form.getRawValue());
+      this.store.createItem(this.form.getRawValue()).subscribe();
     }
   }
 

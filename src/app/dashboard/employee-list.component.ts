@@ -75,6 +75,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         [scrollable]="true"
         dataKey="id"
         styleClass="p-datatable-striped"
+        paginatorDropdownAppendTo="body"
       >
         <ng-template #caption>
           <div class="flex gap-2">
