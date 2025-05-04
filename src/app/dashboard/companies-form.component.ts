@@ -21,7 +21,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { iif } from 'rxjs';
 import { v4 } from 'uuid';
 import { markGroupDirty } from '../services/util.service';
-import { CompaniesStore } from '../stores/companies.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-companies-form',
@@ -54,7 +54,7 @@ import { CompaniesStore } from '../stores/companies.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.isLoading()"
+          [loading]="store.companies.isLoading()"
         />
       </div>
     </div>
@@ -75,7 +75,7 @@ export class CompaniesFormComponent implements OnInit {
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(CompaniesStore);
+  public store = inject(DashboardStore);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
 
@@ -103,8 +103,8 @@ export class CompaniesFormComponent implements OnInit {
 
     iif(
       () => this.dialog.data.company,
-      this.state.editItem(this.form.getRawValue()),
-      this.state.createItem(this.form.getRawValue())
+      this.store.companies.editItem(this.form.getRawValue()),
+      this.store.companies.createItem(this.form.getRawValue())
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: () => this.dialogRef.close() });

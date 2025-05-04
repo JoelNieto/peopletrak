@@ -30,6 +30,7 @@ export type Position = {
   department_id: string;
   department?: Department;
   created_at?: Date;
+  schedule_admin: boolean;
 };
 
 export type Employee = {

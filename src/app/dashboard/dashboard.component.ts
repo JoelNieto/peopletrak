@@ -67,7 +67,7 @@ import { SchedulesStore } from '../stores/schedules.store';
       <div class="w-64">
         <div class="input-container">
           <p-select
-            [options]="companies.entities()"
+            [options]="store.companies.entities()"
             [ngModel]="store.selectedCompanyId()"
             (onChange)="toggleCompany($event.value)"
             optionLabel="name"
@@ -190,7 +190,8 @@ import { SchedulesStore } from '../stores/schedules.store';
                 <p-accordion-header>Sucursales</p-accordion-header>
                 <p-accordion-content>
                   <ul class="flex flex-col list-none px-2">
-                    @for (branch of branches.entities(); track branch.id) {
+                    @for (branch of store.branches.entities(); track branch.id)
+                    {
                     <li pRipple>
                       <a
                         class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
@@ -224,8 +225,6 @@ export class DashboardComponent {
   public isHandset = signal(false);
   public isCollapsed = signal(true);
   public store = inject(DashboardStore);
-  public companies = inject(CompaniesStore);
-  public branches = inject(BranchesStore);
 
   async toggleMenu() {
     if (this.isHandset()) {

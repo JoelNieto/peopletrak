@@ -1,12 +1,13 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
-import { switchMap } from 'rxjs';
+import { switchMap, tap } from 'rxjs';
 
 export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   return inject(AuthService)
     .getAccessTokenSilently()
     .pipe(
+      tap(() => console.log('Token retrieved')),
       switchMap((token) => {
         if (req.url.includes('supabase')) {
           const request = req.clone({

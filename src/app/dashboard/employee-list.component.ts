@@ -23,10 +23,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
-import { BranchesStore } from '../stores/branches.store';
-import { DepartmentsStore } from '../stores/departments.store';
-import { EmployeesStore } from '../stores/employees.store';
-import { PositionsStore } from '../stores/positions.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
@@ -63,7 +60,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
       </div>
 
-      @if (employees.isLoading()) {
+      @if (store.employees.isLoading()) {
       <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
       }
       <p-table
@@ -170,7 +167,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="branches.entities()"
+                    [options]="store.branches.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -192,7 +189,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="departments.entities()"
+                    [options]="store.departments.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -214,7 +211,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="positions.entities()"
+                    [options]="store.positions.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -325,10 +322,8 @@ import { EmployeeFormComponent } from './employee-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeListComponent implements OnInit {
-  readonly employees = inject(EmployeesStore);
-  readonly positions = inject(PositionsStore);
-  readonly branches = inject(BranchesStore);
-  readonly departments = inject(DepartmentsStore);
+  readonly store = inject(DashboardStore);
+
   public inactiveToggle = new FormControl(false, { nonNullable: true });
   public probatories = [
     { label: 'Probatorio', value: true },
@@ -341,7 +336,7 @@ export class EmployeeListComponent implements OnInit {
   public exportColumns!: ExportColumn[];
 
   public filtered = computed(() =>
-    this.employees
+    this.store.employees
       .employeesList()
       .filter(
         (item) =>
@@ -387,8 +382,8 @@ export class EmployeeListComponent implements OnInit {
         return filter.map((x) => x.id).includes(value.id);
       }
     );
-    this.employees.clearSelectedEntity();
-    this.employees.fetchItems();
+    this.store.employees.clearSelectedEntity();
+    this.store.employees.fetchItems();
   }
 
   editEmployee(employee?: Employee) {

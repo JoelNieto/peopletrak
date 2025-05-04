@@ -19,15 +19,14 @@ import { v4 } from 'uuid';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageService } from 'primeng/api';
 import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { tap } from 'rxjs';
 import { markGroupDirty } from '../services/util.service';
-import { CompaniesStore } from '../stores/companies.store';
-import { DepartmentsStore } from '../stores/departments.store';
-import { PositionsStore } from '../stores/positions.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-positions-form',
-  imports: [ReactiveFormsModule, Button, InputText, Select],
+  imports: [ReactiveFormsModule, Button, InputText, Select, ToggleSwitch],
   template: ` <form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="flex flex-col gap-4">
       <div class="input-container">
@@ -39,7 +38,7 @@ import { PositionsStore } from '../stores/positions.store';
         <p-select
           id="company"
           appendTo="body"
-          [options]="companies.entities()"
+          [options]="store.companies.entities()"
           optionValue="id"
           optionLabel="name"
           formControlName="company_id"
@@ -51,12 +50,19 @@ import { PositionsStore } from '../stores/positions.store';
         <p-select
           id="department"
           appendTo="body"
-          [options]="departments.entities()"
+          [options]="store.departments.entities()"
           optionValue="id"
           optionLabel="name"
           formControlName="department_id"
           placeholder="Seleccione un area"
         />
+      </div>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch
+          formControlName="schedule_admin"
+          inputId="schedule_admin"
+        />
+        <label for="schedule_admin">Administra Horarios</label>
       </div>
       <div class="dialog-actions">
         <p-button
@@ -68,7 +74,7 @@ import { PositionsStore } from '../stores/positions.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="store.isLoading()"
+          [loading]="store.positions.isLoading()"
         />
       </div>
     </div>
@@ -91,10 +97,9 @@ export class PositionsFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    schedule_admin: new FormControl(false, { nonNullable: true }),
   });
-  public store = inject(PositionsStore);
-  public companies = inject(CompaniesStore);
-  public departments = inject(DepartmentsStore);
+  public store = inject(DashboardStore);
   public dialog = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private messageService = inject(MessageService);
@@ -128,7 +133,7 @@ export class PositionsFormComponent implements OnInit {
     }
 
     if (this.dialogConfig.data.position) {
-      this.store
+      this.store.positions
         .editItem(this.form.getRawValue())
         .pipe(
           tap(() => this.dialog.close()),
@@ -138,7 +143,7 @@ export class PositionsFormComponent implements OnInit {
       return;
     }
 
-    this.store
+    this.store.positions
       .createItem(this.form.getRawValue())
       .pipe(
         tap(() => this.dialog.close()),

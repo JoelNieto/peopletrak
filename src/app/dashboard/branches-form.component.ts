@@ -19,8 +19,7 @@ import { v4 } from 'uuid';
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { tap } from 'rxjs';
-import { BranchesStore } from '../stores/branches.store';
-import { CompaniesStore } from '../stores/companies.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-branches-form',
@@ -51,7 +50,7 @@ import { CompaniesStore } from '../stores/companies.store';
         <label for="company_id">Empresa</label>
         <p-select
           formControlName="company_id"
-          [options]="companies.entities()"
+          [options]="store.companies.entities()"
           optionLabel="name"
           optionValue="id"
           placeholder="Seleccione una empresa"
@@ -81,7 +80,7 @@ import { CompaniesStore } from '../stores/companies.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.isLoading()"
+          [loading]="store.branches.isLoading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -113,8 +112,7 @@ export class BranchesFormComponent implements OnInit {
   });
   public dialog = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
-  public state = inject(BranchesStore);
-  public companies = inject(CompaniesStore);
+  public store = inject(DashboardStore);
 
   ngOnInit() {
     const { branch } = this.dialogConfig.data;
@@ -125,12 +123,12 @@ export class BranchesFormComponent implements OnInit {
 
   saveChanges() {
     if (this.dialogConfig.data.branch) {
-      this.state
+      this.store.branches
         .editItem(this.form.getRawValue())
         .pipe(tap(() => this.dialog.close()))
         .subscribe();
     } else {
-      this.state
+      this.store.branches
         .createItem(this.form.getRawValue())
         .pipe(tap(() => this.dialog.close()))
         .subscribe();

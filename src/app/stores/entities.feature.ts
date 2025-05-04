@@ -90,7 +90,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
               state.lastUpdated() === null ||
               differenceInSeconds(new Date(), state.lastUpdated()!) > 30
           ),
-          tap(() => patchState(state, { isLoading: true })),
+          tap(() => patchState(state, { isLoading: true, error: null })),
           switchMap(() =>
             state._http
               .get<T[]>(`${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`, {
@@ -112,7 +112,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
         )
       ),
       createItem(request: T): Observable<T[]> {
-        patchState(state, { isLoading: true });
+        patchState(state, { isLoading: true, error: null });
         return state._http
           .post<T[]>(
             `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
@@ -122,14 +122,15 @@ export function withCustomEntities<T extends { id: EntityId }>({
           .pipe(
             tapResponse({
               next: (item) => {
-                patchState(state, addEntity(item[0])),
-                  state._message.add({
-                    severity: 'success',
-                    detail: 'Elemento creado con exito',
-                    summary: 'Exito',
-                  });
+                patchState(state, addEntity(item[0]));
+                state._message.add({
+                  severity: 'success',
+                  detail: 'Elemento creado con exito',
+                  summary: 'Exito',
+                });
               },
               error: (error) => {
+                patchState(state, { error });
                 state._message.add({
                   severity: 'error',
                   detail: 'Algo salio mal, intente de nuevo',
@@ -143,7 +144,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
           );
       },
       editItem(request: T) {
-        patchState(state, { isLoading: true });
+        patchState(state, { isLoading: true, error: null });
         console.log('editItem');
         return state._http
           .patch(
@@ -197,7 +198,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
             icon: 'pi pi-trash',
           },
           accept: () => {
-            patchState(state, { isLoading: true });
+            patchState(state, { isLoading: true, error: null });
             state._http
               .delete(`${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`, {
                 params: { id: `eq.${id}` },
@@ -218,8 +219,10 @@ export function withCustomEntities<T extends { id: EntityId }>({
                       detail: 'Algo salio mal, intente de nuevo',
                       summary: 'Error',
                     });
+                    patchState(state, { error });
                     console.error(error);
                   },
+                  finalize: () => patchState(state, { isLoading: false }),
                 })
               )
               .subscribe();

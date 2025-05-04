@@ -12,6 +12,7 @@ import { TableModule } from 'primeng/table';
 
 import { Branch } from '../models';
 import { BranchesStore } from '../stores/branches.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { BranchesFormComponent } from './branches-form.component';
 
 @Component({
@@ -84,21 +85,21 @@ import { BranchesFormComponent } from './branches-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesComponent {
-  readonly state = inject(BranchesStore);
+  readonly store = inject(DashboardStore);
   private ref = inject(DynamicDialogRef);
   private dialogService = inject(DialogService);
-  public branches = computed(() => [...this.state.entities()]);
+  public branches = computed(() => [...this.store.branches.entities()]);
 
   editBranch(branch?: Branch) {
     this.ref = this.dialogService.open(BranchesFormComponent, {
       width: '36rem',
       data: { branch },
       header: 'Sucursal',
-      closable: true,
+      modal: true,
     });
   }
 
   deleteBranch(id: string) {
-    this.state.deleteItem(id);
+    this.store.branches.deleteItem(id);
   }
 }

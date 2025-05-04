@@ -10,27 +10,50 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
 import { Position } from '../models';
-import { PositionsStore } from '../stores/positions.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { PositionsFormComponent } from './positions-form.component';
 
 @Component({
   selector: 'pt-positions',
-  imports: [TableModule, Card, Button],
+  imports: [TableModule, Card, Button, IconField, InputIcon, InputText],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <p-card>
       <ng-template #title>Cargos</ng-template>
       <ng-template #subtitle>Listado de cargos de la empresa</ng-template>
-      <div class="w-full flex justify-end">
-        <p-button label="Agregar" (click)="editPosition()" />
-      </div>
+
       <p-table
+        #dt
         [value]="positions()"
         [paginator]="true"
         [rowsPerPageOptions]="[5, 10, 20]"
         [rows]="5"
+        [globalFilterFields]="['name', 'department.name']"
       >
+        <ng-template #caption>
+          <div class="flex justify-between">
+            <p-iconfield iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($event.target?.value, 'contains')"
+                placeholder="Buscar"
+              />
+            </p-iconfield>
+            <p-button
+              label="Agregar"
+              (click)="editPosition()"
+              icon="pi pi-plus-circle"
+            />
+          </div>
+        </ng-template>
         <ng-template #header>
           <tr>
             <th pSortableColumn="name">
@@ -41,6 +64,7 @@ import { PositionsFormComponent } from './positions-form.component';
               Area
               <p-sortIcon field="department.name" />
             </th>
+            <th>Horarios</th>
             <th></th>
           </tr>
         </ng-template>
@@ -48,6 +72,19 @@ import { PositionsFormComponent } from './positions-form.component';
           <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.department?.name }}</td>
+            <td>
+              @if(item.schedule_admin) {
+              <i
+                class="pi pi-check-circle text-emerald-600"
+                style="font-size: 1.25rem"
+              ></i>
+              } @else {
+              <i
+                class="pi pi-times-circle text-red-600"
+                style="font-size: 1.25rem"
+              ></i>
+              }
+            </td>
             <td>
               <p-button
                 severity="success"
@@ -73,14 +110,14 @@ import { PositionsFormComponent } from './positions-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PositionsComponent implements OnInit {
-  readonly store = inject(PositionsStore);
+  readonly store = inject(DashboardStore);
 
   private dialog = inject(DialogService);
   private ref = inject(DynamicDialogRef);
-  public positions = computed(() => [...this.store.entities()]);
+  public positions = computed(() => [...this.store.positions.entities()]);
 
   ngOnInit() {
-    this.store.fetchItems();
+    this.store.positions.fetchItems();
   }
 
   editPosition(position?: Position) {
@@ -88,10 +125,11 @@ export class PositionsComponent implements OnInit {
       header: 'Cargo',
       width: '36rem',
       data: { position },
+      modal: true,
     });
   }
 
   deletePosition(id: string) {
-    this.store.deleteItem(id);
+    this.store.positions.deleteItem(id);
   }
 }

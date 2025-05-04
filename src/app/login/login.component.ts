@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { Button } from 'primeng/button';
@@ -8,7 +7,7 @@ import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'pt-login',
-  imports: [ReactiveFormsModule, Card, Button, Toast, RouterLink],
+  imports: [Card, Button, Toast, RouterLink],
   template: `
     <div
       class="w-full h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center p-4"
@@ -35,10 +34,6 @@ import { Toast } from 'primeng/toast';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  email = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.email],
-  });
   public auth = inject(AuthService);
 
   signIn() {

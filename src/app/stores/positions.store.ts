@@ -6,7 +6,7 @@ export const PositionsStore = signalStore(
   withCustomEntities<Position>({
     name: 'positions',
     query:
-      'id, name, department_id, company_id, department:departments(*), company:companies(*)',
+      'id, name, department_id, company_id, department:departments(*), company:companies(*), schedule_admin',
     order: 'name',
   }),
   withHooks({ onInit: ({ fetchItems }) => fetchItems() })

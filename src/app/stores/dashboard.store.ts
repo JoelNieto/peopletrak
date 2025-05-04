@@ -1,4 +1,5 @@
 import { computed, inject } from '@angular/core';
+import { AuthService } from '@auth0/auth0-angular';
 import {
   patchState,
   signalStore,
@@ -11,38 +12,45 @@ import { differenceInMonths, getMonth } from 'date-fns';
 import { Branch } from '../models';
 import { BranchesStore } from './branches.store';
 import { CompaniesStore } from './companies.store';
+import { DepartmentsStore } from './departments.store';
 import { EmployeesStore } from './employees.store';
+import { PositionsStore } from './positions.store';
 
 type State = {
   selectedCompanyId: string | null;
+  currentEmployeeId?: string | null;
 };
 
 const initialState: State = {
   selectedCompanyId: null,
+  currentEmployeeId: null,
 };
 
 export const DashboardStore = signalStore(
   withState(initialState),
   withProps(() => ({
-    _companies: inject(CompaniesStore),
-    _employees: inject(EmployeesStore),
-    _branches: inject(BranchesStore),
+    companies: inject(CompaniesStore),
+    employees: inject(EmployeesStore),
+    branches: inject(BranchesStore),
+    positions: inject(PositionsStore),
+    departments: inject(DepartmentsStore),
+    auth: inject(AuthService),
   })),
-  withComputed(({ _employees, _branches, _companies, selectedCompanyId }) => {
+  withComputed(({ employees, branches, companies, selectedCompanyId }) => {
     const headCount = computed(
-      () => _employees.entities().filter((x) => x.is_active).length
+      () => employees.entities().filter((x) => x.is_active).length
     );
 
     const branchesCount = computed(
-      () => _branches.entities().filter((x) => x.is_active).length
+      () => branches.entities().filter((x) => x.is_active).length
     );
 
     const selectedCompany = computed(() =>
-      _companies.entities().find((x) => x.id === selectedCompanyId())
+      companies.entities().find((x) => x.id === selectedCompanyId())
     );
 
     const employeesByGender = computed(() =>
-      _employees.entities().reduce<
+      employees.entities().reduce<
         {
           gender: string;
           count: number;
@@ -59,7 +67,7 @@ export const DashboardStore = signalStore(
     );
 
     const birthDates = computed(() =>
-      _employees
+      employees
         .entities()
         .filter((x) => x.is_active)
         .filter(
@@ -81,7 +89,7 @@ export const DashboardStore = signalStore(
     );
 
     const employeesByBranch = computed(() =>
-      _employees.entities().reduce<
+      employees.entities().reduce<
         {
           branch: Branch | undefined;
           count: number;
@@ -98,7 +106,7 @@ export const DashboardStore = signalStore(
     );
 
     const employeesList = computed(() =>
-      _employees.entities().map((item) => ({
+      employees.entities().map((item) => ({
         ...item,
         full_name: `${item.first_name} ${item.middle_name} ${item.father_name} ${item.mother_name}`,
         short_name: `${item.first_name} ${item.father_name}`,
@@ -118,12 +126,8 @@ export const DashboardStore = signalStore(
       selectedCompany,
     };
   }),
-  withMethods((state) => {
-    const toggleCompany = (id: string | null) =>
-      patchState(state, { selectedCompanyId: id });
-
-    return {
-      toggleCompany,
-    };
-  })
+  withMethods((state) => ({
+    toggleCompany: (id: string | null) =>
+      patchState(state, { selectedCompanyId: id }),
+  }))
 );

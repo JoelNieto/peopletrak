@@ -42,7 +42,7 @@ import { EmployeesStore } from '../stores/employees.store';
     header="Marcaciones"
     subheader="Listado de marcaciones de empleados"
   >
-    <div class="flex gap-3">
+    <div class="flex gap-3 items-center mb-3">
       <div class="input-container">
         <p-select
           [options]="employees.employeesList()"
@@ -73,7 +73,13 @@ import { EmployeesStore } from '../stores/employees.store';
         />
       </div>
     </div>
-    <p-table [value]="dayLogs()" [rows]="10" paginator showGridlines>
+    <p-table
+      [value]="dayLogs()"
+      [rows]="10"
+      paginator
+      showGridlines
+      [loading]="this.logs.isLoading()"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th>Empleado</th>
@@ -160,6 +166,20 @@ import { EmployeesStore } from '../stores/employees.store';
           </td>
         </tr>
       </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">
+            <div class="flex flex-col items-center justify-center gap-4">
+              <p>No se encontraron registros</p>
+              <p-button
+                label="Limpiar"
+                icon="pi pi-refresh"
+                (click)="employeeId.set('')"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
     </p-table>
   </p-card>`,
   styles: ``,
@@ -207,7 +227,7 @@ export class TimelogsComponent {
   });
 
   public logs = httpResource<any[]>(() => {
-    if (!this.employeeId()) {
+    if (!this.dateRange()[0] || !this.dateRange()[1]) {
       return undefined;
     }
     return {
@@ -218,13 +238,24 @@ export class TimelogsComponent {
         'yyyy-MM-dd 06:00:00'
       )}`,
       method: 'GET',
-      params: {
-        select:
-          '*,employee:employees(id,first_name,father_name),branch:branches(*)',
-        created_at: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
-        employee_id: `eq.${this.employeeId()}`,
-      },
+      params: this.queryParams(),
     };
+  });
+
+  public queryParams = computed(() => {
+    const params: {
+      select: string;
+      created_at: string;
+      employee_id?: string;
+    } = {
+      select:
+        '*,employee:employees(id,first_name,father_name),branch:branches(*)',
+      created_at: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
+    };
+    if (this.employeeId()) {
+      params['employee_id'] = `eq.${this.employeeId()}`;
+    }
+    return params;
   });
 
   public dayLogs = computed(() =>
