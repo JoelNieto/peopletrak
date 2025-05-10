@@ -114,7 +114,7 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () =>
           import('../timeclock.component').then((x) => x.TimeclockComponent),
       },
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: '', redirectTo: 'timeclock', pathMatch: 'full' },
     ],
   },
 ];
