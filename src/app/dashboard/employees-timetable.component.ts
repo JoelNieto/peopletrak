@@ -100,6 +100,8 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
       [value]="employeeSchedulesList()"
       paginator
       [rows]="10"
+      showGridlines
+      stripedRows
       [tableStyle]="{ 'min-width': '50rem' }"
       [rowsPerPageOptions]="[5, 10, 20]"
       paginatorDropdownAppendTo="body"
@@ -395,7 +397,12 @@ export class EmployeesTimetableComponent implements OnInit {
     this.dialog
       .open(EmployeeSchedulesFormComponent, {
         header: 'Editar horario',
-        data: { employee_id, employee_schedule, date },
+        data: {
+          employee_id,
+          employee_schedule,
+          date,
+          branch: this.currentBranch(),
+        },
         width: '60%',
         closeOnEscape: true,
         dismissableMask: true,

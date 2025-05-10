@@ -395,15 +395,17 @@ export class EmployeeFormComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
 
   ngOnInit() {
-    if (this.employee_id()) {
-      this.store.employees.selectEntity(this.employee_id()!);
+    const employeeId = this.employee_id();
+    if (employeeId) {
+      this.store.employees.selectEntity(employeeId);
     }
     effect(
       () => {
-        if (!this.store.employees.selectedEntity()) return;
+        const employee = this.store.employees.selectedEntity();
+        if (!employee) return;
 
         untracked(() => {
-          this.preloadForm(this.store.employees.selectedEntity()!);
+          this.preloadForm(employee);
         });
       },
       { injector: this.injector }

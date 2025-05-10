@@ -167,9 +167,13 @@ export class EmployeeSchedulesFormComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const { employee_schedule, employee_id, date } = this.dialog.data;
+    const { employee_schedule, employee_id, date, branch } = this.dialog.data;
     if (!this.store.isScheduleApprover()) {
       this.form.get('approved')?.disable();
+    }
+
+    if (branch) {
+      this.form.get('branch_id')?.patchValue(branch);
     }
 
     if (date) {

@@ -52,11 +52,12 @@ import { TrimPipe } from './pipes/trim.pipe';
     </p-confirmDialog>
     <p-toast />
     <div
-      class="flex flex-col items-center w-full min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+      class="flex flex-col items-center w-full h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
     >
       <div
         class="hidden md:flex flex-col gap-6 w-full lg:w-1/2 items-center h-screen justify-center px-6"
       >
+        <img src="images/blackdog.png" class="h-24" />
         <p-card class="w-full">
           <ng-template #title>Reloj de Marcación</ng-template>
           <ng-template #subtitle
@@ -123,6 +124,7 @@ import { TrimPipe } from './pipes/trim.pipe';
               label="Marcar"
               icon="pi pi-clock"
               size="large"
+              rounded
             />
           </form>
         </p-card>

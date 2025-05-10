@@ -264,7 +264,9 @@ import { EmployeeFormComponent } from './employee-form.component';
         <ng-template #body let-item let-columns="columns">
           <tr>
             <td pFrozenColumn>
-              <a [routerLink]="item.id" class="text-primary hover:underline"
+              <a
+                [routerLink]="item.id"
+                class="text-primary-700 font-semibold hover:underline"
                 >{{ item.first_name }} {{ item.father_name }}</a
               >
             </td>

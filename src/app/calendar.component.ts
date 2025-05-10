@@ -192,7 +192,7 @@ export class CalendarComponent {
   }
 }
 
-export interface CalendarMarkerData<Data = any> {
+export interface CalendarMarkerData<Data = unknown> {
   date: Date;
   data: Data;
 }
