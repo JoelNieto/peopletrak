@@ -4,8 +4,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
+  Injector,
   model,
+  OnInit,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -63,6 +66,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
         fluid
         [(ngModel)]="currentBranch"
         [options]="store.branches.entities()"
+        [disabled]="disableBranch()"
         appendTo="body"
         optionValue="id"
         placeholder="TODAS LAS SUCURSALES"
@@ -197,11 +201,13 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmployeesTimetableComponent {
+export class EmployeesTimetableComponent implements OnInit {
   public store = inject(DashboardStore);
   public currentDate = signal(new Date());
+  public disableBranch = signal(true);
   private http = inject(HttpClient);
   private confirm = inject(ConfirmationService);
+  public injector = inject(Injector);
   public start = computed(() => {
     if (isMonday(this.currentDate())) {
       return startOfDay(this.currentDate());
@@ -351,6 +357,19 @@ export class EmployeesTimetableComponent {
       })),
     }))
   );
+
+  ngOnInit(): void {
+    effect(
+      () => {
+        if (this.store.isAdmin()) {
+          this.disableBranch.set(false);
+          return;
+        }
+        this.currentBranch.set(this.store.currentBranch()?.id);
+      },
+      { injector: this.injector }
+    );
+  }
 
   public nextWeek() {
     this.currentDate.update((value) => addWeeks(value, 1));

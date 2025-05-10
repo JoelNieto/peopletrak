@@ -106,7 +106,7 @@ export const DASHBOARD_ROUTES: Routes = [
             loadComponent: () =>
               import('./shifts.component').then((x) => x.ShiftsComponent),
           },
-          { path: '', redirectTo: 'timelogs', pathMatch: 'full' },
+          { path: '', redirectTo: 'timetables', pathMatch: 'full' },
         ],
       },
       {
