@@ -1,11 +1,14 @@
 import { NgClass } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -19,11 +22,12 @@ import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { iif } from 'rxjs';
 import { v4 } from 'uuid';
 import { colorVariants } from '../models';
 import { TrimPipe } from '../pipes/trim.pipe';
-import { SupabaseService } from '../services/supabase.service';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-employee-schedules-form',
@@ -35,6 +39,7 @@ import { DashboardStore } from './dashboard.store';
     ReactiveFormsModule,
     TrimPipe,
     NgClass,
+    ToggleSwitch,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-2 gap-4">
@@ -42,7 +47,7 @@ import { DashboardStore } from './dashboard.store';
         <label for="employee_id">Empleado</label>
         <p-select
           formControlName="employee_id"
-          [options]="store.employees()"
+          [options]="store.employees.employeesList()"
           optionValue="id"
           placeholder="Seleccionar empleado"
           filter
@@ -60,7 +65,7 @@ import { DashboardStore } from './dashboard.store';
       <div class="input-container">
         <label for="schedule_id">Turno</label>
         <p-select
-          [options]="store.schedules()"
+          [options]="store.schedules.entities()"
           optionLabel="name"
           optionValue="id"
           formControlName="schedule_id"
@@ -80,7 +85,7 @@ import { DashboardStore } from './dashboard.store';
           <ng-template #selectedItem let-selected>
             <div class="flex items-center ">
               <div
-                class="text-sm rounded"
+                class="text-sm rounded p-1"
                 [ngClass]="colorVariants[selected.color]"
               >
                 {{ selected.name }}
@@ -89,6 +94,7 @@ import { DashboardStore } from './dashboard.store';
           </ng-template>
         </p-select>
       </div>
+
       <div class="input-container">
         <label for="start_date">Fecha inicio</label>
         <p-datepicker formControlName="start_date" appendTo="body" />
@@ -96,6 +102,22 @@ import { DashboardStore } from './dashboard.store';
       <div class="input-container">
         <label for="end_date">Fecha fin</label>
         <p-datepicker formControlName="end_date" appendTo="body" />
+      </div>
+      <div class="input-container">
+        <label for="branch_id">Sucursal</label>
+        <p-select
+          formControlName="branch_id"
+          [options]="store.branches.entities()"
+          optionLabel="name"
+          filter
+          optionValue="id"
+          placeholder="Seleccionar sucursal"
+          appendTo="body"
+        />
+      </div>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch formControlName="approved" inputId="approved" />
+        <label for="approved">Aprobado</label>
       </div>
     </div>
     <div class="flex justify-end gap-4 mt-4">
@@ -105,12 +127,7 @@ import { DashboardStore } from './dashboard.store';
         [outlined]="true"
         (onClick)="dialogRef.close()"
       />
-      <p-button
-        label="Guardar cambios"
-        type="submit"
-        [loading]="loading()"
-        [disabled]="form.invalid || form.pristine"
-      />
+      <p-button label="Guardar cambios" type="submit" [loading]="loading()" />
     </div>
   </form>`,
   styles: ``,
@@ -121,6 +138,9 @@ export class EmployeeSchedulesFormComponent implements OnInit {
     id: new FormControl(v4(), { nonNullable: true }),
     employee_id: new FormControl('', {
       validators: [Validators.required],
+      nonNullable: true,
+    }),
+    branch_id: new FormControl('', {
       nonNullable: true,
     }),
     schedule_id: new FormControl('', {
@@ -135,29 +155,52 @@ export class EmployeeSchedulesFormComponent implements OnInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
+    approved: new FormControl(false, { nonNullable: true }),
   });
-  public store = inject(DashboardStore);
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
   public loading = signal<boolean>(false);
-  private supabase = inject(SupabaseService);
+  private http = inject(HttpClient);
   private message = inject(MessageService);
   public colorVariants = colorVariants;
+  public store = inject(DashboardStore);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const { employee_schedule, employee_id } = this.dialog.data;
+    const { employee_schedule, employee_id, date } = this.dialog.data;
+    if (!this.store.isScheduleApprover()) {
+      this.form.get('approved')?.disable();
+    }
+
+    if (date) {
+      this.form
+        .get('start_date')
+        ?.patchValue(toDate(date, { timeZone: 'America/Panama' }));
+      this.form
+        .get('end_date')
+        ?.patchValue(toDate(date, { timeZone: 'America/Panama' }));
+    }
     if (employee_id) {
       this.form.patchValue({ employee_id });
       this.form.get('employee_id')?.disable();
       return;
     }
     if (employee_schedule) {
-      const { id, employee_id, schedule_id, start_date, end_date } =
-        employee_schedule;
+      const {
+        id,
+        employee_id,
+        schedule_id,
+        start_date,
+        end_date,
+        branch_id,
+        approved,
+      } = employee_schedule;
       this.form.patchValue({
         id,
         employee_id,
         schedule_id,
+        branch_id,
+        approved,
       });
       this.form
         .get('start_date')
@@ -168,31 +211,51 @@ export class EmployeeSchedulesFormComponent implements OnInit {
     }
   }
 
-  async saveChanges(): Promise<void> {
+  saveChanges(): void {
     this.loading.set(true);
-    try {
-      const { error } = await this.supabase.client
-        .from('employee_schedules')
-        .upsert(this.form.getRawValue());
-      if (error) throw error;
-      this.message.add({
-        severity: 'success',
-        summary: 'Cambios guardados',
-        detail: 'Los cambios se guardaron correctamente.',
-      });
-
-      this.dialogRef.close();
-    } catch (error) {
-      console.error(error);
-      this.loading.set(false);
+    const value = this.form.getRawValue();
+    if (this.form.invalid) {
       this.message.add({
         severity: 'error',
-        summary: 'Error al guardar',
-        detail: 'Ocurrió un error al guardar los cambios.',
+        summary: 'Formulario incompleto',
+        detail: 'Por favor, completa los campos requeridos.',
       });
-      return;
-    } finally {
       this.loading.set(false);
+      return;
     }
+    const createRequest = this.http.post(
+      `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+      value
+    );
+    const updateRequest = this.http.patch(
+      `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+      this.form.getRawValue(),
+      {
+        params: {
+          id: `eq.${value.id}`,
+        },
+      }
+    );
+    iif(() => this.dialog.data.employee_schedule, updateRequest, createRequest)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.message.add({
+            severity: 'success',
+            summary: 'Cambios guardados',
+            detail: 'Los cambios se guardaron correctamente.',
+          });
+          this.dialogRef.close();
+        },
+        error: (error) => {
+          console.error(error);
+          this.loading.set(false);
+          this.message.add({
+            severity: 'error',
+            summary: 'Error al guardar',
+            detail: 'Ocurrió un error al guardar los cambios.',
+          });
+        },
+      });
   }
 }

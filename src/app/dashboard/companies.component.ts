@@ -9,8 +9,8 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Company } from '../models';
+import { CompaniesStore } from '../stores/companies.store';
 import { CompaniesFormComponent } from './companies-form.component';
-import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'pt-companies',
@@ -75,19 +75,20 @@ import { DashboardStore } from './dashboard.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompaniesComponent {
-  protected store = inject(DashboardStore);
+  protected store = inject(CompaniesStore);
   private dialog = inject(DialogService);
-  public companies = computed(() => this.store.companies());
+  public companies = computed(() => this.store.entities());
 
   editCompany(company?: Company) {
     this.dialog.open(CompaniesFormComponent, {
       header: 'Agregar empresa',
       width: '36rem',
       data: { company },
+      modal: true,
     });
   }
 
   deleteCompany(id: string) {
-    this.store.deleteItem({ id, collection: 'companies' });
+    this.store.deleteItem(id);
   }
 }

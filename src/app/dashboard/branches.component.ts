@@ -11,13 +11,14 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 
 import { Branch } from '../models';
+import { BranchesStore } from '../stores/branches.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { BranchesFormComponent } from './branches-form.component';
-import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'pt-branches',
   imports: [ButtonModule, CardModule, TableModule, DialogModule],
-  providers: [DynamicDialogRef, DialogService],
+  providers: [DynamicDialogRef, DialogService, BranchesStore],
   template: `
     <p-card>
       <ng-template #title>Sucursales</ng-template>
@@ -84,20 +85,21 @@ import { DashboardStore } from './dashboard.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesComponent {
-  readonly state = inject(DashboardStore);
+  readonly store = inject(DashboardStore);
   private ref = inject(DynamicDialogRef);
   private dialogService = inject(DialogService);
-  public branches = computed(() => [...this.state.branches()]);
+  public branches = computed(() => [...this.store.branches.entities()]);
 
   editBranch(branch?: Branch) {
     this.ref = this.dialogService.open(BranchesFormComponent, {
       width: '36rem',
       data: { branch },
       header: 'Sucursal',
+      modal: true,
     });
   }
 
   deleteBranch(id: string) {
-    this.state.deleteItem({ id, collection: 'branches' });
+    this.store.branches.deleteItem(id);
   }
 }

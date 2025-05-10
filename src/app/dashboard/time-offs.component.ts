@@ -18,7 +18,7 @@ import { Textarea } from 'primeng/textarea';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
 import { TimeOff } from '../models';
-import { DashboardStore } from './dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 
 @Component({
   selector: 'pt-time-offs',
@@ -96,7 +96,7 @@ import { DashboardStore } from './dashboard.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeOffsComponent implements OnInit {
-  public store = inject(DashboardStore);
+  public store = inject(EmployeesStore);
   protected form = new FormGroup({
     id: new FormControl(v4(), { nonNullable: true }),
     employee_id: new FormControl('', {
@@ -120,6 +120,7 @@ export class TimeOffsComponent implements OnInit {
   private dialog = inject(DynamicDialogConfig);
 
   ngOnInit() {
+    this.store.fetchTimeOffTypes();
     const {
       data: { employee, timeoff },
     } = this.dialog;

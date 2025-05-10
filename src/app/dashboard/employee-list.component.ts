@@ -23,7 +23,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { utils, writeFile } from 'xlsx';
 import { Column, Employee, ExportColumn } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 @Component({
@@ -60,7 +60,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
       </div>
 
-      @if (state.loading()) {
+      @if (store.employees.isLoading()) {
       <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
       }
       <p-table
@@ -72,6 +72,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         [scrollable]="true"
         dataKey="id"
         styleClass="p-datatable-striped"
+        paginatorDropdownAppendTo="body"
       >
         <ng-template #caption>
           <div class="flex gap-2">
@@ -166,7 +167,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.branches()"
+                    [options]="store.branches.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -188,7 +189,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.departments()"
+                    [options]="store.departments.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -210,7 +211,7 @@ import { EmployeeFormComponent } from './employee-form.component';
                 >
                   <p-multiSelect
                     [ngModel]="value"
-                    [options]="state.positions()"
+                    [options]="store.positions.entities()"
                     placeholder="TODOS"
                     (onChange)="filter($event.value)"
                     optionLabel="name"
@@ -321,7 +322,8 @@ import { EmployeeFormComponent } from './employee-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeListComponent implements OnInit {
-  readonly state = inject(DashboardStore);
+  readonly store = inject(DashboardStore);
+
   public inactiveToggle = new FormControl(false, { nonNullable: true });
   public probatories = [
     { label: 'Probatorio', value: true },
@@ -334,7 +336,7 @@ export class EmployeeListComponent implements OnInit {
   public exportColumns!: ExportColumn[];
 
   public filtered = computed(() =>
-    this.state
+    this.store.employees
       .employeesList()
       .filter(
         (item) =>
@@ -380,8 +382,8 @@ export class EmployeeListComponent implements OnInit {
         return filter.map((x) => x.id).includes(value.id);
       }
     );
-    this.state.resetSelected();
-    this.state.fetchEmployees();
+    this.store.employees.clearSelectedEntity();
+    this.store.employees.fetchItems();
   }
 
   editEmployee(employee?: Employee) {

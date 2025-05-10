@@ -1,8 +1,13 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DashboardStore } from './dashboard.store';
+import { BranchesStore } from '../stores/branches.store';
+import { CompaniesStore } from '../stores/companies.store';
+import { DepartmentsStore } from '../stores/departments.store';
+import { EmployeesStore } from '../stores/employees.store';
+import { PositionsStore } from '../stores/positions.store';
 import { EmployeeFormComponent } from './employee-form.component';
 
 describe('EmployeeFormComponent', () => {
@@ -12,7 +17,12 @@ describe('EmployeeFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
-        DashboardStore,
+        provideHttpClient(),
+        EmployeesStore,
+        CompaniesStore,
+        PositionsStore,
+        DepartmentsStore,
+        BranchesStore,
         MessageService,
         DynamicDialogRef,
         ConfirmationService,

@@ -1,7 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DashboardStore } from './dashboard.store';
+import { BranchesStore } from '../stores/branches.store';
+import { EmployeesStore } from '../stores/employees.store';
+import { SchedulesStore } from '../stores/schedules.store';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 
 describe('EmployeeSchedulesFormComponent', () => {
@@ -11,7 +14,10 @@ describe('EmployeeSchedulesFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
-        DashboardStore,
+        provideHttpClient(),
+        BranchesStore,
+        SchedulesStore,
+        EmployeesStore,
         MessageService,
         ConfirmationService,
         DynamicDialogRef,

@@ -28,7 +28,7 @@ import QRCode from 'qrcode';
 import { markGroupDirty } from 'src/app/services/util.service';
 import { v4 } from 'uuid';
 import { Employee, UniformSize } from '../models';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-employee-form',
@@ -127,6 +127,15 @@ import { DashboardStore } from './dashboard.store';
           <input type="email" id="email" pInputText formControlName="email" />
         </div>
         <div class="input-container">
+          <label for="work_email">Email laboral</label>
+          <input
+            type="email"
+            id="work_email"
+            pInputText
+            formControlName="work_email"
+          />
+        </div>
+        <div class="input-container">
           <label for="phone_number">Nro. Teléfono</label>
           <input
             type="text"
@@ -149,7 +158,7 @@ import { DashboardStore } from './dashboard.store';
         <div class="input-container">
           <label for="branch">Sucursal</label>
           <p-select
-            [options]="state.branches()"
+            [options]="store.branches.entities()"
             optionLabel="name"
             optionValue="id"
             inputId="branch"
@@ -161,7 +170,7 @@ import { DashboardStore } from './dashboard.store';
         <div class="input-container">
           <label for="department">Area</label>
           <p-select
-            [options]="state.departments()"
+            [options]="store.departments.entities()"
             optionLabel="name"
             optionValue="id"
             inputId="department"
@@ -173,7 +182,7 @@ import { DashboardStore } from './dashboard.store';
         <div class="input-container">
           <label for="position">Cargo</label>
           <p-select
-            [options]="state.positions()"
+            [options]="store.positions.entities()"
             optionLabel="name"
             optionValue="id"
             inputId="position"
@@ -247,7 +256,7 @@ import { DashboardStore } from './dashboard.store';
         <div class="input-container">
           <label for="company">Empresa</label>
           <p-select
-            [options]="state.companies()"
+            [options]="store.companies.entities()"
             optionLabel="name"
             optionValue="id"
             inputId="company"
@@ -277,7 +286,7 @@ import { DashboardStore } from './dashboard.store';
             label="Guardar cambios"
             type="submit"
             icon="pi pi-save"
-            [loading]="state.loading()"
+            [loading]="store.employees.isLoading()"
           />
         </div>
       </div>
@@ -287,7 +296,7 @@ import { DashboardStore } from './dashboard.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeFormComponent implements OnInit {
-  public state = inject(DashboardStore);
+  public store = inject(DashboardStore);
   public sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
   public banks = [
     'Banco General',
@@ -372,6 +381,7 @@ export class EmployeeFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    work_email: new FormControl('', { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
     qr_code: new FormControl('', { nonNullable: true }),
     code_uri: new FormControl('', { nonNullable: true }),
@@ -386,14 +396,14 @@ export class EmployeeFormComponent implements OnInit {
 
   ngOnInit() {
     if (this.employee_id()) {
-      this.state.getSelected(this.employee_id()!);
+      this.store.employees.selectEntity(this.employee_id()!);
     }
     effect(
       () => {
-        if (!this.state.selected()) return;
+        if (!this.store.employees.selectedEntity()) return;
 
         untracked(() => {
-          this.preloadForm(this.state.selected()!);
+          this.preloadForm(this.store.employees.selectedEntity()!);
         });
       },
       { injector: this.injector }
@@ -402,6 +412,7 @@ export class EmployeeFormComponent implements OnInit {
 
   preloadForm(employee: Employee) {
     this.form.patchValue(employee);
+    console.log(employee);
     employee.birth_date &&
       this.form
         .get('birth_date')
@@ -415,7 +426,7 @@ export class EmployeeFormComponent implements OnInit {
     this.form.markAsUntouched();
   }
 
-  async saveChanges() {
+  saveChanges() {
     const { pristine, invalid } = this.form;
     if (invalid) {
       this.message.add({
@@ -438,10 +449,11 @@ export class EmployeeFormComponent implements OnInit {
     if (!this.employee_id()) {
       this.addTimeclockQR();
     }
-    await this.state
-      .updateEmployee(this.form.getRawValue())
-      .then(() => this.router.navigate(['..'], { relativeTo: this.route }))
-      .catch((error) => console.error({ error }));
+    if (this.employee_id()) {
+      this.store.employees.editItem(this.form.getRawValue()).subscribe();
+    } else {
+      this.store.employees.createItem(this.form.getRawValue()).subscribe();
+    }
   }
 
   cancelChanges(list = false) {

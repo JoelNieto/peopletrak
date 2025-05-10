@@ -1,19 +1,17 @@
+import { HttpClient, httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
   model,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import * as OTPAuth from 'otpauth';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import QRCode from 'qrcode';
-import { from, map } from 'rxjs';
 import { Employee } from './models';
-import { SupabaseService } from './services/supabase.service';
 
 @Component({
   selector: 'pt-qr-generator',
@@ -25,7 +23,7 @@ import { SupabaseService } from './services/supabase.service';
           <label for="employee">Empleado</label>
           <p-dropdown
             [(ngModel)]="employee"
-            [options]="employees() ?? []"
+            [options]="employees.value()"
             placeholder="Seleccionar empleado"
             filter
             filterBy="first_name,father_name"
@@ -49,21 +47,17 @@ import { SupabaseService } from './services/supabase.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QrGeneratorComponent {
-  private supabase = inject(SupabaseService);
   public employee = model<Employee>();
-
-  public employees = toSignal(
-    from(
-      this.supabase.client
-        .from('employees')
-        .select('*')
-        .order('father_name')
-        .eq('is_active', true)
-    ).pipe(map((response) => response.data)),
-    {
-      initialValue: [],
-    }
-  );
+  private http = inject(HttpClient);
+  public employees = httpResource<Partial<Employee>[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+    method: 'GET',
+    params: {
+      select: 'id,first_name,father_name',
+      order: 'father_name',
+      is_active: 'eq.true',
+    },
+  }));
 
   generateQrCode() {
     if (!this.employee()) {
@@ -79,16 +73,26 @@ export class QrGeneratorComponent {
 
     const uri = totp.toString();
 
-    QRCode.toDataURL(uri, async (error, qrUrl) => {
+    QRCode.toDataURL(uri, (error, qrUrl) => {
       if (error) {
         console.error(error);
         return;
       }
 
-      await this.supabase.client
-        .from('employees')
-        .update({ qr_code: qrUrl, code_uri: uri })
-        .eq('id', this.employee()!.id);
+      this.http
+        .patch(
+          `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+          {
+            qr_code: qrUrl,
+            code_uri: uri,
+          },
+          {
+            params: {
+              id: `eq.${this.employee()!.id}`,
+            },
+          }
+        )
+        .subscribe();
     });
   }
 }

@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import {
@@ -5,7 +6,8 @@ import {
   DynamicDialogModule,
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';
-import { DashboardStore } from './dashboard.store';
+import { CompaniesStore } from '../stores/companies.store';
+import { DepartmentsStore } from '../stores/departments.store';
 import { DepartmentsFormComponent } from './departments-form.component';
 
 describe('DepartmentsFormComponent', () => {
@@ -15,7 +17,9 @@ describe('DepartmentsFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
-        DashboardStore,
+        provideHttpClient(),
+        DepartmentsStore,
+        CompaniesStore,
         MessageService,
         DynamicDialogRef,
         ConfirmationService,

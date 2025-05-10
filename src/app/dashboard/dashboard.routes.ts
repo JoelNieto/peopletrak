@@ -12,73 +12,107 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./home.component').then((x) => x.HomeComponent),
       },
       {
-        path: 'employees',
+        path: 'admin',
+        loadComponent: () =>
+          import('./admin.component').then((x) => x.AdminComponent),
         children: [
           {
-            path: '',
+            path: 'employees',
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./employee-list.component').then(
+                    (x) => x.EmployeeListComponent
+                  ),
+              },
+              {
+                path: 'new',
+                loadComponent: () =>
+                  import('./employee-form.component').then(
+                    (x) => x.EmployeeFormComponent
+                  ),
+              },
+              {
+                path: ':employee_id',
+                loadComponent: () =>
+                  import('./employee-detail.component').then(
+                    (x) => x.EmployeeDetailComponent
+                  ),
+              },
+
+              {
+                path: ':employee_id/edit',
+                loadComponent: () =>
+                  import('./employee-form.component').then(
+                    (x) => x.EmployeeFormComponent
+                  ),
+              },
+            ],
+          },
+          {
+            path: 'companies',
             loadComponent: () =>
-              import('./employee-list.component').then(
-                (x) => x.EmployeeListComponent
+              import('./companies.component').then((x) => x.CompaniesComponent),
+          },
+          {
+            path: 'departments',
+            loadComponent: () =>
+              import('./departments.component').then(
+                (x) => x.DepartmentsComponent
               ),
           },
           {
-            path: 'new',
+            path: 'positions',
             loadComponent: () =>
-              import('./employee-form.component').then(
-                (x) => x.EmployeeFormComponent
-              ),
+              import('./positions.component').then((x) => x.PositionsComponent),
           },
           {
-            path: ':employee_id',
+            path: 'branches',
             loadComponent: () =>
-              import('./employee-detail.component').then(
-                (x) => x.EmployeeDetailComponent
+              import('./branches.component').then((x) => x.BranchesComponent),
+          },
+          { path: '', redirectTo: 'employees', pathMatch: 'full' },
+        ],
+      },
+      {
+        path: 'time-management',
+        loadComponent: () =>
+          import('./time-management.component').then(
+            (x) => x.TimeManagementComponent
+          ),
+        children: [
+          {
+            path: 'timelogs',
+            loadComponent: () =>
+              import('./timelogs.component').then((x) => x.TimelogsComponent),
+          },
+          {
+            path: 'timetables',
+            loadComponent: () =>
+              import('./employees-timetable.component').then(
+                (x) => x.EmployeesTimetableComponent
               ),
           },
 
           {
-            path: ':employee_id/edit',
+            path: 'schedules',
             loadComponent: () =>
-              import('./employee-form.component').then(
-                (x) => x.EmployeeFormComponent
-              ),
+              import('./schedules.component').then((x) => x.SchedulesComponent),
           },
+
+          {
+            path: 'shifts',
+            loadComponent: () =>
+              import('./shifts.component').then((x) => x.ShiftsComponent),
+          },
+          { path: '', redirectTo: 'timelogs', pathMatch: 'full' },
         ],
       },
       {
-        path: 'timelogs',
+        path: 'timeclock',
         loadComponent: () =>
-          import('./timelogs.component').then((x) => x.TimelogsComponent),
-      },
-      {
-        path: 'companies',
-        loadComponent: () =>
-          import('./companies.component').then((x) => x.CompaniesComponent),
-      },
-      {
-        path: 'departments',
-        loadComponent: () =>
-          import('./departments.component').then((x) => x.DepartmentsComponent),
-      },
-      {
-        path: 'positions',
-        loadComponent: () =>
-          import('./positions.component').then((x) => x.PositionsComponent),
-      },
-      {
-        path: 'schedules',
-        loadComponent: () =>
-          import('./schedules.component').then((x) => x.SchedulesComponent),
-      },
-      {
-        path: 'branches',
-        loadComponent: () =>
-          import('./branches.component').then((x) => x.BranchesComponent),
-      },
-      {
-        path: 'shifts',
-        loadComponent: () =>
-          import('./shifts.component').then((x) => x.ShiftsComponent),
+          import('../timeclock.component').then((x) => x.TimeclockComponent),
       },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
 } from '@angular/core';
@@ -15,8 +16,13 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputText } from 'primeng/inputtext';
 import { v4 } from 'uuid';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MessageService } from 'primeng/api';
 import { Select } from 'primeng/select';
-import { DashboardStore } from './dashboard.store';
+import { iif } from 'rxjs';
+import { markGroupDirty } from '../services/util.service';
+import { CompaniesStore } from '../stores/companies.store';
+import { DepartmentsStore } from '../stores/departments.store';
 
 @Component({
   selector: 'pt-departments-form',
@@ -31,7 +37,7 @@ import { DashboardStore } from './dashboard.store';
         <label for="company_id">Empresa</label>
         <p-select
           formControlName="company_id"
-          [options]="state.companies()"
+          [options]="companies.entities()"
           optionLabel="name"
           optionValue="id"
           placeholder="Seleccione una empresa"
@@ -49,7 +55,7 @@ import { DashboardStore } from './dashboard.store';
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.loading()"
+          [loading]="state.isLoading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -72,7 +78,10 @@ export class DepartmentsFormComponent implements OnInit {
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(DashboardStore);
+  public state = inject(DepartmentsStore);
+  public companies = inject(CompaniesStore);
+  private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     const { department } = this.dialog.data;
@@ -82,11 +91,32 @@ export class DepartmentsFormComponent implements OnInit {
   }
 
   async saveChanges() {
-    this.state
-      .updateItem({
-        request: this.form.getRawValue(),
-        collection: 'departments',
-      })
-      .then(() => this.dialogRef.close());
+    if (this.form.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Por favor, complete los campos requeridos',
+      });
+      markGroupDirty(this.form);
+      return;
+    }
+    if (this.form.pristine) {
+      this.messageService.add({
+        severity: 'info',
+        detail: 'No se realizaron cambios',
+        summary: 'Info',
+      });
+      this.dialogRef.close();
+      return;
+    }
+    iif(
+      () => this.dialog.data.department,
+      this.state.editItem(this.form.getRawValue()),
+      this.state.createItem(this.form.getRawValue())
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.dialogRef.close();
+      });
   }
 }

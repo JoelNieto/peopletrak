@@ -1,35 +1,24 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { AuthService } from '@auth0/auth0-angular';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
 import { Toast } from 'primeng/toast';
-import { SupabaseService } from '../services/supabase.service';
 
 @Component({
   selector: 'pt-login',
-  imports: [ReactiveFormsModule, Card, InputText, Button, Toast, RouterLink],
+  imports: [Card, Button, Toast, RouterLink],
   template: `
-    <div class="w-full h-screen flex flex-col items-center justify-center p-4">
+    <div
+      class="w-full h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center p-4"
+    >
       <p-toast />
       <p-card class="w-full md:w-2/5">
         <ng-template #title>Iniciar sesion</ng-template>
-        <ng-template #subtitle
-          >Introduzca su correo y revise su buzon para el enlace</ng-template
-        >
-        <div class="flex flex-col gap-2">
-          <label for="email">Email</label>
-          <input type="email" pInputText id="email" [formControl]="email" />
-        </div>
+
         <ng-template #footer>
           <div class="flex flex-col sm:flex-row gap-4 sm:justify-end">
-            <p-button
-              label="Entrar al dashboard"
-              [disabled]="email.invalid"
-              (click)="signIn()"
-            />
+            <p-button label="Entrar al dashboard" (click)="signIn()" />
             <a
               routerLink="/timeclock"
               class="p-button font-bold p-button-outlined"
@@ -45,31 +34,9 @@ import { SupabaseService } from '../services/supabase.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  email = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.email],
-  });
-  private supabase = inject(SupabaseService);
-  private message = inject(MessageService);
+  public auth = inject(AuthService);
 
-  async signIn() {
-    try {
-      const { error } = await this.supabase.signIn(this.email.getRawValue());
-
-      if (error) throw error;
-      this.message.add({
-        severity: 'success',
-        summary: 'Exito',
-        detail: 'Link enviado exitosamente!',
-      });
-      this.email.reset();
-    } catch (error) {
-      console.error(error);
-      this.message.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Algo salio mal, intente nuevamente',
-      });
-    }
+  signIn() {
+    this.auth.loginWithRedirect({});
   }
 }

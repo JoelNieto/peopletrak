@@ -16,7 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { AgePipe } from '../pipes/age.pipe';
 import { SeniorityPipe } from '../pipes/seniority.pipe';
-import { DashboardStore } from './dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { EmployeeFormComponent } from './employee-form.component';
 import { EmployeeSchedulesComponent } from './employee-schedules.component';
 import { TerminationFormComponent } from './termination-form.component';
@@ -212,10 +212,10 @@ import { TimeOffsComponent } from './time-offs.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeDetailComponent implements OnInit {
-  protected readonly state = inject(DashboardStore);
+  protected readonly state = inject(EmployeesStore);
 
   public employee_id = input.required<string>();
-  public employee = this.state.selected;
+  public employee = this.state.selectedEntity;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -253,7 +253,7 @@ export class EmployeeDetailComponent implements OnInit {
   private ref = inject(DynamicDialogRef);
 
   ngOnInit(): void {
-    this.state.getSelected(this.employee_id());
+    this.state.selectEntity(this.employee_id());
   }
 
   editEmployee() {
@@ -283,6 +283,6 @@ export class EmployeeDetailComponent implements OnInit {
   }
 
   deleteEmployee() {
-    this.state.deleteEmployee(this.employee_id());
+    this.state.deleteItem(this.employee_id());
   }
 }

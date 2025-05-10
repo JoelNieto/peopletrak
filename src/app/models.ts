@@ -14,6 +14,7 @@ export type Branch = {
   address: string;
   is_active: boolean;
   created_at?: Date;
+  ip: string;
 };
 
 export type Department = {
@@ -29,6 +30,9 @@ export type Position = {
   department_id: string;
   department?: Department;
   created_at?: Date;
+  schedule_admin: boolean;
+  admin: boolean;
+  schedule_approver: boolean;
 };
 
 export type Employee = {
@@ -49,6 +53,7 @@ export type Employee = {
   position_id: string;
   position?: Position;
   email: string;
+  work_email: string;
   phone_number: string;
   address: string;
   end_date?: Date;
@@ -113,16 +118,16 @@ export interface Timestamp {
 export type Schedule = {
   id: string;
   name: string;
-  entry_time: Date;
-  lunch_start_time: Date;
-  lunch_end_time: Date;
-  exit_time: Date;
+  entry_time: Date | string | null;
+  lunch_start_time: Date | string | null;
+  lunch_end_time: Date | string | null;
+  exit_time: Date | string | null;
   color?: string;
   created_at?: Date;
   day_off: boolean;
   minutes_tolerance: number;
-  min_lunch_minutes: number;
-  max_lunch_minutes: number;
+  min_lunch_minutes?: number;
+  max_lunch_minutes?: number;
 };
 
 export enum TimelogType {
@@ -146,11 +151,14 @@ export type TimeLogs = {
 export type EmployeeSchedule = {
   id: string;
   employee_id: string;
+  branch_id?: string;
+  branch?: Branch;
   schedule_id: string;
   schedule?: Schedule;
   start_date: Date;
   end_date: Date;
   created_at?: Date;
+  approved?: boolean;
 };
 
 export const colorVariants: Record<string, string> = {

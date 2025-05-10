@@ -1,8 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { BranchesStore } from '../stores/branches.store';
+import { CompaniesStore } from '../stores/companies.store';
 import { BranchesFormComponent } from './branches-form.component';
-import { DashboardStore } from './dashboard.store';
 
 describe('BranchesFormComponent', () => {
   let component: BranchesFormComponent;
@@ -11,7 +13,9 @@ describe('BranchesFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
-        DashboardStore,
+        provideHttpClient(),
+        BranchesStore,
+        CompaniesStore,
         MessageService,
         DynamicDialogRef,
         ConfirmationService,

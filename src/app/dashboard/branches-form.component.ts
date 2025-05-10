@@ -18,7 +18,8 @@ import { v4 } from 'uuid';
 
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { DashboardStore } from './dashboard.store';
+import { tap } from 'rxjs';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-branches-form',
@@ -49,7 +50,7 @@ import { DashboardStore } from './dashboard.store';
         <label for="company_id">Empresa</label>
         <p-select
           formControlName="company_id"
-          [options]="state.companies()"
+          [options]="store.companies.entities()"
           optionLabel="name"
           optionValue="id"
           placeholder="Seleccione una empresa"
@@ -74,12 +75,12 @@ import { DashboardStore } from './dashboard.store';
           label="Cancelar"
           severity="secondary"
           [outlined]="true"
-          (click)="dialogRef.close()"
+          (click)="dialog.close()"
         />
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.loading()"
+          [loading]="store.branches.isLoading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -109,23 +110,28 @@ export class BranchesFormComponent implements OnInit {
     ip: new FormControl('', { nonNullable: true }),
     is_active: new FormControl(true, { nonNullable: true }),
   });
-  public dialogRef = inject(DynamicDialogRef);
-  private dialog = inject(DynamicDialogConfig);
-  public state = inject(DashboardStore);
+  public dialog = inject(DynamicDialogRef);
+  private dialogConfig = inject(DynamicDialogConfig);
+  public store = inject(DashboardStore);
 
   ngOnInit() {
-    const { branch } = this.dialog.data;
+    const { branch } = this.dialogConfig.data;
     if (branch) {
       this.form.patchValue(branch);
     }
   }
 
-  async saveChanges() {
-    this.state
-      .updateItem({
-        request: this.form.getRawValue(),
-        collection: 'branches',
-      })
-      .then(() => this.dialogRef.close());
+  saveChanges() {
+    if (this.dialogConfig.data.branch) {
+      this.store.branches
+        .editItem(this.form.getRawValue())
+        .pipe(tap(() => this.dialog.close()))
+        .subscribe();
+    } else {
+      this.store.branches
+        .createItem(this.form.getRawValue())
+        .pipe(tap(() => this.dialog.close()))
+        .subscribe();
+    }
   }
 }

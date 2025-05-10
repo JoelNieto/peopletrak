@@ -19,13 +19,7 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./qr-generator.component').then((m) => m.QrGeneratorComponent),
   },
-  {
-    path: 'admin-schedules',
-    loadComponent: () =>
-      import('./admin-schedules.component').then(
-        (m) => m.AdminSchedulesComponent
-      ),
-  },
+
   {
     path: 'login',
     loadComponent: () =>

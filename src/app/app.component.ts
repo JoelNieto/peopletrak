@@ -9,7 +9,7 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
   providers: [MessageService],
   selector: 'pt-root',
   template: ` <router-outlet />
-    <ngx-spinner type="ball-scale-multiple" bdColor="rgb(99, 102, 241, 0.8)">
+    <ngx-spinner type="ball-scale-multiple" bdColor="rgb(250, 184, 3, 0.8)">
       <p class="text-white">Cargando...</p></ngx-spinner
     >`,
   styles: ``,

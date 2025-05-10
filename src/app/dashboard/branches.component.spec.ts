@@ -1,7 +1,9 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AuthService } from '@auth0/auth0-angular';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { BranchesStore } from '../stores/branches.store';
 import { BranchesComponent } from './branches.component';
-import { DashboardStore } from './dashboard.store';
 
 describe('BranchesComponent', () => {
   let component: BranchesComponent;
@@ -9,7 +11,13 @@ describe('BranchesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [DashboardStore, MessageService, ConfirmationService],
+      providers: [
+        provideHttpClient(),
+        BranchesStore,
+        MessageService,
+        ConfirmationService,
+        AuthService,
+      ],
       imports: [BranchesComponent],
     }).compileComponents();
 

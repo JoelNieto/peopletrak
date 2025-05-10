@@ -23,7 +23,7 @@ import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
 import { colorVariants } from '../models';
-import { DashboardStore } from './dashboard.store';
+import { SchedulesStore } from '../stores/schedules.store';
 
 @Component({
   selector: 'pt-schedules-form',
@@ -130,7 +130,7 @@ import { DashboardStore } from './dashboard.store';
         label="Guardar"
         icon="pi pi-save"
         type="submit"
-        [loading]="state.loading()"
+        [loading]="state.isLoading()"
       />
     </div>
   </form> `,
@@ -155,7 +155,7 @@ export class SchedulesFormComponent implements OnInit {
 
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(DashboardStore);
+  public state = inject(SchedulesStore);
   private message = inject(MessageService);
 
   public colorVariants = colorVariants;
@@ -207,22 +207,28 @@ export class SchedulesFormComponent implements OnInit {
       ? format(lunch_start_time, 'HH:mm:ss')
       : null;
     exit_time = exit_time ? format(exit_time, 'HH:mm:ss') : null;
-    this.state
-      .updateItem({
-        request: {
-          id,
-          name,
-          color,
-          entry_time,
-          lunch_end_time,
-          lunch_start_time,
-          exit_time,
-          minutes_tolerance,
-          day_off,
-        },
-        collection: 'schedules',
-      })
-      .then(() => this.dialogRef.close());
+    const request = {
+      id,
+      name,
+      color,
+      entry_time,
+      lunch_end_time,
+      lunch_start_time,
+      exit_time,
+      minutes_tolerance,
+      day_off,
+    };
+    if (this.dialog.data.schedule) {
+      this.state
+        .editItem(request)
+        .pipe()
+        .subscribe(() => this.dialogRef.close());
+    } else {
+      this.state
+        .createItem(request)
+        .pipe()
+        .subscribe(() => this.dialogRef.close());
+    }
   }
 
   setTime(time: string) {

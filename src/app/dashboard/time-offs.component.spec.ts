@@ -1,7 +1,8 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DashboardStore } from './dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { TimeOffsComponent } from './time-offs.component';
 
 describe('TimeOffsComponent', () => {
@@ -11,7 +12,8 @@ describe('TimeOffsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
-        DashboardStore,
+        provideHttpClient(),
+        EmployeesStore,
         ConfirmationService,
         MessageService,
         DynamicDialogRef,

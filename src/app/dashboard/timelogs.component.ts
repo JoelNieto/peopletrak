@@ -1,15 +1,11 @@
 import { DatePipe, NgClass } from '@angular/common';
+import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
-  Injector,
-  linkedSignal,
   model,
-  OnInit,
-  resource,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,8 +22,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
 import { Branch, colorVariants, Employee } from '../models';
-import { SupabaseService } from '../services/supabase.service';
-import { DashboardStore } from './dashboard.store';
+import { EmployeesStore } from '../stores/employees.store';
 @Component({
   selector: 'pt-timelogs',
   imports: [
@@ -47,10 +42,10 @@ import { DashboardStore } from './dashboard.store';
     header="Marcaciones"
     subheader="Listado de marcaciones de empleados"
   >
-    <div class="flex gap-3">
+    <div class="flex flex-col md:flex-row gap-3 items-center mb-3">
       <div class="input-container">
         <p-select
-          [options]="store.employeesList()"
+          [options]="employees.employeesList()"
           optionLabel="short_name"
           optionValue="id"
           placeholder="--TODOS--"
@@ -78,7 +73,13 @@ import { DashboardStore } from './dashboard.store';
         />
       </div>
     </div>
-    <p-table [value]="dayLogs()" [rows]="10" paginator>
+    <p-table
+      [value]="dayLogs()"
+      [rows]="10"
+      paginator
+      showGridlines
+      [loading]="this.logs.isLoading()"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th>Empleado</th>
@@ -165,24 +166,36 @@ import { DashboardStore } from './dashboard.store';
           </td>
         </tr>
       </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">
+            <div class="flex flex-col items-center justify-center gap-4">
+              <p>No se encontraron registros</p>
+              <p-button
+                label="Limpiar"
+                icon="pi pi-refresh"
+                (click)="employeeId.set('')"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
     </p-table>
   </p-card>`,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimelogsComponent implements OnInit {
-  public store = inject(DashboardStore);
-  public dateRange = model<Date[]>([startOfMonth(new Date()), new Date()]);
+export class TimelogsComponent {
+  public employees = inject(EmployeesStore);
+  public dateRange = signal<Date[]>([startOfMonth(new Date()), new Date()]);
   public employeeId = model<string>();
-  private injector = inject(Injector);
-  private supabase = inject(SupabaseService);
-  public logs = signal<any[]>([]);
+
   public loading = signal(false);
   private message = inject(MessageService);
   public colorVariants = colorVariants;
 
   private selectedEmployee = computed(() =>
-    this.store.employeesList().find((x) => x.id === this.employeeId())
+    this.employees.employeesList().find((x) => x.id === this.employeeId())
   );
 
   days = computed(() => {
@@ -197,26 +210,56 @@ export class TimelogsComponent implements OnInit {
     return days;
   });
 
-  public schedules = resource({
-    request: () => ({
-      dateRange: this.dateRange(),
-    }),
-    loader: async ({ request }) => {
-      const { data, error } = await this.supabase.client
-        .from('employee_schedules')
-        .select('*, schedule:schedules(*)')
-        .gte('start_date', format(request.dateRange[0], 'yyyy-MM-dd 06:00:00'))
-        .lte('end_date', format(request.dateRange[1], 'yyyy-MM-dd 06:00:00'));
-      if (error) {
-        console.error(error);
-        return [];
-      }
-      return data;
-    },
+  public schedules = httpResource<any[]>(() => {
+    if (!this.employeeId()) {
+      return undefined;
+    }
+    return {
+      url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+      method: 'GET',
+      params: {
+        select: '*,schedule:schedules(*)',
+        employee_id: `eq.${this.employeeId()}`,
+        start_date: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
+        end_date: `lte.${format(this.dateRange()[1], 'yyyy-MM-dd 06:00:00')}`,
+      },
+    };
   });
 
-  public dayLogs = linkedSignal(() =>
-    this.logs()
+  public logs = httpResource<any[]>(() => {
+    if (!this.dateRange()[0] || !this.dateRange()[1]) {
+      return undefined;
+    }
+    return {
+      url: `${
+        process.env['ENV_SUPABASE_URL']
+      }/rest/v1/timelogs?created_at=lte.${format(
+        addDays(this.dateRange()[1], 1),
+        'yyyy-MM-dd 06:00:00'
+      )}`,
+      method: 'GET',
+      params: this.queryParams(),
+    };
+  });
+
+  public queryParams = computed(() => {
+    const params: {
+      select: string;
+      created_at: string;
+      employee_id?: string;
+    } = {
+      select:
+        '*,employee:employees(id,first_name,father_name),branch:branches(*)',
+      created_at: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
+    };
+    if (this.employeeId()) {
+      params['employee_id'] = `eq.${this.employeeId()}`;
+    }
+    return params;
+  });
+
+  public dayLogs = computed(() =>
+    (this.logs.value() ?? [])
       .map((x) => ({ ...x, day: format(x.created_at, 'yyyy-MM-dd') }))
       .reduce<
         {
@@ -314,35 +357,6 @@ export class TimelogsComponent implements OnInit {
       SALIDA: x.exit?.date ? format(x.exit?.date, 'hh:mm a') : 'SIN MARCA',
     }))
   );
-
-  public ngOnInit(): void {
-    effect(
-      async () => {
-        const start = this.dateRange()?.[0];
-        const end = this.dateRange()?.[1];
-
-        if (start && end) {
-          const query = this.supabase.client
-            .from('timelogs')
-            .select(
-              '*, branch:branches(*), employee:employees(id, first_name, father_name)'
-            )
-            .gte('created_at', format(start, 'yyyy-MM-dd 06:00:00'))
-            .lte('created_at', format(addDays(end, 1), 'yyyy-MM-dd 06:00:00'));
-          if (this.employeeId()) {
-            query.eq('employee_id', this.employeeId());
-          }
-          const { data, error } = await query;
-          if (error) {
-            console.error(error);
-            return;
-          }
-          this.logs.set(data);
-        }
-      },
-      { injector: this.injector }
-    );
-  }
 
   generateReport() {
     try {

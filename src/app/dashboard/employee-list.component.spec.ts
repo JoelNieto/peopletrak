@@ -1,7 +1,11 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DashboardStore } from './dashboard.store';
+import { BranchesStore } from '../stores/branches.store';
+import { DepartmentsStore } from '../stores/departments.store';
+import { EmployeesStore } from '../stores/employees.store';
+import { PositionsStore } from '../stores/positions.store';
 import { EmployeeListComponent } from './employee-list.component';
 
 describe('EmployeeListComponent', () => {
@@ -10,7 +14,15 @@ describe('EmployeeListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [DashboardStore, MessageService, ConfirmationService],
+      providers: [
+        provideHttpClient(),
+        EmployeesStore,
+        BranchesStore,
+        DepartmentsStore,
+        PositionsStore,
+        MessageService,
+        ConfirmationService,
+      ],
       imports: [EmployeeListComponent, RouterModule.forRoot([])],
     }).compileComponents();
 
