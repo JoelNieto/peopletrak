@@ -59,7 +59,7 @@ export const appConfig: ApplicationConfig = {
       domain: process.env['ENV_AUTH0_DOMAIN'] ?? '',
       clientId: process.env['ENV_AUTH0_CLIENT_ID'] ?? '',
       authorizationParams: {
-        redirect_uri: 'http://localhost:4200',
+        redirect_uri: process.env['ENV_APP_URL'],
         audience: process.env['ENV_AUTH0_AUDIENCE'] ?? '',
       },
     }),
