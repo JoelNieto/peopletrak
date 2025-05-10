@@ -65,13 +65,14 @@ import { SchedulesStore } from '../stores/schedules.store';
               </div>
               <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
+                  @if(store.isAdmin()) {
                   <a
                     routerLink="/home"
                     routerLinkActive="selected"
                     class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
                     ><i class="pi pi-home"></i> Inicio</a
                   >
-                  @if(store.isAdmin()) {
+                  } @if(store.isAdmin()) {
                   <a
                     routerLink="/admin"
                     routerLinkActive="selected"
@@ -130,6 +131,7 @@ import { SchedulesStore } from '../stores/schedules.store';
         </div>
         <div class="md:hidden" [class.hidden]="isCollapsed()">
           <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+            @if(store.isAdmin()) {
             <a
               routerLink="/home"
               [routerLinkActive]="[
@@ -140,6 +142,7 @@ import { SchedulesStore } from '../stores/schedules.store';
               class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
               ><i class="pi pi-home"></i> Inicio</a
             >
+            } @if(store.isAdmin()) {
             <a
               routerLink="/admin"
               [routerLinkActive]="[
@@ -150,6 +153,7 @@ import { SchedulesStore } from '../stores/schedules.store';
               class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
               ><i class="pi pi-building"></i> Administración</a
             >
+            } @if(store.isScheduleAdmin()) {
             <a
               routerLink="/time-management"
               [routerLinkActive]="[
@@ -160,6 +164,8 @@ import { SchedulesStore } from '../stores/schedules.store';
               class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
               ><i class="pi pi-calendar"></i> Gestión de tiempo</a
             >
+            }
+
             <a
               routerLink="/timeclock"
               [routerLinkActive]="[
@@ -186,7 +192,6 @@ import { SchedulesStore } from '../stores/schedules.store';
               </div>
             </div>
           </div>
-
           }
         </div>
       </nav>
