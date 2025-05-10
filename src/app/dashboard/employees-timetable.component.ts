@@ -184,14 +184,14 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
                 </ul>
               </div>
             </p-popover>
-            } @else { @if(!isPast(day.date)) {
+            } @else {
             <p-button
               icon="pi pi-plus"
               outlined
               size="small"
               (onClick)="editSchedule({ employee_id: item.id, date: day.date })"
             />
-            } }
+            }
           </td>
           }
         </tr>
