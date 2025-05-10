@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
@@ -11,6 +11,7 @@ import { AsyncPipe } from '@angular/common';
 import { AuthService } from '@auth0/auth0-angular';
 import { Avatar } from 'primeng/avatar';
 import { Button } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
 import { AuthStore } from '../stores/auth.store';
 import { BranchesStore } from '../stores/branches.store';
 import { CompaniesStore } from '../stores/companies.store';
@@ -46,6 +47,7 @@ import { SchedulesStore } from '../stores/schedules.store';
     Button,
     Avatar,
     AsyncPipe,
+    MenuModule,
   ],
   template: `
     <p-toast />
@@ -95,8 +97,12 @@ import { SchedulesStore } from '../stores/schedules.store';
               </div>
             </div>
             <div class="hidden md:block">
-              <div class="ml-4 flex items-center md:ml-6 gap-2">
-                @if(user) {
+              @if(user) {
+              <p-menu #menu [model]="items" popup />
+              <div
+                class="ml-4 flex items-center md:ml-6 gap-2 cursor-pointer"
+                (click)="menu.toggle($event)"
+              >
                 <p-avatar [image]="user?.picture" shape="circle" />
                 <div class="flex flex-col">
                   <div class="text-base/5 font-medium text-white">
@@ -107,9 +113,9 @@ import { SchedulesStore } from '../stores/schedules.store';
                     {{ store.currentEmployee()?.position?.name }}
                   </div>
                 </div>
-
-                }
               </div>
+
+              }
             </div>
             <div class="-mr-2 flex md:hidden">
               <p-button
@@ -180,6 +186,7 @@ import { SchedulesStore } from '../stores/schedules.store';
               </div>
             </div>
           </div>
+
           }
         </div>
       </nav>
@@ -196,6 +203,13 @@ export class DashboardComponent {
   public isCollapsed = signal(true);
   public store = inject(DashboardStore);
   public auth = inject(AuthService);
+  public items: MenuItem[] = [
+    {
+      label: 'Cerrar sesion',
+      icon: 'pi pi-sign-out',
+      command: () => this.auth.logout(),
+    },
+  ];
 
   async toggleMenu() {
     this.isCollapsed.update((value) => !value);
