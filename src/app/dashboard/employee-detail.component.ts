@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -34,6 +34,7 @@ import { TimeOffsComponent } from './time-offs.component';
     SeniorityPipe,
     TabsModule,
     EmployeeSchedulesComponent,
+    JsonPipe,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -52,6 +53,7 @@ import { TimeOffsComponent } from './time-offs.component';
         />
         }
       </div>
+      {{ employee() | json }}
       <p-tabs value="0">
         <p-tablist>
           <p-tab value="0"><i class="pi pi-user"></i> Datos Personales</p-tab>

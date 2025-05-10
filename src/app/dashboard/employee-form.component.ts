@@ -414,7 +414,6 @@ export class EmployeeFormComponent implements OnInit {
 
   preloadForm(employee: Employee) {
     this.form.patchValue(employee);
-    console.log(employee);
     employee.birth_date &&
       this.form
         .get('birth_date')

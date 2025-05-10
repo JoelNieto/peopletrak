@@ -22,7 +22,7 @@ export const EmployeesStore = signalStore(
   withCustomEntities<Employee>({
     name: 'employees',
     query:
-      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,company_id,branch_id,department_id,position_id,bank,account_number,bank_account_type,created_at,branch:branches(id, name, short_name),department:departments(id, name),position:positions(id, name, admin, schedule_admin, schedule_approver)',
+      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,company_id,branch_id,department_id,position_id,bank,account_number,bank_account_type,created_at,branch:branches(id, name, short_name),department:departments(id, name),position:positions(id, name, admin, schedule_admin, schedule_approver), code_uri, qr_code',
     detailsQuery:
       '*, branch:branches(*), department:departments(*), position:positions(*)',
   }),
