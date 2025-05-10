@@ -58,11 +58,22 @@ import { DashboardStore } from '../stores/dashboard.store';
         />
       </div>
       <div class="flex items-center gap-2">
+        <p-toggleswitch formControlName="admin" inputId="admin" />
+        <label for="schedule_admin">Administrador</label>
+      </div>
+      <div class="flex items-center gap-2">
         <p-toggleswitch
           formControlName="schedule_admin"
           inputId="schedule_admin"
         />
-        <label for="schedule_admin">Administra Horarios</label>
+        <label for="schedule_admin">Administra horarios</label>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch
+          formControlName="schedule_approver"
+          inputId="schedule_approver"
+        />
+        <label for="schedule_approver">Aprueba horarios</label>
       </div>
       <div class="dialog-actions">
         <p-button
@@ -97,7 +108,9 @@ export class PositionsFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    admin: new FormControl(false, { nonNullable: true }),
     schedule_admin: new FormControl(false, { nonNullable: true }),
+    schedule_approver: new FormControl(false, { nonNullable: true }),
   });
   public store = inject(DashboardStore);
   public dialog = inject(DynamicDialogRef);

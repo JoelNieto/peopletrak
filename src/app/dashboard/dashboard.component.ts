@@ -7,9 +7,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 
-import { FormsModule } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
+import { AuthService } from '@auth0/auth0-angular';
+import { Avatar } from 'primeng/avatar';
 import { Button } from 'primeng/button';
-import { Select } from 'primeng/select';
+import { AuthStore } from '../stores/auth.store';
 import { BranchesStore } from '../stores/branches.store';
 import { CompaniesStore } from '../stores/companies.store';
 import { DashboardStore } from '../stores/dashboard.store';
@@ -21,6 +23,7 @@ import { SchedulesStore } from '../stores/schedules.store';
 @Component({
   selector: 'pt-dashboard',
   providers: [
+    AuthStore,
     DashboardStore,
     MessageService,
     ConfirmationService,
@@ -40,198 +43,161 @@ import { SchedulesStore } from '../stores/schedules.store';
     RippleModule,
     CardModule,
     ConfirmDialogModule,
-    Select,
-    FormsModule,
     Button,
+    Avatar,
+    AsyncPipe,
   ],
   template: `
     <p-toast />
     <p-confirmDialog />
-    <nav
-      class="bg-white border border-b-slate-200 flex fixed z-30 w-full items-center justify-between px-4 py-3"
-    >
-      <div class="flex">
-        <p-button
-          [icon]="!isHandset() ? 'pi pi-bars' : 'pi pi-arrow-left'"
-          (click)="toggleMenu()"
-          rounded
-          text
-        />
-        <a
-          class="font-bold text-slate-600"
-          class="flex gap-1 items-center text-lg text-slate-700"
-        >
-          <img src="images/pt-logo.svg" class="h-8" /> Peopletrak</a
-        >
-      </div>
-      <div class="w-64">
-        <div class="input-container">
-          <p-select
-            [options]="store.companies.entities()"
-            [ngModel]="store.selectedCompanyId()"
-            (onChange)="toggleCompany($event.value)"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Seleccione una empresa"
-            showClear
-          />
-        </div>
-      </div>
-    </nav>
-    <div class="flex pt-16 overflow-hidden">
-      <aside
-        class="fixed py-4  max-h-[calc(100vh-42px)] overflow-y-auto flex flex-col w-64 "
+    @let user = auth.user$ | async;
+    <div class=" h-screen flex flex-col">
+      <nav
+        class="bg-gray-800 border-b border-gray-200 dark:border-gray-950 w-full min-w-0"
       >
-        <ul class="flex flex-col list-none p-2 px-4">
-          <li pRipple>
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center">
+              <div class="shrink-0">
+                <img src="images/blackdog.png" class="h-8" alt="Peopletrak" />
+              </div>
+              <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                  <a
+                    routerLink="/home"
+                    routerLinkActive="selected"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                    ><i class="pi pi-home"></i> Inicio</a
+                  >
+                  @if(store.isAdmin()) {
+                  <a
+                    routerLink="/admin"
+                    routerLinkActive="selected"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                  >
+                    <i class="pi pi-building"></i> Administracion</a
+                  >
+                  } @if(store.isScheduleAdmin()) {
+                  <a
+                    routerLink="/time-management"
+                    routerLinkActive="selected"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                    ><i class="pi pi-calendar"></i> Gestión de tiempo</a
+                  >
+                  }
+                  <a
+                    routerLink="/timeclock"
+                    routerLinkActive="selected"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                    ><i class="pi pi-clock"></i> Reloj de marcación</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block">
+              <div class="ml-4 flex items-center md:ml-6 gap-2">
+                @if(user) {
+                <p-avatar [image]="user?.picture" shape="circle" />
+                <div class="flex flex-col">
+                  <div class="text-base/5 font-medium text-white">
+                    {{ store.currentEmployee()?.first_name }}
+                    {{ store.currentEmployee()?.father_name }}
+                  </div>
+                  <div class="text-sm text-gray-400">
+                    {{ store.currentEmployee()?.position?.name }}
+                  </div>
+                </div>
+
+                }
+              </div>
+            </div>
+            <div class="-mr-2 flex md:hidden">
+              <p-button
+                rounded
+                text
+                [icon]="isCollapsed() ? 'pi pi-bars' : 'pi pi-times'"
+                severity="secondary"
+                (onClick)="toggleMenu()"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="md:hidden" [class.hidden]="isCollapsed()">
+          <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <a
-              routerLink="home"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-100 no-underline text-slate-600"
-              routerLinkActive="selected"
+              routerLink="/home"
+              [routerLinkActive]="[
+                'bg-gray-900',
+                'hover:bg-gray-900',
+                'text-white'
+              ]"
+              class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
+              ><i class="pi pi-home"></i> Inicio</a
             >
-              <i class="pi pi-home mr-2"></i>
-              Dashboard
-            </a>
-          </li>
-          <li pRipple>
             <a
-              routerLink="companies"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-100 no-underline text-slate-600"
-              routerLinkActive="selected"
+              routerLink="/admin"
+              [routerLinkActive]="[
+                'bg-gray-900',
+                'hover:bg-gray-900',
+                'text-white'
+              ]"
+              class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
+              ><i class="pi pi-building"></i> Administración</a
             >
-              <i class="pi pi-building mr-2"></i>
-              Empresas
-            </a>
-          </li>
-          <li pRipple>
             <a
-              routerLink="employees"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
+              routerLink="/time-management"
+              [routerLinkActive]="[
+                'bg-gray-900',
+                'hover:bg-gray-900',
+                'text-white'
+              ]"
+              class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
+              ><i class="pi pi-calendar"></i> Gestión de tiempo</a
             >
-              <i class="pi pi-users mr-2"></i>
-              Empleados
-            </a>
-          </li>
-          <li pRipple>
             <a
-              routerLink="timelogs"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
+              routerLink="/timeclock"
+              [routerLinkActive]="[
+                'bg-gray-900',
+                'hover:bg-gray-900',
+                'text-white'
+              ]"
+              class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
+              ><i class="pi pi-clock"></i> Reloj de marcación</a
             >
-              <i class="pi pi-clock mr-2"></i>
-              Marcaciones
-            </a>
-          </li>
-          <li>
-            <a
-              pRipple
-              routerLink="positions"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-user-plus mr-2"></i>
-              Cargos
-            </a>
-          </li>
-          <li pRipple>
-            <a
-              routerLink="branches"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-shop mr-2"></i>
-              Sucursales
-            </a>
-          </li>
-          <li pRipple>
-            <a
-              routerLink="departments"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-sitemap mr-2"></i>
-              Areas
-            </a>
-          </li>
-          <li pRipple>
-            <a
-              routerLink="schedules"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-calendar mr-2"></i>
-              Horarios
-            </a>
-          </li>
-          <li pRipple>
-            <a
-              routerLink="shifts"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-calendar-clock mr-2"></i>
-              Turnos
-            </a>
-          </li>
-          <li pRipple>
-            <a
-              routerLink="timetables"
-              class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-              routerLinkActive="selected"
-            >
-              <i class="pi pi-table mr-2"></i>
-              Tabla de Horarios
-            </a>
-          </li>
-          <li>
-            <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
-              <p-accordion-panel value="0">
-                <p-accordion-header>Sucursales</p-accordion-header>
-                <p-accordion-content>
-                  <ul class="flex flex-col list-none px-2">
-                    @for (branch of store.branches.entities(); track branch.id)
-                    {
-                    <li pRipple>
-                      <a
-                        class="px-6 flex items-center py-3 rounded-lg w-full hover:bg-slate-50 no-underline text-slate-600"
-                        [routerLink]="['branches', branch.id]"
-                        >{{ branch.name }}</a
-                      >
-                    </li>
-                    }
-                  </ul></p-accordion-content
-                >
-              </p-accordion-panel>
-            </p-accordion>
-          </li>
-        </ul>
-      </aside>
-      <main class="overflow-auto relative w-full p-4 h-full ms-64">
-        <router-outlet />
-      </main>
+          </div>
+          @if(user) {
+          <div class="border-t border-gray-700 pt-4 pb-3">
+            <div class="flex items-center px-5">
+              <p-avatar [image]="user.picture" shape="circle" />
+              <div class="ml-3">
+                <div class="text-base/5 font-medium text-white">
+                  {{ store.currentEmployee()?.first_name }}
+                  {{ store.currentEmployee()?.father_name }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {{ store.currentEmployee()?.position?.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </nav>
+      <div class="flex-1 overflow-y-scroll"><router-outlet /></div>
     </div>
   `,
   styles: `
       .selected {
-        @apply bg-indigo-100 text-indigo-500 transition-all duration-300 ease-in-out;
+        @apply bg-gray-900 text-gray-100 transition-all duration-300 ease-in-out;
       }
-
-      main {
-        min-width: 0;
-      }`,
+      `,
 })
 export class DashboardComponent {
-  public isHandset = signal(false);
   public isCollapsed = signal(true);
   public store = inject(DashboardStore);
+  public auth = inject(AuthService);
 
   async toggleMenu() {
-    if (this.isHandset()) {
-      this.isCollapsed.set(false);
-      return;
-    }
-
     this.isCollapsed.update((value) => !value);
   }
 

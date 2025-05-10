@@ -37,9 +37,7 @@ import { TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { catchError, EMPTY } from 'rxjs';
 import { colorVariants, EmployeeSchedule } from '../models';
-import { BranchesStore } from '../stores/branches.store';
-import { EmployeesStore } from '../stores/employees.store';
-import { PositionsStore } from '../stores/positions.store';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeeSchedulesFormComponent } from './employee-schedules-form.component';
 
 @Component({
@@ -58,13 +56,13 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
     Popover,
   ],
   template: `<p-card>
-    <ng-template #title>Horarios de empleados</ng-template>
+    <ng-template #title>Turnos de empleados</ng-template>
 
     <div class="flex lg:flex-row flex-col gap-4 mb-4">
       <p-select
         fluid
         [(ngModel)]="currentBranch"
-        [options]="branches.entities()"
+        [options]="store.branches.entities()"
         appendTo="body"
         optionValue="id"
         placeholder="TODAS LAS SUCURSALES"
@@ -76,7 +74,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
       <p-select
         fluid
         [(ngModel)]="currentPosition"
-        [options]="positions.entities()"
+        [options]="store.positions.entities()"
         appendTo="body"
         placeholder="TODOS LOS PUESTOS"
         filter
@@ -119,7 +117,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
           <td>
             @if(day.shift) {
             <div
-              class="flex flex-col gap-1 p-1 px-2 rounded font-semibold text-sm cursor-pointer"
+              class="flex gap-1 p-1 px-2 rounded font-semibold items-center text-sm cursor-pointer"
               [ngClass]="colorVariants[day.shift.schedule?.color]"
               [pTooltip]="tooltipContent"
               tooltipPosition="top"
@@ -128,6 +126,11 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
               <div>
                 {{ day.shift.schedule.name }}
               </div>
+              @if(day.shift.approved) {
+              <i class="pi pi-check-circle"></i>
+              } @else {
+              <i class="pi pi-exclamation-circle"></i>
+              }
             </div>
             <ng-template #tooltipContent>
               <div class="flex flex-col gap-1">
@@ -140,6 +143,10 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
                   Sucursal:
                   <span class="font-bold">{{ day.shift.branch?.name }}</span>
                 </div>
+                } @if(day.shift.approved) {
+                <span class="font-bold">Aprobado por RRHH</span>
+                } @else {
+                <span class="italic">Pendiente por aprobacion</span>
                 }
               </div>
             </ng-template>
@@ -151,7 +158,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
                     class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
                     (click)="editSchedule({ employee_schedule: day.shift })"
                   >
-                    <i class="pi pi-pencil text-green-600"></i>
+                    <i class="pi pi-pencil text-primary-600"></i>
                     Editar
                   </li>
                   <li
@@ -161,17 +168,26 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
                     <i class="pi pi-trash text-red-700"></i>
                     Eliminar
                   </li>
+                  @if(store.isScheduleApprover()) {
+                  <li
+                    class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                    (click)="approveSchedule(day.shift.id)"
+                  >
+                    <i class="pi pi-check-circle text-green-700"></i>
+                    Aprobar
+                  </li>
+                  }
                 </ul>
               </div>
             </p-popover>
-            } @else {
+            } @else { @if(!isPast(day.date)) {
             <p-button
               icon="pi pi-plus"
               outlined
               size="small"
-              (onClick)="editSchedule({ employee_id: item.id })"
+              (onClick)="editSchedule({ employee_id: item.id, date: day.date })"
             />
-            }
+            } }
           </td>
           }
         </tr>
@@ -182,9 +198,7 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesTimetableComponent {
-  public branches = inject(BranchesStore);
-  public positions = inject(PositionsStore);
-  public employees = inject(EmployeesStore);
+  public store = inject(DashboardStore);
   public currentDate = signal(new Date());
   private http = inject(HttpClient);
   private confirm = inject(ConfirmationService);
@@ -249,7 +263,7 @@ export class EmployeesTimetableComponent {
   private dialog = inject(DialogService);
   private message = inject(MessageService);
   public currentEmployees = computed(() =>
-    this.employees
+    this.store.employees
       .employeesList()
       .filter((employee) => employee.is_active)
       .map(
@@ -312,6 +326,7 @@ export class EmployeesTimetableComponent {
         schedule_id: shift.schedule_id,
         schedule: shift.schedule,
         branch: shift.branch,
+        approved: shift.approved,
       }))
       .flat()
   );
@@ -352,14 +367,16 @@ export class EmployeesTimetableComponent {
   public editSchedule({
     employee_id,
     employee_schedule,
+    date,
   }: {
     employee_id?: string;
     employee_schedule?: EmployeeSchedule;
+    date?: Date;
   } = {}): void {
     this.dialog
       .open(EmployeeSchedulesFormComponent, {
         header: 'Editar horario',
-        data: { employee_id, employee_schedule },
+        data: { employee_id, employee_schedule, date },
         width: '60%',
         closeOnEscape: true,
         dismissableMask: true,
@@ -369,6 +386,8 @@ export class EmployeesTimetableComponent {
         this.schedulesResource.reload();
       });
   }
+
+  public isPast = (date: Date) => isBefore(date, new Date());
 
   deleteSchedule(id: string) {
     this.confirm.confirm({
@@ -409,6 +428,52 @@ export class EmployeesTimetableComponent {
                 severity: 'success',
                 summary: 'Éxito',
                 detail: 'Horario eliminado correctamente',
+              });
+              this.schedulesResource.reload();
+            },
+          });
+      },
+    });
+  }
+
+  public approveSchedule(id: string) {
+    this.confirm.confirm({
+      header: 'Confirma horario?',
+      message: '¿Estás seguro de aprobar este horario?',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Aprobar',
+        severity: 'success',
+      },
+      accept: () => {
+        this.http
+          .patch(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
+            { approved: true },
+            { params: { id: `eq.${id}` } }
+          )
+          .pipe(
+            catchError((error) => {
+              console.error(error);
+              this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Ha ocurrido un error al aprobar el horario',
+              });
+              return EMPTY;
+            })
+          )
+          .subscribe({
+            next: () => {
+              this.message.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Horario aprobado correctamente',
               });
               this.schedulesResource.reload();
             },

@@ -22,13 +22,12 @@ import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { iif } from 'rxjs';
 import { v4 } from 'uuid';
 import { colorVariants } from '../models';
 import { TrimPipe } from '../pipes/trim.pipe';
-import { BranchesStore } from '../stores/branches.store';
-import { EmployeesStore } from '../stores/employees.store';
-import { SchedulesStore } from '../stores/schedules.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-employee-schedules-form',
@@ -40,6 +39,7 @@ import { SchedulesStore } from '../stores/schedules.store';
     ReactiveFormsModule,
     TrimPipe,
     NgClass,
+    ToggleSwitch,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
     <div class="grid grid-cols-2 gap-4">
@@ -47,7 +47,7 @@ import { SchedulesStore } from '../stores/schedules.store';
         <label for="employee_id">Empleado</label>
         <p-select
           formControlName="employee_id"
-          [options]="employees.employeesList()"
+          [options]="store.employees.employeesList()"
           optionValue="id"
           placeholder="Seleccionar empleado"
           filter
@@ -65,7 +65,7 @@ import { SchedulesStore } from '../stores/schedules.store';
       <div class="input-container">
         <label for="schedule_id">Turno</label>
         <p-select
-          [options]="schedules.entities()"
+          [options]="store.schedules.entities()"
           optionLabel="name"
           optionValue="id"
           formControlName="schedule_id"
@@ -107,13 +107,17 @@ import { SchedulesStore } from '../stores/schedules.store';
         <label for="branch_id">Sucursal</label>
         <p-select
           formControlName="branch_id"
-          [options]="branches.entities()"
+          [options]="store.branches.entities()"
           optionLabel="name"
           filter
           optionValue="id"
           placeholder="Seleccionar sucursal"
           appendTo="body"
         />
+      </div>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch formControlName="approved" inputId="approved" />
+        <label for="approved">Aprobado</label>
       </div>
     </div>
     <div class="flex justify-end gap-4 mt-4">
@@ -151,6 +155,7 @@ export class EmployeeSchedulesFormComponent implements OnInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
+    approved: new FormControl(false, { nonNullable: true }),
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
@@ -158,26 +163,44 @@ export class EmployeeSchedulesFormComponent implements OnInit {
   private http = inject(HttpClient);
   private message = inject(MessageService);
   public colorVariants = colorVariants;
+  public store = inject(DashboardStore);
   private destroyRef = inject(DestroyRef);
-  public branches = inject(BranchesStore);
-  public schedules = inject(SchedulesStore);
-  public employees = inject(EmployeesStore);
 
   ngOnInit(): void {
-    const { employee_schedule, employee_id } = this.dialog.data;
+    const { employee_schedule, employee_id, date } = this.dialog.data;
+    if (!this.store.isScheduleApprover()) {
+      this.form.get('approved')?.disable();
+    }
+
+    if (date) {
+      this.form
+        .get('start_date')
+        ?.patchValue(toDate(date, { timeZone: 'America/Panama' }));
+      this.form
+        .get('end_date')
+        ?.patchValue(toDate(date, { timeZone: 'America/Panama' }));
+    }
     if (employee_id) {
       this.form.patchValue({ employee_id });
       this.form.get('employee_id')?.disable();
       return;
     }
     if (employee_schedule) {
-      const { id, employee_id, schedule_id, start_date, end_date, branch_id } =
-        employee_schedule;
+      const {
+        id,
+        employee_id,
+        schedule_id,
+        start_date,
+        end_date,
+        branch_id,
+        approved,
+      } = employee_schedule;
       this.form.patchValue({
         id,
         employee_id,
         schedule_id,
         branch_id,
+        approved,
       });
       this.form
         .get('start_date')

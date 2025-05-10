@@ -31,6 +31,8 @@ export type Position = {
   department?: Department;
   created_at?: Date;
   schedule_admin: boolean;
+  admin: boolean;
+  schedule_approver: boolean;
 };
 
 export type Employee = {
@@ -51,6 +53,7 @@ export type Employee = {
   position_id: string;
   position?: Position;
   email: string;
+  work_email: string;
   phone_number: string;
   address: string;
   end_date?: Date;
@@ -155,6 +158,7 @@ export type EmployeeSchedule = {
   start_date: Date;
   end_date: Date;
   created_at?: Date;
+  approved?: boolean;
 };
 
 export const colorVariants: Record<string, string> = {

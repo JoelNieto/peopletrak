@@ -42,7 +42,7 @@ import { EmployeesStore } from '../stores/employees.store';
     header="Marcaciones"
     subheader="Listado de marcaciones de empleados"
   >
-    <div class="flex gap-3 items-center mb-3">
+    <div class="flex flex-col md:flex-row gap-3 items-center mb-3">
       <div class="input-container">
         <p-select
           [options]="employees.employeesList()"

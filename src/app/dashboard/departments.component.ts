@@ -80,6 +80,7 @@ export class DepartmentsComponent {
     this.ref = this.dialog.open(DepartmentsFormComponent, {
       header: 'Area',
       width: '36rem',
+      modal: true,
       data: { department },
     });
   }

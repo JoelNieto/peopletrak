@@ -84,6 +84,7 @@ export class CompaniesComponent {
       header: 'Agregar empresa',
       width: '36rem',
       data: { company },
+      modal: true,
     });
   }
 

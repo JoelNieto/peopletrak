@@ -35,7 +35,7 @@ import { PositionsFormComponent } from './positions-form.component';
         [globalFilterFields]="['name', 'department.name']"
       >
         <ng-template #caption>
-          <div class="flex justify-between">
+          <div class="flex gap-4 flex-col md:flex-row justify-between">
             <p-iconfield iconPosition="left">
               <p-inputicon>
                 <i class="pi pi-search"></i>
@@ -45,6 +45,7 @@ import { PositionsFormComponent } from './positions-form.component';
                 type="text"
                 (input)="dt.filterGlobal($event.target?.value, 'contains')"
                 placeholder="Buscar"
+                fluid
               />
             </p-iconfield>
             <p-button
@@ -64,7 +65,9 @@ import { PositionsFormComponent } from './positions-form.component';
               Area
               <p-sortIcon field="department.name" />
             </th>
+            <th>Admin</th>
             <th>Horarios</th>
+            <th>App. horarios</th>
             <th></th>
           </tr>
         </ng-template>
@@ -73,7 +76,33 @@ import { PositionsFormComponent } from './positions-form.component';
             <td>{{ item.name }}</td>
             <td>{{ item.department?.name }}</td>
             <td>
+              @if(item.admin) {
+              <i
+                class="pi pi-check-circle text-emerald-600"
+                style="font-size: 1.25rem"
+              ></i>
+              } @else {
+              <i
+                class="pi pi-times-circle text-red-600"
+                style="font-size: 1.25rem"
+              ></i>
+              }
+            </td>
+            <td>
               @if(item.schedule_admin) {
+              <i
+                class="pi pi-check-circle text-emerald-600"
+                style="font-size: 1.25rem"
+              ></i>
+              } @else {
+              <i
+                class="pi pi-times-circle text-red-600"
+                style="font-size: 1.25rem"
+              ></i>
+              }
+            </td>
+            <td>
+              @if(item.schedule_approver) {
               <i
                 class="pi pi-check-circle text-emerald-600"
                 style="font-size: 1.25rem"

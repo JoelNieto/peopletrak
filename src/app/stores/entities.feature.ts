@@ -145,7 +145,6 @@ export function withCustomEntities<T extends { id: EntityId }>({
       },
       editItem(request: T) {
         patchState(state, { isLoading: true, error: null });
-        console.log('editItem');
         return state._http
           .patch(
             `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,

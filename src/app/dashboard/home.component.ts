@@ -16,60 +16,65 @@ import { DashboardStore } from '../stores/dashboard.store';
 @Component({
   selector: 'pt-home',
   imports: [BaseChartDirective, CardModule, DatePipe],
-  template: ` <div class="md:px-8">
-    <h1 class="text-gray-100 font-bold text-2xl">Dashboard</h1>
-    <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
-      <p-card
-        header="Por sucursal"
-        subheader="Listado de empleados por sucursal"
-        class="md:col-span-2"
-      >
-        <div>
-          <canvas
-            baseChart
-            #genderChart
-            [datasets]="branchData()"
-            [labels]="branchLabels()"
-            type="bar"
-            [options]="pieChartOptions"
-            height="200"
-          ></canvas>
-        </div>
-      </p-card>
-      <div class="md:col-span-2 grid grid-cols-2 gap-3">
-        <p-card header="HeadCount">
-          <div class="flex items-center justify-center">
-            <p class="mat-display-large">{{ state.headCount() }}</p>
-          </div>
-        </p-card>
-        <p-card header="Sucursales">
-          <div class="flex items-center justify-center">
-            <p class="mat-display-large">{{ state.branchesCount() }}</p>
-          </div>
-        </p-card>
+  template: `<main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div>
+      <h1 class="dark:text-gray-100 text-gray-800 font-black text-3xl mb-3">
+        Dashboard
+      </h1>
+      <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
         <p-card
-          header="Cumpleañeros"
-          class="md:col-span-2"
-          [subheader]="currentMonth"
+          header="Por sucursal"
+          subheader="Listado de empleados por sucursal"
+          class="md:col-span-3"
         >
-          @for(item of state.birthDates(); track item) {
-          <div class="flex justify-between w-full">
-            <div class="flex-1 text-slate-700">
-              {{ item.first_name }} {{ item.father_name }}
-            </div>
-
-            <div class="flex-1 text-slate-500 text-sm">
-              {{ item.branch?.name }}
-            </div>
-            <div class="flex-none text-cyan-700 font-semibold px-4">
-              {{ item.birth_date | date : 'd MMMM' }}
-            </div>
+          <div>
+            <canvas
+              baseChart
+              #genderChart
+              [datasets]="branchData()"
+              [labels]="branchLabels()"
+              type="bar"
+              [options]="pieChartOptions"
+              height="200"
+            ></canvas>
           </div>
-          }
         </p-card>
+        <div class="md:col-span-1">
+          <p-card header="HeadCount">
+            <div class="flex items-center justify-center">
+              <p class="mat-display-large">{{ state.headCount() }}</p>
+            </div>
+          </p-card>
+          <p-card header="Sucursales">
+            <div class="flex items-center justify-center">
+              <p class="mat-display-large">{{ state.branchesCount() }}</p>
+            </div>
+          </p-card>
+          <p-card
+            header="Cumpleañeros"
+            class="col-span-2"
+            [subheader]="currentMonth"
+          >
+            @for(item of state.birthDates(); track item) {
+            <div class="flex justify-between w-full">
+              <div class="flex-1 text-gray-700 dark:text-gray-50">
+                {{ item.first_name }} {{ item.father_name }}
+              </div>
+              <div class="flex-1 text-gray-500 dark:text-gray-300 text-sm">
+                {{ item.branch?.name }}
+              </div>
+              <div
+                class="flex-none text-primary-700 dark:text-primary-300 font-semibold px-4"
+              >
+                {{ item.birth_date | date : 'd MMMM' }}
+              </div>
+            </div>
+            }
+          </p-card>
+        </div>
       </div>
     </div>
-  </div>`,
+  </main> `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

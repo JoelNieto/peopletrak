@@ -127,6 +127,15 @@ import { DashboardStore } from '../stores/dashboard.store';
           <input type="email" id="email" pInputText formControlName="email" />
         </div>
         <div class="input-container">
+          <label for="work_email">Email laboral</label>
+          <input
+            type="email"
+            id="work_email"
+            pInputText
+            formControlName="work_email"
+          />
+        </div>
+        <div class="input-container">
           <label for="phone_number">Nro. Teléfono</label>
           <input
             type="text"
@@ -372,6 +381,7 @@ export class EmployeeFormComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    work_email: new FormControl('', { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
     qr_code: new FormControl('', { nonNullable: true }),
     code_uri: new FormControl('', { nonNullable: true }),
