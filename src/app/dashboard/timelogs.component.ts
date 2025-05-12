@@ -22,7 +22,9 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
 import { Branch, colorVariants, Employee } from '../models';
+import { DashboardStore } from '../stores/dashboard.store';
 import { EmployeesStore } from '../stores/employees.store';
+
 @Component({
   selector: 'pt-timelogs',
   imports: [
@@ -56,6 +58,17 @@ import { EmployeesStore } from '../stores/employees.store';
         />
       </div>
       <div class="input-container">
+        <p-select
+          placeholder="--TODAS LAS SUCURSALES--"
+          [(ngModel)]="branchId"
+          [options]="store.branches.entities()"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          appendTo="body"
+        />
+      </div>
+      <div class="input-container">
         <p-datepicker
           placeholder="Fecha"
           selectionMode="range"
@@ -78,6 +91,7 @@ import { EmployeesStore } from '../stores/employees.store';
       [rows]="10"
       paginator
       showGridlines
+      stripedRows
       [loading]="this.logs.isLoading()"
     >
       <ng-template pTemplate="header">
@@ -189,6 +203,8 @@ export class TimelogsComponent {
   public employees = inject(EmployeesStore);
   public dateRange = signal<Date[]>([startOfMonth(new Date()), new Date()]);
   public employeeId = model<string>();
+  public branchId = model<string>();
+  public store = inject(DashboardStore);
 
   public loading = signal(false);
   private message = inject(MessageService);
@@ -249,7 +265,7 @@ export class TimelogsComponent {
       employee_id?: string;
     } = {
       select:
-        '*,employee:employees(id,first_name,father_name),branch:branches(*)',
+        '*,employee:employees(id,first_name,father_name, branch:branches(id, name)),branch:branches(*)',
       created_at: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
     };
     if (this.employeeId()) {
@@ -260,6 +276,9 @@ export class TimelogsComponent {
 
   public dayLogs = computed(() =>
     (this.logs.value() ?? [])
+      .filter((x) =>
+        this.branchId() ? x.employee.branch.id === this.branchId() : true
+      )
       .map((x) => ({ ...x, day: format(x.created_at, 'yyyy-MM-dd') }))
       .reduce<
         {
