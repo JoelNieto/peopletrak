@@ -94,7 +94,7 @@ import { EmployeesStore } from '../stores/employees.store';
       stripedRows
       [loading]="this.logs.isLoading()"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Empleado</th>
           <th>Día</th>
@@ -105,7 +105,7 @@ import { EmployeesStore } from '../stores/employees.store';
           <th>Salida</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-log>
+      <ng-template #body let-log>
         <tr>
           <td>{{ log.employee.first_name }} {{ log.employee.father_name }}</td>
           <td>{{ log.day | date : 'mediumDate' }}</td>
