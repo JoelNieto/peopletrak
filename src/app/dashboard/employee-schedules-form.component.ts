@@ -42,7 +42,7 @@ import { DashboardStore } from '../stores/dashboard.store';
     ToggleSwitch,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
-    <div class="grid grid-cols-2 gap-4">
+    <div class="flex flex-col  md:grid grid-cols-2 gap-4">
       <div class="input-container">
         <label for="employee_id">Empleado</label>
         <p-select
@@ -124,10 +124,15 @@ import { DashboardStore } from '../stores/dashboard.store';
       <p-button
         label="Cancelar"
         severity="secondary"
-        [outlined]="true"
+        rounded
         (onClick)="dialogRef.close()"
       />
-      <p-button label="Guardar cambios" type="submit" [loading]="loading()" />
+      <p-button
+        label="Guardar cambios"
+        type="submit"
+        rounded
+        [loading]="loading()"
+      />
     </div>
   </form>`,
   styles: ``,

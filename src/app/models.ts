@@ -159,6 +159,8 @@ export type EmployeeSchedule = {
   end_date: Date;
   created_at?: Date;
   approved?: boolean;
+  updated_at?: Date;
+  approved_at?: Date;
 };
 
 export const colorVariants: Record<string, string> = {

@@ -32,11 +32,14 @@ import { toDate } from 'date-fns-tz';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
+import { Dialog } from 'primeng/dialog';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputText } from 'primeng/inputtext';
 import { Menu } from 'primeng/menu';
 import { Popover } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
+import { ToggleSwitch, ToggleSwitchChangeEvent } from 'primeng/toggleswitch';
 import { Tooltip } from 'primeng/tooltip';
 import { catchError, EMPTY } from 'rxjs';
 import { colorVariants, EmployeeSchedule } from '../models';
@@ -57,154 +60,194 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
     NgClass,
     Tooltip,
     Popover,
+    ToggleSwitch,
+    FormsModule,
+    Dialog,
+    NgClass,
+    InputText,
   ],
   template: `<p-card>
-    <ng-template #title>Turnos de empleados</ng-template>
-
-    <div class="flex lg:flex-row flex-col gap-4 mb-4">
-      <p-select
-        fluid
-        [(ngModel)]="currentBranch"
-        [options]="store.branches.entities()"
-        [disabled]="disableBranch()"
-        appendTo="body"
-        optionValue="id"
-        placeholder="TODAS LAS SUCURSALES"
-        filter
-        showClear
-        optionLabel="name"
-        optionValue="id"
-      />
-      <p-select
-        fluid
-        [(ngModel)]="currentPosition"
-        [options]="store.positions.entities()"
-        appendTo="body"
-        placeholder="TODOS LOS PUESTOS"
-        filter
-        showClear
-        optionLabel="name"
-        optionValue="id"
-      />
-      <div class="flex w-full">
-        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
-        <p-button
-          (click)="menu.toggle($event)"
-          [label]="currentWeek()"
-          icon="pi pi-calendar"
+      <ng-template #title>Turnos de empleados</ng-template>
+      <div class="flex lg:flex-row flex-col gap-4 mb-4">
+        <p-select
+          fluid
+          [(ngModel)]="currentBranch"
+          [options]="store.branches.entities()"
+          [disabled]="disableBranch()"
+          appendTo="body"
+          optionValue="id"
+          placeholder="TODAS LAS SUCURSALES"
+          filter
+          showClear
+          optionLabel="name"
+          optionValue="id"
         />
+        <p-select
+          fluid
+          [(ngModel)]="currentPosition"
+          [options]="store.positions.entities()"
+          appendTo="body"
+          placeholder="TODOS LOS PUESTOS"
+          filter
+          showClear
+          optionLabel="name"
+          optionValue="id"
+        />
+        <div class="flex w-full">
+          <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+          <p-button
+            (click)="menu.toggle($event)"
+            [label]="currentWeek()"
+            icon="pi pi-calendar"
+          />
+        </div>
       </div>
-    </div>
-
-    <p-table
-      [value]="employeeSchedulesList()"
-      paginator
-      [rows]="10"
-      showGridlines
-      stripedRows
-      [tableStyle]="{ 'min-width': '50rem' }"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      paginatorDropdownAppendTo="body"
-    >
-      <ng-template #header>
-        <tr>
-          <th>Nombre</th>
-          <th>Cargo</th>
-          @for(days of days(); track days){
-          <th>{{ days.date | date : 'EEE d MMM' }}</th>
-          }
-        </tr>
-      </ng-template>
-      <ng-template #body let-item>
-        <tr>
-          <td>{{ item.first_name }} {{ item.father_name }}</td>
-          <td>{{ item.position.name }}</td>
-          @for(day of item.days; track day.date){
-          <td>
-            @if(day.shift) {
-            <div
-              class="flex gap-1 p-1 px-2 rounded font-semibold items-center text-sm cursor-pointer"
-              [ngClass]="colorVariants[day.shift.schedule?.color]"
-              [pTooltip]="tooltipContent"
-              tooltipPosition="top"
-              (click)="options.toggle($event)"
-            >
-              <div>
-                {{ day.shift.schedule.name }}
-              </div>
-              @if(day.shift.approved) {
-              <i class="pi pi-check-circle"></i>
-              } @else {
-              <i class="pi pi-exclamation-circle"></i>
-              }
-            </div>
-            <ng-template #tooltipContent>
-              <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-2 w-full my-2">
+        <p-toggleswitch
+          inputId="active"
+          [(ngModel)]="editionLocked"
+          (onChange)="unlockEdition($event)"
+        />
+        <label for="active"
+          ><i [ngClass]="editionLocked() ? 'pi pi-lock' : 'pi pi-unlock'"></i>
+          Modificacion bloqueada</label
+        >
+      </div>
+      <p-table
+        [value]="employeeSchedulesList()"
+        paginator
+        [rows]="10"
+        showGridlines
+        stripedRows
+        [tableStyle]="{ 'min-width': '50rem' }"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        paginatorDropdownAppendTo="body"
+      >
+        <ng-template #header>
+          <tr>
+            <th>Nombre</th>
+            <th>Cargo</th>
+            @for(days of days(); track days){
+            <th>{{ days.date | date : 'EEE d MMM' }}</th>
+            }
+          </tr>
+        </ng-template>
+        <ng-template #body let-item>
+          <tr>
+            <td>{{ item.first_name }} {{ item.father_name }}</td>
+            <td>{{ item.position.name }}</td>
+            @for(day of item.days; track day.date){
+            <td>
+              @if(day.shift) {
+              <div
+                class="flex gap-1 p-1 px-2 rounded font-semibold items-center text-sm cursor-pointer"
+                [ngClass]="colorVariants[day.shift.schedule?.color]"
+                [pTooltip]="tooltipContent"
+                tooltipPosition="top"
+                (click)="options.toggle($event)"
+              >
                 <div>
-                  Horario:
-                  <span class="font-bold">{{ day.shift.schedule?.name }}</span>
+                  {{ day.shift.schedule.name }}
                 </div>
-                @if(!day.shift.schedule?.day_off) {
-                <div>
-                  Sucursal:
-                  <span class="font-bold">{{ day.shift.branch?.name }}</span>
-                </div>
-                } @if(day.shift.approved) {
-                <span class="font-bold">Aprobado por RRHH</span>
+                @if(day.shift.approved) {
+                <i class="pi pi-check-circle"></i>
                 } @else {
-                <span class="italic">Pendiente por aprobacion</span>
+                <i class="pi pi-exclamation-circle"></i>
                 }
               </div>
-            </ng-template>
-            <p-popover #options>
-              <div>
-                <span class="font-medium block mb-2">Opciones</span>
-                <ul class="list-non flex flex-col">
-                  <li
-                    class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
-                    (click)="editSchedule({ employee_schedule: day.shift })"
-                  >
-                    <i class="pi pi-pencil text-primary-600"></i>
-                    Editar
-                  </li>
-                  <li
-                    class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
-                    (click)="deleteSchedule(day.shift.id)"
-                  >
-                    <i class="pi pi-trash text-red-700"></i>
-                    Eliminar
-                  </li>
-                  @if(store.isScheduleApprover()) {
-                  <li
-                    class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
-                    (click)="approveSchedule(day.shift.id)"
-                  >
-                    <i class="pi pi-check-circle text-green-700"></i>
-                    Aprobar
-                  </li>
+              <ng-template #tooltipContent>
+                <div class="flex flex-col gap-1">
+                  <div>
+                    Horario:
+                    <span class="font-bold">{{
+                      day.shift.schedule?.name
+                    }}</span>
+                  </div>
+                  @if(!day.shift.schedule?.day_off) {
+                  <div>
+                    Sucursal:
+                    <span class="font-bold">{{ day.shift.branch?.name }}</span>
+                  </div>
+                  } @if(day.shift.approved) {
+                  <span class="font-bold">Aprobado por RRHH</span>
+                  } @else {
+                  <span class="italic">Pendiente por aprobacion</span>
                   }
-                </ul>
-              </div>
-            </p-popover>
-            } @else {
-            <p-button
-              icon="pi pi-plus"
-              outlined
-              size="small"
-              (onClick)="editSchedule({ employee_id: item.id, date: day.date })"
-            />
+                </div>
+              </ng-template>
+              <p-popover #options>
+                <div>
+                  <span class="font-medium block mb-2">Opciones</span>
+                  <ul class="list-non flex flex-col">
+                    <li
+                      class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                      (click)="editSchedule({ employee_schedule: day.shift })"
+                    >
+                      <i class="pi pi-pencil text-primary-600"></i>
+                      Editar
+                    </li>
+                    <li
+                      class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                      (click)="deleteSchedule(day.shift.id)"
+                    >
+                      <i class="pi pi-trash text-red-700"></i>
+                      Eliminar
+                    </li>
+                    @if(store.isScheduleApprover()) {
+                    <li
+                      class="flex items-center gap-2 p-2 hover:bg-emphasis cursor-pointer rounded-md"
+                      (click)="approveSchedule(day.shift.id)"
+                    >
+                      <i class="pi pi-check-circle text-green-700"></i>
+                      Aprobar
+                    </li>
+                    }
+                  </ul>
+                </div>
+              </p-popover>
+              } @else {
+              <p-button
+                icon="pi pi-plus"
+                outlined
+                size="small"
+                (onClick)="
+                  editSchedule({ employee_id: item.id, date: day.date })
+                "
+              />
+              }
+            </td>
             }
-          </td>
-          }
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>`,
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+    <p-dialog
+      header="Desbloquear edicion"
+      modal
+      [(visible)]="unlockModal"
+      [closable]="false"
+    >
+      <div class="input-container">
+        <label>Introduzca codigo de desbloqueo</label>
+        <input pInputText type="text" #code />
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <p-button
+          label="Cancelar"
+          (click)="hideModal()"
+          rounded
+          severity="secondary"
+        />
+        <p-button label="Validar" (click)="validateCode(code)" rounded />
+      </div>
+    </p-dialog> `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesTimetableComponent implements OnInit {
   public store = inject(DashboardStore);
+  public editionLocked = model<boolean>();
+  public unlockModal = signal(false);
   public currentDate = signal(new Date());
   public disableBranch = signal(true);
   private http = inject(HttpClient);
@@ -246,6 +289,28 @@ export class EmployeesTimetableComponent implements OnInit {
       return dayList;
     }
   });
+
+  unlockEdition(event: ToggleSwitchChangeEvent) {
+    if (!event.checked) {
+      this.unlockModal.set(true);
+    }
+  }
+
+  validateCode(code: HTMLInputElement) {
+    if (code.value === process.env['ENV_UNLOCK_CODE']) {
+      this.editionLocked.set(false);
+      this.unlockModal.set(false);
+      code.value = '';
+      return;
+    }
+
+    this.editionLocked.set(true);
+  }
+
+  public hideModal() {
+    this.editionLocked.set(true);
+    this.unlockModal.set(false);
+  }
 
   public menuItems: MenuItem[] = [
     {
@@ -361,6 +426,7 @@ export class EmployeesTimetableComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.editionLocked.set(true);
     effect(
       () => {
         if (this.store.isAdmin()) {
@@ -403,7 +469,6 @@ export class EmployeesTimetableComponent implements OnInit {
           date,
           branch: this.currentBranch(),
         },
-        width: '60%',
         closeOnEscape: true,
         dismissableMask: true,
         modal: true,
@@ -480,7 +545,7 @@ export class EmployeesTimetableComponent implements OnInit {
         this.http
           .patch(
             `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
-            { approved: true },
+            { approved: true, approved_at: new Date() },
             { params: { id: `eq.${id}` } }
           )
           .pipe(
