@@ -279,6 +279,7 @@ import { DashboardStore } from '../stores/dashboard.store';
             label="Cancelar"
             severity="secondary"
             outlined
+            rounded
             icon="pi pi-refresh"
             (click)="cancelChanges()"
           />
@@ -286,6 +287,7 @@ import { DashboardStore } from '../stores/dashboard.store';
             label="Guardar cambios"
             type="submit"
             icon="pi pi-save"
+            rounded
             [loading]="store.employees.isLoading()"
           />
         </div>
@@ -345,7 +347,6 @@ export class EmployeeFormComponent implements OnInit {
     }),
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.email],
     }),
     phone_number: new FormControl('', {
       nonNullable: true,
@@ -436,7 +437,6 @@ export class EmployeeFormComponent implements OnInit {
         detail: 'Formulario invalido',
       });
       markGroupDirty(this.form);
-      this.form.get('first_name')?.markAsDirty();
       return;
     }
     if (pristine) {
