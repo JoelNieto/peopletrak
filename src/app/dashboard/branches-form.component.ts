@@ -70,18 +70,22 @@ import { DashboardStore } from '../stores/dashboard.store';
         <label for="active">Activo</label>
       </div>
 
-      <div class="flex gap-4 items-center justify-end">
+      <div class="dialog-actions">
         <p-button
           label="Cancelar"
           severity="secondary"
-          [outlined]="true"
+          outlined
+          rounded
           (click)="dialog.close()"
+          icon="pi pi-times"
         />
         <p-button
           label="Guardar cambios"
           type="submit"
           [loading]="store.branches.isLoading()"
           [disabled]="form.invalid || form.pristine"
+          rounded
+          icon="pi pi-save"
         />
       </div>
     </div>

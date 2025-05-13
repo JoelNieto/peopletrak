@@ -24,7 +24,12 @@ import { DepartmentsFormComponent } from './departments-form.component';
         >Listado de areas/departamentos de la empresa</ng-template
       >
       <div class="w-full flex justify-end">
-        <p-button (click)="editDepartment()" label="Agregar" />
+        <p-button
+          (click)="editDepartment()"
+          label="Agregar"
+          icon="pi pi-plus-circle"
+          rounded
+        />
       </div>
       <div>
         <p-table
@@ -48,15 +53,15 @@ import { DepartmentsFormComponent } from './departments-form.component';
               <td>
                 <p-button
                   severity="success"
-                  [text]="true"
-                  [rounded]="true"
+                  text
+                  rounded
                   icon="pi pi-pen-to-square"
                   (onClick)="editDepartment(item)"
                 />
                 <p-button
                   severity="danger"
-                  [text]="true"
-                  [rounded]="true"
+                  text
+                  rounded
                   icon="pi pi-trash"
                   (onClick)="deleteDepartment(item.id)"
                 />

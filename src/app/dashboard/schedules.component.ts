@@ -21,19 +21,23 @@ import { SchedulesFormComponent } from './schedules-form.component';
   template: `<p-card>
     <ng-template #title>Horarios</ng-template>
     <ng-template #subtitle>Listado de horarios disponibles</ng-template>
-    <div class="flex w-full justify-end">
-      <p-button
-        label="Agregar"
-        icon="pi pi-plus-circle"
-        (onClick)="editSchedule()"
-      />
-    </div>
+
     <p-table
       [value]="schedules()"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 20]"
       sortField="entry_time"
     >
+      <ng-template #caption>
+        <div class="flex w-full justify-end">
+          <p-button
+            label="Agregar"
+            icon="pi pi-plus-circle"
+            (onClick)="editSchedule()"
+            rounded
+          />
+        </div>
+      </ng-template>
       <ng-template #header>
         <tr>
           <th pSortableColumn="name">Nombre<p-sortIcon field="name" /></th>
@@ -122,6 +126,7 @@ export class SchedulesComponent {
   editSchedule(schedule?: Schedule) {
     this.ref = this.dialogService.open(SchedulesFormComponent, {
       header: 'Editar horario',
+      modal: true,
       data: {
         schedule,
       },

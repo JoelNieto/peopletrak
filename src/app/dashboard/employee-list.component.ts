@@ -52,13 +52,6 @@ import { EmployeeFormComponent } from './employee-form.component';
       <ng-template #subtitle
         >Listado de colaboradores de la empresa</ng-template
       >
-      <div class="w-full flex justify-between items-center">
-        <section class="pt-2 flex items-center gap-2">
-          <p-toggleswitch [formControl]="inactiveToggle" inputId="active" />
-          <label for="active">Incluir inactivos</label>
-        </section>
-        <p-button label="Nuevo" routerLink="new" icon="pi pi-plus-circle" />
-      </div>
 
       @if (store.employees.isLoading()) {
       <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
@@ -71,28 +64,47 @@ import { EmployeeFormComponent } from './employee-form.component';
         [rowsPerPageOptions]="[5, 10, 20]"
         [scrollable]="true"
         dataKey="id"
-        styleClass="p-datatable-striped"
+        stripedRows
         paginatorDropdownAppendTo="body"
       >
         <ng-template #caption>
-          <div class="flex gap-2">
-            <p-button
-              icon="pi pi-file-excel"
-              severity="success"
-              label="XLS"
-              (onClick)="generateReport()"
-            />
-            <p-button
-              icon="pi pi-file-pdf"
-              severity="warn"
-              label="PDF"
-              (onClick)="generateReport()"
-            />
+          <div class="flex flex-col md:flex-row justify-between">
+            <div class="flex gap-2 items-center">
+              <section class="pt-2 flex items-center gap-2">
+                <p-toggleswitch
+                  [formControl]="inactiveToggle"
+                  inputId="active"
+                />
+                <label for="active">Incluir inactivos</label>
+              </section>
+            </div>
+            <div class="flex  gap-2">
+              <p-button
+                icon="pi pi-file-excel"
+                severity="success"
+                label="XLS"
+                (onClick)="generateReport()"
+                rounded
+              />
+              <p-button
+                icon="pi pi-file-pdf"
+                severity="warn"
+                label="PDF"
+                (onClick)="generateReport()"
+                rounded
+              />
+              <p-button
+                label="Nuevo"
+                routerLink="new"
+                icon="pi pi-plus-circle"
+                rounded
+              />
+            </div>
           </div>
         </ng-template>
         <ng-template #header>
           <tr>
-            <th style="width:22%" pFrozenColumn pSortableColumn="full_name">
+            <th style="width:22%" pSortableColumn="full_name">
               Nombre <p-sortIcon field="first_name" />
             </th>
             @if (inactiveValue()) {
@@ -132,10 +144,10 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th pSortableColumn="created_at">
               Creado <p-sortIcon field="created_at" />
             </th>
-            <th pFrozenColumn alignFrozen="right"></th>
+            <th></th>
           </tr>
           <tr>
-            <th pFrozenColumn>
+            <th>
               <p-columnFilter
                 type="text"
                 field="full_name"
@@ -258,12 +270,12 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th></th>
             <th></th>
             <th></th>
-            <th pFrozenColumn alignFrozen="right"></th>
+            <th></th>
           </tr>
         </ng-template>
         <ng-template #body let-item let-columns="columns">
           <tr>
-            <td pFrozenColumn>
+            <td>
               <a
                 [routerLink]="item.id"
                 class="text-primary-700 font-semibold hover:underline"
@@ -298,7 +310,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             </td>
             <td>{{ item.gender }}</td>
             <td>{{ item.created_at | date : 'medium' }}</td>
-            <td pFrozenColumn alignFrozen="right">
+            <td>
               <p-button
                 icon="pi pi-info-circle"
                 [routerLink]="item.id"

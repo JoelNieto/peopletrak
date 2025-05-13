@@ -38,156 +38,242 @@ import { TimeOffsComponent } from './time-offs.component';
   providers: [DynamicDialogRef, DialogService],
   template: `
     <div class="mx-4 md:mx-6 flex flex-col gap-2">
-      <div class="flex w-full justify-between items-center">
-        <h2>
-          Datos del empleado: {{ employee()?.first_name }}
-          {{ employee()?.father_name }}
-        </h2>
-        @if (employee()) {
-        <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
-        <p-button
-          label="Acciones"
-          icon="pi pi-ellipsis-v"
-          (onClick)="menu.toggle($event)"
-        />
-        }
-      </div>
-      <p-tabs value="0">
+      <p-tabs value="0" scrollable>
         <p-tablist>
           <p-tab value="0"><i class="pi pi-user"></i> Datos Personales</p-tab>
-          <p-tab value="1"
-            ><i class="pi pi-building"></i> Datos Laborales</p-tab
-          >
-          <p-tab value="2"><i class="pi pi-clock"></i> Horarios</p-tab>
-          <p-tab value="3"><i class="pi pi-clock"></i> Marcacion</p-tab>
-          <p-tab value="4"><i class="pi pi-calendar"></i> Tiempos fuera</p-tab>
+          <p-tab value="1"><i class="pi pi-clock"></i> Horarios</p-tab>
+          <p-tab value="2"><i class="pi pi-clock"></i> Marcacion</p-tab>
+          <p-tab value="3"><i class="pi pi-calendar"></i> Tiempos fuera</p-tab>
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel value="0">
-            <p-card class="mb-4">
-              <ng-template #title>Datos personales</ng-template>
-              <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
-                <div>
-                  <p class="label">Primer nombre</p>
-                  <p class="info">{{ employee()?.first_name }}</p>
-                </div>
-                <div>
-                  <p class="label">Segundo nombre</p>
-                  <p class="info">{{ employee()?.middle_name }}</p>
-                </div>
-                <div>
-                  <p class="label">Apellido</p>
-                  <p class="info">{{ employee()?.father_name }}</p>
-                </div>
-                <div>
-                  <p class="label">Segundo apellido</p>
-                  <p class="info">{{ employee()?.mother_name }}</p>
-                </div>
-                <div>
-                  <p class="label">Nro. Documento</p>
-                  <p class="info">{{ employee()?.document_id }}</p>
-                </div>
-                <div>
-                  <p class="label">Fecha de nacimiento</p>
-                  <p class="info">
-                    {{ employee()?.birth_date | date : 'mediumDate' }} ({{
-                      employee()?.birth_date | age
-                    }})
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Direccion</p>
-                  <p class="info">
-                    {{ employee()?.address }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Email</p>
-                  <p class="info">
-                    {{ employee()?.email }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Nro. Telefono</p>
-                  <p class="info">
-                    {{ employee()?.phone_number }}
-                  </p>
-                </div>
-              </div>
-            </p-card>
-          </p-tabpanel>
-          <p-tabpanel value="1">
-            <p-card>
-              <ng-template #title>Datos laborales</ng-template>
-              <ng-template #subtitle>{{
-                employee()?.position?.name
-              }}</ng-template>
-              <div class="flex flex-col md:grid md:grid-cols-3 gap-4">
-                <div>
-                  <p class="label">Fecha de Ingreso</p>
-                  <p class="info">
-                    {{ employee()?.start_date | date : 'mediumDate' }}
-                    / {{ employee()?.start_date! | seniority }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Departamento</p>
-                  <p class="info">
-                    {{ employee()?.department?.name }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Sucursal</p>
-                  <p class="info">
-                    {{ employee()?.branch?.name }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Cargo</p>
-                  <p class="info">
+            <div>
+              <div class="md:flex justify-between items-center">
+                <div class="px-4 sm:px-0">
+                  <h3
+                    class="text-base/7 font-semibold text-primary-800 dark:text-gray-50"
+                  >
+                    {{ employee()?.first_name }}
+                    {{ employee()?.father_name }}
+                  </h3>
+                  <p
+                    class="mt-1 max-w-2xl text-sm/6 text-gray-500 dark:text-gray-400"
+                  >
                     {{ employee()?.position?.name }}
                   </p>
                 </div>
-                <div>
-                  <p class="label">Salario</p>
-                  <p class="info">
-                    {{ employee()?.monthly_salary | currency : '$' }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Talla</p>
-                  <p class="info">
-                    {{ employee()?.uniform_size }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Banco</p>
-                  <p class="info">
-                    {{ employee()?.bank }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Nro. Cuenta</p>
-                  <p class="info">
-                    {{ employee()?.account_number }}
-                  </p>
-                </div>
-                <div>
-                  <p class="label">Tipo de cuenta</p>
-                  <p class="info">
-                    {{ employee()?.bank_account_type }}
-                  </p>
-                </div>
+                <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+                <p-button
+                  label="Acciones"
+                  icon="pi pi-ellipsis-v"
+                  rounded
+                  (onClick)="menu.toggle($event)"
+                />
               </div>
-            </p-card>
+
+              <div class="mt-6 border-t border-gray-100 dark:border-gray-600">
+                <dl class="divide-y divide-gray-100 dark:divide-gray-600">
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Nombre completo
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.first_name }}
+                      {{ employee()?.middle_name }}
+                      {{ employee()?.father_name }}
+                      {{ employee()?.mother_name }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Nro. documento
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.document_id }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Departamento
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.department?.name }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Sucursal
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.branch?.name }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Cargo
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.position?.name }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Salario
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.monthly_salary | currency : '$' }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Fecha de nacimiento (edad)
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.birth_date | date : 'mediumDate' }} ({{
+                        employee()?.birth_date | age
+                      }})
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Direccion
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.address }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Email/Email laboral
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.email }} / {{ employee()?.work_email }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Nro. Telefono
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.phone_number }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Fecha de ingreso
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.start_date | date : 'mediumDate' }}
+                      / {{ employee()?.start_date! | seniority }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Talla
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.uniform_size }}
+                    </dd>
+                  </div>
+                  <div
+                    class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
+                  >
+                    <dt
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                    >
+                      Cuenta de banco
+                    </dt>
+                    <dd
+                      class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
+                    >
+                      {{ employee()?.bank }} -
+                      {{ employee()?.bank_account_type }}:
+                      {{ employee()?.account_number }}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
           </p-tabpanel>
-          <p-tabpanel value="2">
+          <p-tabpanel value="1">
             <pt-employee-schedules [employeeId]="employee_id()" />
           </p-tabpanel>
-          <p-tabpanel value="3">
+          <p-tabpanel value="2">
             <img src="{{ employee()?.qr_code }}" alt="QR Code" />
           </p-tabpanel>
-          <p-tabpanel value="4">
+          <p-tabpanel value="3">
             @for(timeoff of employee()?.timeoffs; track $index) {
             <p-card [header]="timeoff.type?.name">
               {{ timeoff.date_from }}

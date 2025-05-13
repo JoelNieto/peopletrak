@@ -67,42 +67,10 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
     InputText,
   ],
   template: `<p-card>
-      <ng-template #title>Turnos de empleados</ng-template>
-      <div class="flex lg:flex-row flex-col gap-4 mb-4">
-        <p-select
-          fluid
-          [(ngModel)]="currentBranch"
-          [options]="store.branches.entities()"
-          [disabled]="disableBranch()"
-          appendTo="body"
-          optionValue="id"
-          placeholder="TODAS LAS SUCURSALES"
-          filter
-          showClear
-          optionLabel="name"
-          optionValue="id"
-        />
-        <p-select
-          fluid
-          [(ngModel)]="currentPosition"
-          [options]="store.positions.entities()"
-          appendTo="body"
-          placeholder="TODOS LOS PUESTOS"
-          filter
-          showClear
-          optionLabel="name"
-          optionValue="id"
-        />
-        <div class="flex w-full">
-          <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
-          <p-button
-            (click)="menu.toggle($event)"
-            [label]="currentWeek()"
-            icon="pi pi-calendar"
-          />
-        </div>
-      </div>
-      <div class="flex items-center gap-2 w-full my-2">
+      <ng-template #title>Turnos</ng-template>
+      <ng-template #subtitle>Asignacion de turnos de empleados</ng-template>
+
+      <div class="items-center gap-2 w-full my-2 hidden">
         <p-toggleswitch
           inputId="active"
           [(ngModel)]="editionLocked"
@@ -123,6 +91,48 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
         [rowsPerPageOptions]="[5, 10, 20]"
         paginatorDropdownAppendTo="body"
       >
+        <ng-template #caption>
+          <div class="flex lg:flex-row flex-col gap-4">
+            <p-select
+              fluid
+              [(ngModel)]="currentBranch"
+              [options]="store.branches.entities()"
+              [disabled]="disableBranch()"
+              appendTo="body"
+              optionValue="id"
+              placeholder="TODAS LAS SUCURSALES"
+              filter
+              showClear
+              optionLabel="name"
+              optionValue="id"
+            />
+            <p-select
+              fluid
+              [(ngModel)]="currentPosition"
+              [options]="store.positions.entities()"
+              appendTo="body"
+              placeholder="TODOS LOS PUESTOS"
+              filter
+              showClear
+              optionLabel="name"
+              optionValue="id"
+            />
+            <div class="flex w-full">
+              <p-menu
+                #menu
+                [model]="menuItems"
+                [popup]="true"
+                appendTo="body"
+              />
+              <p-button
+                (click)="menu.toggle($event)"
+                [label]="currentWeek()"
+                icon="pi pi-calendar"
+                rounded
+              />
+            </div>
+          </div>
+        </ng-template>
         <ng-template #header>
           <tr>
             <th>Nombre</th>
@@ -140,8 +150,11 @@ import { EmployeeSchedulesFormComponent } from './employee-schedules-form.compon
             <td>
               @if(day.shift) {
               <div
-                class="flex gap-1 p-1 px-2 rounded font-semibold items-center text-sm cursor-pointer"
-                [ngClass]="colorVariants[day.shift.schedule?.color]"
+                class="flex gap-1 p-1 px-2 rounded-lg font-semibold items-center text-sm cursor-pointer"
+                [class]="colorVariants[day.shift.schedule?.color]"
+                [ngClass]="{
+                  'opacity-25 hover:opacity-80': !day.shift.approved
+                }"
                 [pTooltip]="tooltipContent"
                 tooltipPosition="top"
                 (click)="options.toggle($event)"
@@ -469,8 +482,6 @@ export class EmployeesTimetableComponent implements OnInit {
           date,
           branch: this.currentBranch(),
         },
-        closeOnEscape: true,
-        dismissableMask: true,
         modal: true,
       })
       .onClose.subscribe(() => {

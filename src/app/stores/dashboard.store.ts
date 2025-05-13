@@ -48,6 +48,13 @@ export const DashboardStore = signalStore(
         employees.entities().find((x) => x.id === auth.currentEmployeeId())
       );
 
+      const monthlyBudget = computed(() =>
+        employees
+          .employeesList()
+          .filter((x) => x.is_active)
+          .reduce((acc, current) => acc + current.monthly_salary, 0)
+      );
+
       const isAdmin = computed(() => currentEmployee()?.position?.admin);
       const isScheduleAdmin = computed(
         () => currentEmployee()?.position?.schedule_admin
@@ -107,22 +114,25 @@ export const DashboardStore = signalStore(
       );
 
       const employeesByBranch = computed(() =>
-        employees.entities().reduce<
-          {
-            branch: Branch | undefined;
-            count: number;
-          }[]
-        >((acc, item) => {
-          const itemIndex = acc.findIndex(
-            (x) => x.branch?.id === item.branch_id
-          );
-          if (itemIndex !== -1) {
-            acc[itemIndex].count++;
-          } else {
-            acc.push({ branch: item.branch, count: 1 });
-          }
-          return acc;
-        }, [])
+        employees
+          .employeesList()
+          .filter((x) => x.is_active)
+          .reduce<
+            {
+              branch: Branch | undefined;
+              count: number;
+            }[]
+          >((acc, item) => {
+            const itemIndex = acc.findIndex(
+              (x) => x.branch?.id === item.branch_id
+            );
+            if (itemIndex !== -1) {
+              acc[itemIndex].count++;
+            } else {
+              acc.push({ branch: item.branch, count: 1 });
+            }
+            return acc;
+          }, [])
       );
 
       const employeesList = computed(() =>
@@ -149,6 +159,7 @@ export const DashboardStore = signalStore(
         isScheduleAdmin,
         isScheduleApprover,
         currentBranch,
+        monthlyBudget,
       };
     }
   ),

@@ -8,24 +8,41 @@ import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CardModule } from 'primeng/card';
 
-import { DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-home',
-  imports: [BaseChartDirective, CardModule, DatePipe],
+  imports: [BaseChartDirective, CardModule, DatePipe, CurrencyPipe],
   template: `<main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
     <div>
       <h1 class="dark:text-gray-100 text-gray-800 font-black text-3xl mb-3">
         Dashboard
       </h1>
       <div class="flex flex-col md:grid md:grid-cols-4 gap-4">
+        <p-card header="HeadCount">
+          <div class="flex items-center justify-center">
+            <p class="text-3xl font-semibold">{{ state.headCount() }}</p>
+          </div>
+        </p-card>
+        <p-card header="Sucursales">
+          <div class="flex items-center justify-center">
+            <p class="text-3xl font-semibold">{{ state.branchesCount() }}</p>
+          </div>
+        </p-card>
+        <p-card header="Planilla mensual">
+          <div class="flex items-center justify-center">
+            <p class="text-3xl font-semibold">
+              {{ state.monthlyBudget() | currency : '$' }}
+            </p>
+          </div>
+        </p-card>
         <p-card
           header="Por sucursal"
           subheader="Listado de empleados por sucursal"
-          class="md:col-span-3"
+          class="md:col-span-4"
         >
           <div>
             <canvas
@@ -35,43 +52,32 @@ import { DashboardStore } from '../stores/dashboard.store';
               [labels]="branchLabels()"
               type="bar"
               [options]="pieChartOptions"
-              height="200"
+              height="100"
             ></canvas>
           </div>
         </p-card>
-        <div class="md:col-span-1">
-          <p-card header="HeadCount">
-            <div class="flex items-center justify-center">
-              <p class="mat-display-large">{{ state.headCount() }}</p>
+
+        <p-card
+          header="Cumpleañeros"
+          class="col-span-2"
+          [subheader]="currentMonth"
+        >
+          @for(item of state.birthDates(); track item) {
+          <div class="flex justify-between w-full">
+            <div class="flex-1 text-gray-700 dark:text-gray-50">
+              {{ item.first_name }} {{ item.father_name }}
             </div>
-          </p-card>
-          <p-card header="Sucursales">
-            <div class="flex items-center justify-center">
-              <p class="mat-display-large">{{ state.branchesCount() }}</p>
+            <div class="flex-1 text-gray-500 dark:text-gray-300 text-sm">
+              {{ item.branch?.name }}
             </div>
-          </p-card>
-          <p-card
-            header="Cumpleañeros"
-            class="col-span-2"
-            [subheader]="currentMonth"
-          >
-            @for(item of state.birthDates(); track item) {
-            <div class="flex justify-between w-full">
-              <div class="flex-1 text-gray-700 dark:text-gray-50">
-                {{ item.first_name }} {{ item.father_name }}
-              </div>
-              <div class="flex-1 text-gray-500 dark:text-gray-300 text-sm">
-                {{ item.branch?.name }}
-              </div>
-              <div
-                class="flex-none text-primary-700 dark:text-primary-300 font-semibold px-4"
-              >
-                {{ item.birth_date | date : 'd MMMM' }}
-              </div>
+            <div
+              class="flex-none text-primary-700 dark:text-primary-300 font-semibold px-4"
+            >
+              {{ item.birth_date | date : 'd MMMM' }}
             </div>
-            }
-          </p-card>
-        </div>
+          </div>
+          }
+        </p-card>
       </div>
     </div>
   </main> `,
@@ -119,6 +125,7 @@ export class HomeComponent {
         'rgb(201, 203, 207)',
       ],
       borderWidth: 1,
+      borderRadius: 10,
     },
   ]);
   public pieChartOptions: ChartConfiguration['options'] = {
@@ -128,7 +135,6 @@ export class HomeComponent {
         position: 'top',
       },
     },
-    indexAxis: 'y',
   };
 
   public pieChartType: ChartType = 'pie';

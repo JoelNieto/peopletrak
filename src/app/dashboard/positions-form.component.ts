@@ -79,12 +79,16 @@ import { DashboardStore } from '../stores/dashboard.store';
         <p-button
           label="Cancelar"
           severity="secondary"
-          [outlined]="true"
+          outlined
+          rounded
+          icon="pi pi-times"
           (click)="dialog.close()"
         />
         <p-button
           label="Guardar cambios"
           type="submit"
+          rounded
+          icon="pi pi-save"
           [loading]="store.positions.isLoading()"
         />
       </div>

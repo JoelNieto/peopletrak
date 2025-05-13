@@ -21,8 +21,7 @@ import { MessageService } from 'primeng/api';
 import { Select } from 'primeng/select';
 import { iif } from 'rxjs';
 import { markGroupDirty } from '../services/util.service';
-import { CompaniesStore } from '../stores/companies.store';
-import { DepartmentsStore } from '../stores/departments.store';
+import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
   selector: 'pt-departments-form',
@@ -37,7 +36,7 @@ import { DepartmentsStore } from '../stores/departments.store';
         <label for="company_id">Empresa</label>
         <p-select
           formControlName="company_id"
-          [options]="companies.entities()"
+          [options]="store.companies.entities()"
           optionLabel="name"
           optionValue="id"
           placeholder="Seleccione una empresa"
@@ -49,13 +48,17 @@ import { DepartmentsStore } from '../stores/departments.store';
         <p-button
           label="Cancelar"
           severity="secondary"
-          [outlined]="true"
+          outlined
+          rounded
+          icon="pi pi-times"
           (click)="dialogRef.close()"
         />
         <p-button
           label="Guardar cambios"
           type="submit"
-          [loading]="state.isLoading()"
+          rounded
+          icon="pi pi-save"
+          [loading]="store.departments.isLoading()"
           [disabled]="form.invalid || form.pristine"
         />
       </div>
@@ -78,8 +81,7 @@ export class DepartmentsFormComponent implements OnInit {
   });
   public dialogRef = inject(DynamicDialogRef);
   private dialog = inject(DynamicDialogConfig);
-  public state = inject(DepartmentsStore);
-  public companies = inject(CompaniesStore);
+  public store = inject(DashboardStore);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
 
@@ -111,8 +113,8 @@ export class DepartmentsFormComponent implements OnInit {
     }
     iif(
       () => this.dialog.data.department,
-      this.state.editItem(this.form.getRawValue()),
-      this.state.createItem(this.form.getRawValue())
+      this.store.departments.editItem(this.form.getRawValue()),
+      this.store.departments.createItem(this.form.getRawValue())
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {

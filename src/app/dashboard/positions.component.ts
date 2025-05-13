@@ -52,6 +52,7 @@ import { PositionsFormComponent } from './positions-form.component';
               label="Agregar"
               (click)="editPosition()"
               icon="pi pi-plus-circle"
+              rounded
             />
           </div>
         </ng-template>
@@ -117,15 +118,15 @@ import { PositionsFormComponent } from './positions-form.component';
             <td>
               <p-button
                 severity="success"
-                [text]="true"
-                [rounded]="true"
+                text
+                rounded
                 icon="pi pi-pen-to-square"
                 (onClick)="editPosition(item)"
               />
               <p-button
                 severity="danger"
-                [text]="true"
-                [rounded]="true"
+                text
+                rounded
                 icon="pi pi-trash"
                 (onClick)="deletePosition(item.id)"
               />

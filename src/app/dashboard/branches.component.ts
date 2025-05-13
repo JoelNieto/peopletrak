@@ -26,7 +26,12 @@ import { BranchesFormComponent } from './branches-form.component';
         >Listado de sucursales/localidades activas en la empresa</ng-template
       >
       <div class="w-full flex justify-end">
-        <p-button label="Agregar" (click)="editBranch()" />
+        <p-button
+          label="Agregar"
+          (click)="editBranch()"
+          icon="pi pi-plus-circle"
+          rounded
+        />
       </div>
       <div>
         <p-table
@@ -63,15 +68,15 @@ import { BranchesFormComponent } from './branches-form.component';
                 <p-button
                   severity="success"
                   icon="pi pi-pen-to-square"
-                  [rounded]="true"
-                  [text]="true"
+                  rounded
+                  text
                   (onClick)="editBranch(item)"
                 />
                 <p-button
                   severity="danger"
                   icon="pi pi-trash"
-                  [rounded]="true"
-                  [text]="true"
+                  rounded
+                  text
                   (onClick)="deleteBranch(item.id)"
                 />
               </td>

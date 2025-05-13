@@ -66,6 +66,7 @@ export type Employee = {
   bank?: string;
   account_number?: string;
   bank_account_type?: 'Ahorros' | 'Corriente';
+  full_name?: string;
 };
 
 export type TimeOffType = {
@@ -164,15 +165,15 @@ export type EmployeeSchedule = {
 };
 
 export const colorVariants: Record<string, string> = {
-  slate: 'bg-slate-200 text-slate-800',
-  yellow: 'bg-yellow-200 text-yellow-800',
-  green: 'bg-green-200 text-green-800',
-  sky: 'bg-sky-200 text-sky-800',
-  indigo: 'bg-indigo-200 text-indigo-800',
-  orange: 'bg-orange-200 text-orange-800',
-  purple: 'bg-purple-200 text-purple-800',
-  red: 'bg-red-200 text-red-800',
-  pink: 'bg-pink-200 text-pink-800',
-  teal: 'bg-teal-200 text-teal-800',
-  cyan: 'bg-cyan-200 text-cyan-800',
+  slate: 'bg-slate-300 text-slate-800',
+  yellow: 'bg-yellow-300 text-yellow-800',
+  green: 'bg-green-300 text-green-800',
+  sky: 'bg-sky-300 text-sky-800',
+  indigo: 'bg-indigo-300 text-indigo-800',
+  orange: 'bg-orange-300 text-orange-800',
+  purple: 'bg-purple-300 text-purple-800',
+  red: 'bg-red-300 text-red-800',
+  pink: 'bg-pink-300 text-pink-800',
+  teal: 'bg-teal-300 text-teal-800',
+  cyan: 'bg-cyan-300 text-cyan-800',
 };

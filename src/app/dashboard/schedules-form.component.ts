@@ -39,8 +39,8 @@ import { SchedulesStore } from '../stores/schedules.store';
     NgClass,
   ],
   template: `<form [formGroup]="form" (ngSubmit)="saveChanges()">
-    <div class="grid grid-cols-4 gap-3">
-      <div class="input-container col-span-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="input-container col-span-2 md:col-span-4">
         <label for="name">Nombre</label>
         <input pInputText id="name" type="text" formControlName="name" />
       </div>
@@ -123,13 +123,16 @@ import { SchedulesStore } from '../stores/schedules.store';
       <p-button
         label="Cancelar"
         severity="secondary"
-        [outlined]="true"
+        outlined
+        rounded
+        icon="pi pi-times"
         (click)="dialogRef.close()"
       />
       <p-button
         label="Guardar"
         icon="pi pi-save"
         type="submit"
+        rounded
         [loading]="state.isLoading()"
       />
     </div>

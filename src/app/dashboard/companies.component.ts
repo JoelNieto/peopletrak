@@ -23,6 +23,7 @@ import { CompaniesFormComponent } from './companies-form.component';
       <p-button
         label="Agregar"
         icon="pi pi-plus-circle"
+        rounded
         (onClick)="editCompany()"
       />
     </div>
@@ -53,15 +54,15 @@ import { CompaniesFormComponent } from './companies-form.component';
             <td>
               <p-button
                 severity="success"
-                [text]="true"
-                [rounded]="true"
+                text
+                round
                 icon="pi pi-pen-to-square"
                 (onClick)="editCompany(item)"
               />
               <p-button
                 severity="danger"
-                [text]="true"
-                [rounded]="true"
+                text
+                round
                 icon="pi pi-trash"
                 (onClick)="deleteCompany(item.id)"
               />

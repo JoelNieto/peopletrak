@@ -190,11 +190,13 @@ export function withCustomEntities<T extends { id: EntityId }>({
             label: 'Cancelar',
             severity: 'secondary',
             outlined: true,
+            rounded: true,
           },
           acceptButtonProps: {
             label: 'Eliminar',
-            severity: 'error',
+            severity: 'danger',
             icon: 'pi pi-trash',
+            rounded: true,
           },
           accept: () => {
             patchState(state, { isLoading: true, error: null });
