@@ -1,4 +1,4 @@
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, JsonPipe, NgClass } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -39,6 +39,7 @@ import { EmployeesStore } from '../stores/employees.store';
     Avatar,
     ToastModule,
     NgClass,
+    JsonPipe,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -227,15 +228,11 @@ export class TimelogsComponent {
   });
 
   public schedules = httpResource<any[]>(() => {
-    if (!this.employeeId()) {
-      return undefined;
-    }
     return {
       url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employee_schedules`,
       method: 'GET',
       params: {
         select: '*,schedule:schedules(*)',
-        employee_id: `eq.${this.employeeId()}`,
         start_date: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
         end_date: `lte.${format(this.dateRange()[1], 'yyyy-MM-dd 06:00:00')}`,
       },
@@ -302,6 +299,8 @@ export class TimelogsComponent {
                   schedule.start_date <= day &&
                   schedule.end_date >= day
               );
+
+            console.log({ schedule });
 
             acc.push({
               employee: x.employee,
