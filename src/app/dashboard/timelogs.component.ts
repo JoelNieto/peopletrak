@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -39,7 +39,6 @@ import { EmployeesStore } from '../stores/employees.store';
     Avatar,
     ToastModule,
     NgClass,
-    JsonPipe,
   ],
   template: `<p-card
     header="Marcaciones"
@@ -300,8 +299,6 @@ export class TimelogsComponent {
                   schedule.end_date >= day
               );
 
-            console.log({ schedule });
-
             acc.push({
               employee: x.employee,
               day,
@@ -334,8 +331,6 @@ export class TimelogsComponent {
               if (delay > 0) {
                 acc[index].delay = delay;
               }
-            } else {
-              acc[index].delay = 'SIN MARCA';
             }
           }
         }
