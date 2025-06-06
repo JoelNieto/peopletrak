@@ -292,9 +292,11 @@ import { EmployeeFormComponent } from './employee-form.component';
 
             }
             <td>{{ item.document_id }}</td>
-            <td>{{ item.branch.name }}</td>
-            <td>{{ item.department.name }}</td>
-            <td>{{ item.position.name }}</td>
+            <td [class.text-red-600]="!item.branch">
+              {{ item.branch?.name || 'SIN SUCURSAL' }}
+            </td>
+            <td>{{ item.department?.name || 'SIN AREA' }}</td>
+            <td>{{ item.position?.name || 'SIN CARGO' }}</td>
             <td>{{ item.monthly_salary | currency : '$' }}</td>
             <td>{{ item.uniform_size }}</td>
             <td>{{ item.start_date | date : 'mediumDate' }}</td>

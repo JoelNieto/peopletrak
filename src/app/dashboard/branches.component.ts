@@ -55,7 +55,7 @@ import { BranchesFormComponent } from './branches-form.component';
                 <p-sortIcon field="address" />
               </th>
               <th>IP</th>
-              <th></th>
+              <th pFrozenColumn alignFrozen="right"></th>
             </tr>
           </ng-template>
           <ng-template #body let-item>
@@ -64,7 +64,7 @@ import { BranchesFormComponent } from './branches-form.component';
               <td>{{ item.short_name }}</td>
               <td>{{ item.address }}</td>
               <td>{{ item.ip }}</td>
-              <td>
+              <td pFrozenColumn alignFrozen="right">
                 <p-button
                   severity="success"
                   icon="pi pi-pen-to-square"
