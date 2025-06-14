@@ -110,6 +110,18 @@ export const DASHBOARD_ROUTES: Routes = [
         ],
       },
       {
+        path: 'payroll',
+        loadComponent: () =>
+          import('./payroll.component').then((x) => x.PayrollComponent),
+        children: [
+          {
+            path: 'creditors',
+            loadComponent: () =>
+              import('./creditors.component').then((x) => x.CreditorsComponent),
+          },
+        ],
+      },
+      {
         path: 'timeclock',
         loadComponent: () =>
           import('../timeclock.component').then((x) => x.TimeclockComponent),

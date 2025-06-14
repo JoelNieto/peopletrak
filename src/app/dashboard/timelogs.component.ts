@@ -19,6 +19,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { utils, writeFile } from 'xlsx';
 import { Branch, colorVariants, Employee } from '../models';
@@ -39,11 +40,21 @@ import { EmployeesStore } from '../stores/employees.store';
     Avatar,
     ToastModule,
     NgClass,
+    ToggleSwitch,
   ],
   template: `<p-card
     header="Marcaciones"
     subheader="Listado de marcaciones de empleados"
   >
+    <div class="flex items-center gap-2 mb-3">
+      <label for="delayed">Solo retrasos</label>
+      <p-toggleSwitch
+        inputId="delayed"
+        [(ngModel)]="onlyDelayed"
+        onLabel="Solo retrasos"
+        offLabel="Todos"
+      />
+    </div>
     <div class="flex flex-col md:flex-row gap-3 items-center mb-3">
       <div class="input-container">
         <p-select
@@ -76,6 +87,7 @@ import { EmployeesStore } from '../stores/employees.store';
           [(ngModel)]="dateRange"
         />
       </div>
+
       <div>
         <p-button
           icon="pi pi-file-excel"
@@ -87,7 +99,7 @@ import { EmployeesStore } from '../stores/employees.store';
       </div>
     </div>
     <p-table
-      [value]="dayLogs()"
+      [value]="filteredDaylogs()"
       [rows]="10"
       paginator
       showGridlines
@@ -205,6 +217,7 @@ export class TimelogsComponent {
   public employeeId = model<string>();
   public branchId = model<string>();
   public store = inject(DashboardStore);
+  public onlyDelayed = signal(false);
 
   public loading = signal(false);
   private message = inject(MessageService);
@@ -328,7 +341,8 @@ export class TimelogsComponent {
               const entryTime = format(acc[index].entry.date, 'hh:mm:ss');
               const scheduleTime = acc[index].schedule.schedule.entry_time;
               const delay = this.calcTimeDiff(entryTime, scheduleTime);
-              if (delay > 0) {
+
+              if (delay > acc[index].schedule.schedule.minutes_tolerance) {
                 acc[index].delay = delay;
               }
             }
@@ -339,6 +353,10 @@ export class TimelogsComponent {
       .sort((a, b) =>
         (a.employee.first_name || '').localeCompare(b.employee.first_name || '')
       )
+  );
+
+  public filteredDaylogs = computed(() =>
+    this.dayLogs().filter((x) => (this.onlyDelayed() ? x.delay : true))
   );
 
   calcTimeDiff = (time1: string, time2: string) => {

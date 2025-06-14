@@ -80,7 +80,15 @@ import { SchedulesStore } from '../stores/schedules.store';
                   >
                     <i class="pi pi-building"></i> Administracion</a
                   >
-                  } @if(store.isScheduleAdmin()) {
+                  }
+                  <a
+                    routerLink="/payroll"
+                    routerLinkActive="selected"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                  >
+                    <i class="pi pi-money-bill"></i> Nomina</a
+                  >
+                  @if(store.isScheduleAdmin()) {
                   <a
                     routerLink="/time-management"
                     routerLinkActive="selected"
@@ -165,7 +173,16 @@ import { SchedulesStore } from '../stores/schedules.store';
               ><i class="pi pi-calendar"></i> Gestión de tiempo</a
             >
             }
-
+            <a
+              routerLink="/payroll"
+              [routerLinkActive]="[
+                'bg-gray-900',
+                'hover:bg-gray-900',
+                'text-white'
+              ]"
+              class="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex gap-2 items-center "
+              ><i class="pi pi-money-bill"></i> Nomina</a
+            >
             <a
               routerLink="/timeclock"
               [routerLinkActive]="[
