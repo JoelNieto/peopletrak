@@ -10,6 +10,7 @@ import {
 import { differenceInMonths, getMonth } from 'date-fns';
 import { Branch } from '../models';
 import { AuthStore } from './auth.store';
+import { BanksStore } from './banks.store';
 import { BranchesStore } from './branches.store';
 import { CompaniesStore } from './companies.store';
 import { DepartmentsStore } from './departments.store';
@@ -37,6 +38,7 @@ export const DashboardStore = signalStore(
     departments: inject(DepartmentsStore),
     schedules: inject(SchedulesStore),
     auth: inject(AuthStore),
+    banks: inject(BanksStore),
   })),
   withComputed(
     ({ employees, branches, companies, selectedCompanyId, auth }) => {
@@ -88,6 +90,16 @@ export const DashboardStore = signalStore(
           }
           return acc;
         }, [])
+      );
+
+      const countByGender = computed(() =>
+        employees
+          .entities()
+          .filter((x) => x.is_active)
+          .reduce((acc, item) => {
+            acc[item.gender] = (acc[item.gender] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>)
       );
 
       const birthDates = computed(() =>
@@ -160,6 +172,7 @@ export const DashboardStore = signalStore(
         isScheduleApprover,
         currentBranch,
         monthlyBudget,
+        countByGender,
       };
     }
   ),

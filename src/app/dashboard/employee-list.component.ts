@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -44,6 +44,7 @@ import { EmployeeFormComponent } from './employee-form.component';
     FormsModule,
     Button,
     MultiSelectModule,
+    NgClass,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -66,6 +67,8 @@ import { EmployeeFormComponent } from './employee-form.component';
         dataKey="id"
         stripedRows
         paginatorDropdownAppendTo="body"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
       >
         <ng-template #caption>
           <div class="flex flex-col md:flex-row justify-between">
@@ -140,7 +143,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th pSortableColumn="birth_date">
               Fecha de nacimiento <p-sortIcon field="birth_date" />
             </th>
-            <th>Sexo</th>
+            <th pSortableColumn="gender">Sexo <p-sortIcon field="gender" /></th>
             <th pSortableColumn="created_at">
               Creado <p-sortIcon field="created_at" />
             </th>
@@ -268,7 +271,42 @@ import { EmployeeFormComponent } from './employee-form.component';
               </p-columnFilter>
             </th>
             <th></th>
-            <th></th>
+            <th>
+              <p-columnFilter
+                field="gender"
+                matchMode="equals"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [showApplyButton]="false"
+                [showClearButton]="false"
+              >
+                <ng-template
+                  pTemplate="filter"
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <p-select
+                    [options]="genders"
+                    [ngModel]="value"
+                    (onChange)="filter($event.value)"
+                    placeholder="Elija uno"
+                    [showClear]="true"
+                  >
+                    <ng-template let-option #item>
+                      <div class="flex items-center gap-2">
+                        <i
+                          [ngClass]="
+                            option.value === 'M' ? 'pi pi-mars' : 'pi pi-venus'
+                          "
+                        ></i>
+                        {{ option.label }}
+                      </div>
+                    </ng-template>
+                  </p-select>
+                </ng-template>
+              </p-columnFilter>
+            </th>
             <th></th>
             <th></th>
           </tr>
@@ -310,7 +348,18 @@ import { EmployeeFormComponent } from './employee-form.component';
                 item.birth_date | age
               }})
             </td>
-            <td>{{ item.gender }}</td>
+            <td>
+              <span class="flex items-center gap-2">
+                <i
+                  [ngClass]="
+                    item.gender === 'M'
+                      ? 'pi pi-mars text-sky-600 dark:text-sky-400'
+                      : 'pi pi-venus text-pink-600 dark:text-pink-400'
+                  "
+                ></i>
+                {{ item.gender === 'M' ? 'Masculino' : 'Femenino' }}
+              </span>
+            </td>
             <td>{{ item.created_at | date : 'medium' }}</td>
             <td>
               <p-button
@@ -344,6 +393,10 @@ export class EmployeeListComponent implements OnInit {
   public probatories = [
     { label: 'Probatorio', value: true },
     { label: 'Regular', value: false },
+  ];
+  public genders = [
+    { label: 'Masculino', value: 'M' },
+    { label: 'Femenino', value: 'F' },
   ];
 
   public inactiveValue = toSignal(this.inactiveToggle.valueChanges, {

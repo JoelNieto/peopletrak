@@ -13,6 +13,7 @@ import { Avatar } from 'primeng/avatar';
 import { Button } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { AuthStore } from '../stores/auth.store';
+import { BanksStore } from '../stores/banks.store';
 import { BranchesStore } from '../stores/branches.store';
 import { CompaniesStore } from '../stores/companies.store';
 import { DashboardStore } from '../stores/dashboard.store';
@@ -34,6 +35,7 @@ import { SchedulesStore } from '../stores/schedules.store';
     PositionsStore,
     DepartmentsStore,
     SchedulesStore,
+    BanksStore,
   ],
   imports: [
     RouterOutlet,

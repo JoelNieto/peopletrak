@@ -4,32 +4,32 @@ import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
-import { Creditor } from '../models';
-import { PayrollStore } from '../stores/payroll.store';
-import { CreditorsFormComponent } from './creditors-form.component';
+import { Bank } from '../models';
+import { DashboardStore } from '../stores/dashboard.store';
+import { BanksFormComponent } from './banks-form.component';
 
 @Component({
-  selector: 'pt-creditors',
+  selector: 'pt-banks',
   imports: [TableModule, Button, Card, DatePipe],
   providers: [DynamicDialogRef, DialogService],
   template: `<p-card>
-    <ng-template #title>Acreedores</ng-template>
-    <ng-template #subtitle>Listado de acreedores</ng-template>
-    <div class="w-full flex justify-end">
+    <ng-template #title> Bancos </ng-template>
+    <ng-template #subtitle> Lista de bancos </ng-template>
+    <div class="flex justify-end">
       <p-button
-        (click)="editCreditor()"
-        label="Agregar"
+        label="Nuevo"
         icon="pi pi-plus-circle"
         rounded
+        (onClick)="editBank()"
       />
     </div>
     <p-table
-      [value]="store.creditors.entities()"
+      [value]="store.banks.entities()"
       [paginator]="true"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 20]"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} acreedores"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} bancos"
     >
       <ng-template #header>
         <tr>
@@ -54,14 +54,14 @@ import { CreditorsFormComponent } from './creditors-form.component';
               text
               rounded
               icon="pi pi-pen-to-square"
-              (onClick)="editCreditor(item)"
+              (onClick)="editBank(item)"
             />
             <p-button
               severity="danger"
               text
               rounded
               icon="pi pi-trash"
-              (onClick)="store.creditors.deleteItem(item.id)"
+              (onClick)="store.banks.deleteItem(item.id)"
             />
           </td>
         </tr>
@@ -71,16 +71,16 @@ import { CreditorsFormComponent } from './creditors-form.component';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CreditorsComponent {
-  public store = inject(PayrollStore);
-  private ref = inject(DynamicDialogRef);
-  private dialogService = inject(DialogService);
+export class BanksComponent {
+  public store = inject(DashboardStore);
+  public ref = inject(DynamicDialogRef);
+  public dialogService = inject(DialogService);
 
-  editCreditor(creditor?: Creditor) {
-    this.ref = this.dialogService.open(CreditorsFormComponent, {
+  editBank(bank?: Bank) {
+    this.ref = this.dialogService.open(BanksFormComponent, {
       width: '36rem',
-      data: { creditor },
-      header: 'Datos del accreedor',
+      data: { bank },
+      header: 'Datos del banco',
       modal: true,
     });
   }

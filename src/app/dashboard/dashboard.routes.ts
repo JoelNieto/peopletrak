@@ -119,6 +119,11 @@ export const DASHBOARD_ROUTES: Routes = [
             loadComponent: () =>
               import('./creditors.component').then((x) => x.CreditorsComponent),
           },
+          {
+            path: 'banks',
+            loadComponent: () =>
+              import('./banks.component').then((x) => x.BanksComponent),
+          },
         ],
       },
       {

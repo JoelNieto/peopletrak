@@ -131,6 +131,24 @@ export type Schedule = {
   max_lunch_minutes?: number;
 };
 
+export type Creditor = {
+  id: string;
+  name: string;
+  created_at?: Date;
+};
+
+export type Bank = {
+  id: string;
+  name: string;
+  created_at?: Date;
+};
+
+export type Payroll = {
+  id: string;
+  name: string;
+  created_at?: Date;
+};
+
 export enum TimelogType {
   entry = 'Entrada',
   lunch_start = 'Inicio Almuerzo',
