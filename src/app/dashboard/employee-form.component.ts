@@ -70,9 +70,9 @@ import { DashboardStore } from '../stores/dashboard.store';
           (click)="cancelChanges()"
         />
         <p-button
-          label="Guardar cambios"
-          type="submit"
           form="employee-form"
+          label="Guardar cambios"
+          (click)="saveChanges()"
           icon="pi pi-save"
           rounded
           [loading]="store.employees.isLoading()"
