@@ -274,7 +274,7 @@ export class TimelogsComponent {
       employee_id?: string;
     } = {
       select:
-        '*,employee:employees(id,first_name,father_name, branch:branches(id, name)),branch:branches(*)',
+        '*,employee:employees(id,first_name,father_name, branch:branches(id, name)),branch:branches(id, name, short_name)',
       created_at: `gte.${format(this.dateRange()[0], 'yyyy-MM-dd 06:00:00')}`,
     };
     if (this.employeeId()) {

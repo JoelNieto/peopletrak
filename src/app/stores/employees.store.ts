@@ -22,12 +22,12 @@ export const EmployeesStore = signalStore(
   withCustomEntities<Employee>({
     name: 'employees',
     query:
-      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,company_id,branch_id,department_id,position_id,bank,account_number,bank_account_type,created_at,branch:branches(id, name, short_name),department:departments(id, name),position:positions(id, name, admin, schedule_admin, schedule_approver), address, code_uri, qr_code, work_email',
+      'id,first_name,middle_name,father_name,mother_name,birth_date,gender,start_date,monthly_salary,document_id,end_date,email,phone_number,is_active,uniform_size,company_id,branch_id,department_id,position_id,bank,account_number,bank_account_type,created_at,branch:branches(id, name, short_name),department:departments(id, name),position:positions(id, name, admin, schedule_admin, schedule_approver), address,work_email',
     detailsQuery:
       '*, branch:branches(*), department:departments(*), position:positions(*)',
   }),
-  withComputed((state) => ({
-    employeesList: computed(() =>
+  withComputed((state) => {
+    const employeesList = computed(() =>
       state
         .entities()
         .map((item) => ({
@@ -39,8 +39,15 @@ export const EmployeesStore = signalStore(
             differenceInMonths(new Date(), item.start_date ?? new Date()) < 3,
         }))
         .sort((a, b) => a.full_name.localeCompare(b.full_name))
-    ),
-  })),
+    );
+    const activeEmployees = computed(() =>
+      employeesList().filter((x) => x.is_active)
+    );
+    return {
+      employeesList,
+      activeEmployees,
+    };
+  }),
   withMethods((state) => ({
     terminateEmployee(request: Termination) {
       patchState(state, { isLoading: true, error: null });

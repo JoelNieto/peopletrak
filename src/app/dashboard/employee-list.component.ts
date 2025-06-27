@@ -15,8 +15,8 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ProgressBar } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitch } from 'primeng/toggleswitch';
@@ -36,10 +36,10 @@ import { EmployeeFormComponent } from './employee-form.component';
     CurrencyPipe,
     Select,
     ToggleSwitch,
-    ProgressBar,
     TableModule,
     MenuModule,
     Card,
+    Skeleton,
     Tag,
     FormsModule,
     Button,
@@ -53,13 +53,10 @@ import { EmployeeFormComponent } from './employee-form.component';
       <ng-template #subtitle
         >Listado de colaboradores de la empresa</ng-template
       >
-
-      @if (store.employees.isLoading()) {
-      <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
-      }
       <p-table
         #dt
         [value]="this.filtered()"
+        [loading]="store.employees.isLoading()"
         [paginator]="true"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
@@ -107,8 +104,8 @@ import { EmployeeFormComponent } from './employee-form.component';
         </ng-template>
         <ng-template #header>
           <tr>
-            <th style="width:22%" pSortableColumn="full_name">
-              Nombre <p-sortIcon field="first_name" />
+            <th style="width:22%" pSortableColumn="short_name">
+              Nombre <p-sortIcon field="short_name" />
             </th>
             @if (inactiveValue()) {
             <th pSortableColumn="is_active">
@@ -153,7 +150,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th>
               <p-columnFilter
                 type="text"
-                field="full_name"
+                field="short_name"
                 placeholder="Buscar por nombre"
                 ariaLabel="Filter Name"
               />
@@ -317,7 +314,7 @@ import { EmployeeFormComponent } from './employee-form.component';
               <a
                 [routerLink]="item.id"
                 class="text-primary-700 font-semibold hover:underline"
-                >{{ item.first_name }} {{ item.father_name }}</a
+                >{{ item.short_name }}</a
               >
             </td>
             @if (inactiveValue()) {
@@ -376,6 +373,15 @@ import { EmployeeFormComponent } from './employee-form.component';
                 severity="success"
               />
             </td>
+          </tr>
+        </ng-template>
+        <ng-template #loadingbody>
+          <tr style="height: 5rem">
+            @for (col of dt.columns; track $index) {
+            <td [attr.colspan]="col">
+              <p-skeleton shape="circle" size="5rem" class="mx-auto" />
+            </td>
+            }
           </tr>
         </ng-template>
       </p-table>

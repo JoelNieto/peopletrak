@@ -14,6 +14,18 @@ import { PayrollStore } from '../stores/payroll.store';
         <div class="block w-full overflow-scroll">
           <div class="flex gap-4">
             <a
+              routerLink="payrolls"
+              class="flex gap-2 items-center rounded-full font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:text-gray-600 px-4 py-2"
+              [routerLinkActive]="[
+                'bg-primary-100',
+                'hover:bg-primary-100',
+                'text-primary-900',
+                'dark:text-primary-900',
+                'dark:hover:text-primary-900'
+              ]"
+              ><i class="pi pi-money-bill"></i>Planillas</a
+            >
+            <a
               routerLink="creditors"
               class="flex gap-2 items-center rounded-full font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:text-gray-600 px-4 py-2"
               [routerLinkActive]="[

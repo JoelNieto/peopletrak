@@ -1,6 +1,8 @@
+import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   Injector,
@@ -8,6 +10,7 @@ import {
   OnInit,
   untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -24,10 +27,13 @@ import { DatePicker } from 'primeng/datepicker';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
+import { TabsModule } from 'primeng/tabs';
 import QRCode from 'qrcode';
+import { debounceTime } from 'rxjs';
 import { markGroupDirty } from 'src/app/services/util.service';
 import { v4 } from 'uuid';
-import { Employee, UniformSize } from '../models';
+import { Bank, Employee, UniformSize } from '../models';
 import { DashboardStore } from '../stores/dashboard.store';
 
 @Component({
@@ -40,259 +46,322 @@ import { DashboardStore } from '../stores/dashboard.store';
     Select,
     Checkbox,
     Button,
+    TabsModule,
+    Skeleton,
   ],
   template: `
-    <h1>Datos del empleado</h1>
-    <p-button
-      text
-      label="Volver al listado"
-      icon="pi pi-arrow-left"
-      (onClick)="cancelChanges(true)"
-    />
-    <form class="mt-4" [formGroup]="form" (ngSubmit)="saveChanges()">
-      <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
-        <div class="input-container">
-          <label for="first_name">* Nombre</label>
-          <input
-            type="text"
-            id="first_name"
-            pInputText
-            formControlName="first_name"
-            placeholder="Nombre"
-          />
-        </div>
-        <div class="input-container">
-          <label for="middle_name">Segundo Nombre</label>
-          <input
-            type="text"
-            id="middle_name"
-            pInputText
-            formControlName="middle_name"
-            placeholder="Segundo Nombre"
-          />
-        </div>
-        <div class="input-container">
-          <label for="father_name">Apellido</label>
-          <input
-            type="text"
-            id="father_name"
-            pInputText
-            formControlName="father_name"
-            placeholder="Apellido"
-          />
-        </div>
-        <div class="input-container">
-          <label for="mother_name">Apellido materno/casada</label>
-          <input
-            type="text"
-            id="mother_name"
-            pInputText
-            formControlName="mother_name"
-            placeholder="Apellido materno"
-          />
-        </div>
-        <div class="input-container">
-          <label for="birth_date">Fecha de nacimiento</label>
-          <p-datepicker
-            inputId="birth_date"
-            formControlName="birth_date"
-            iconDisplay="input"
-            [showIcon]="true"
-            appendTo="body"
-            placeholder="dd/mm/yyyy"
-          />
-        </div>
-        <div class="input-container">
-          <label for="document_id">Cédula</label>
-          <input
-            type="text"
-            id="document_id"
-            pInputText
-            formControlName="document_id"
-            placeholder="Cédula de identidad"
-          />
-        </div>
-        <div class="input-container">
-          <label for="address">Dirección</label>
-          <input
-            type="text"
-            id="address"
-            pInputText
-            formControlName="address"
-            placeholder="Calle, Ciudad, Provincia"
-          />
-        </div>
-        <div class="input-container">
-          <label for="email">Email</label>
-          <input type="email" id="email" pInputText formControlName="email" />
-        </div>
-        <div class="input-container">
-          <label for="work_email">Email laboral</label>
-          <input
-            type="email"
-            id="work_email"
-            pInputText
-            formControlName="work_email"
-          />
-        </div>
-        <div class="input-container">
-          <label for="phone_number">Nro. Teléfono</label>
-          <input
-            type="text"
-            id="phone_number"
-            pInputText
-            formControlName="phone_number"
-            placeholder="Teléfono"
-          />
-        </div>
-        <div class="input-container">
-          <label for="gender">Sexo</label>
-          <p-select
-            inputId="gender"
-            [options]="['F', 'M']"
-            formControlName="gender"
-            appendTo="body"
-            placeholder="Seleccione un sexo"
-          />
-        </div>
-        <div class="input-container">
-          <label for="branch">Sucursal</label>
-          <p-select
-            [options]="store.branches.entities()"
-            optionLabel="name"
-            optionValue="id"
-            inputId="branch"
-            formControlName="branch_id"
-            appendTo="body"
-            placeholder="Seleccione una sucursal"
-          />
-        </div>
-        <div class="input-container">
-          <label for="department">Area</label>
-          <p-select
-            [options]="store.departments.entities()"
-            optionLabel="name"
-            optionValue="id"
-            inputId="department"
-            formControlName="department_id"
-            appendTo="body"
-            placeholder="Seleccione un area"
-          />
-        </div>
-        <div class="input-container">
-          <label for="position">Cargo</label>
-          <p-select
-            [options]="store.positions.entities()"
-            optionLabel="name"
-            optionValue="id"
-            inputId="position"
-            formControlName="position_id"
-            appendTo="body"
-            placeholder="Seleccione un cargo"
-          />
-        </div>
-        <div class="input-container">
-          <label for="salary">Salario</label>
-          <p-inputNumber
-            mode="currency"
-            currency="USD"
-            formControlName="monthly_salary"
-            id="salary"
-            placeholder="Salario mensual"
-          />
-        </div>
-        <div class="input-container">
-          <label for="size">Talla</label>
-          <p-select
-            inputId="size"
-            [options]="sizes"
-            formControlName="uniform_size"
-            appendTo="body"
-            placeholder="Seleccione una talla"
-          />
-        </div>
-        <div class="input-container">
-          <label for="start_date">Fecha de inicio</label>
-          <p-datepicker
-            inputId="start_date"
-            formControlName="start_date"
-            iconDisplay="input"
-            [showIcon]="true"
-            appendTo="body"
-            placeholder="dd/mm/yyyy"
-          />
-        </div>
-        <div class="input-container">
-          <label for="bank">Banco</label>
-          <p-select
-            inputId="bank"
-            [options]="banks"
-            formControlName="bank"
-            appendTo="body"
-            filter
-            placeholder="Seleccione un banco"
-          />
-        </div>
-        <div class="input-container">
-          <label for="account_number">Nro. de cuenta</label>
-          <input
-            type="text"
-            id="account_number"
-            pInputText
-            formControlName="account_number"
-            placeholder="Nro. de cuenta"
-          />
-        </div>
-        <div class="input-container">
-          <label for="bank_account_type">Tipo de cuenta</label>
-          <p-select
-            inputId="bank_account_type"
-            [options]="['Ahorros', 'Corriente']"
-            formControlName="bank_account_type"
-            appendTo="body"
-            placeholder="Seleccione un tipo de cuenta"
-          />
-        </div>
-        <div class="input-container">
-          <label for="company">Empresa</label>
-          <p-select
-            [options]="store.companies.entities()"
-            optionLabel="name"
-            optionValue="id"
-            inputId="company"
-            formControlName="company_id"
-            placeholder="Seleccione una empresa"
-            appendTo="body"
-          />
-        </div>
-        <div class="flex gap-2 items-center">
-          <p-checkbox
-            formControlName="is_active"
-            [binary]="true"
-            inputId="is_active"
-          />
-          <label for="is_active">Activo</label>
-        </div>
-
-        <div class="flex col-span-4 justify-end gap-2">
-          <p-button
-            label="Cancelar"
-            severity="secondary"
-            outlined
-            rounded
-            icon="pi pi-refresh"
-            (click)="cancelChanges()"
-          />
-          <p-button
-            label="Guardar cambios"
-            type="submit"
-            icon="pi pi-save"
-            rounded
-            [loading]="store.employees.isLoading()"
-          />
-        </div>
+    <div class="flex items-center justify-between">
+      <div class="flex flex-col items-center gap-2">
+        <h1>Datos del empleado</h1>
+        <p-button
+          text
+          label="Volver al listado"
+          icon="pi pi-arrow-left"
+          (onClick)="cancelChanges(true)"
+        />
       </div>
+      <div class="flex col-span-4 justify-end gap-2">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          outlined
+          rounded
+          icon="pi pi-refresh"
+          (click)="cancelChanges()"
+        />
+        <p-button
+          label="Guardar cambios"
+          type="submit"
+          form="employee-form"
+          icon="pi pi-save"
+          rounded
+          [loading]="store.employees.isLoading()"
+        />
+      </div>
+    </div>
+    @if(currentEmployee.isLoading()) {
+    <div class="flex flex-col md:grid grid-cols-4 md:gap-4 ">
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+      <p-skeleton shape="rectangle" height="2rem" />
+    </div>
+    } @else {
+    <form
+      class="mt-4"
+      [formGroup]="form"
+      (ngSubmit)="saveChanges()"
+      id="employee-form"
+    >
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0">Datos personales</p-tab>
+          <p-tab value="1">Datos laborales</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="0">
+            <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
+              <div class="input-container">
+                <label for="first_name">* Nombre</label>
+                <input
+                  type="text"
+                  id="first_name"
+                  pInputText
+                  formControlName="first_name"
+                  placeholder="Nombre"
+                />
+              </div>
+              <div class="input-container">
+                <label for="middle_name">Segundo Nombre</label>
+                <input
+                  type="text"
+                  id="middle_name"
+                  pInputText
+                  formControlName="middle_name"
+                  placeholder="Segundo Nombre"
+                />
+              </div>
+              <div class="input-container">
+                <label for="father_name">Apellido</label>
+                <input
+                  type="text"
+                  id="father_name"
+                  pInputText
+                  formControlName="father_name"
+                  placeholder="Apellido"
+                />
+              </div>
+              <div class="input-container">
+                <label for="mother_name">Apellido materno/casada</label>
+                <input
+                  type="text"
+                  id="mother_name"
+                  pInputText
+                  formControlName="mother_name"
+                  placeholder="Apellido materno"
+                />
+              </div>
+              <div class="input-container">
+                <label for="birth_date">Fecha de nacimiento</label>
+                <p-datepicker
+                  inputId="birth_date"
+                  formControlName="birth_date"
+                  iconDisplay="input"
+                  [showIcon]="true"
+                  appendTo="body"
+                  placeholder="dd/mm/yyyy"
+                />
+              </div>
+              <div class="input-container">
+                <label for="document_id">Cédula</label>
+                <input
+                  type="text"
+                  id="document_id"
+                  pInputText
+                  formControlName="document_id"
+                  placeholder="Cédula de identidad"
+                />
+              </div>
+              <div class="input-container">
+                <label for="address">Dirección</label>
+                <input
+                  type="text"
+                  id="address"
+                  pInputText
+                  formControlName="address"
+                  placeholder="Calle, Ciudad, Provincia"
+                />
+              </div>
+              <div class="input-container">
+                <label for="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  pInputText
+                  formControlName="email"
+                />
+              </div>
+              <div class="input-container">
+                <label for="work_email">Email laboral</label>
+                <input
+                  type="email"
+                  id="work_email"
+                  pInputText
+                  formControlName="work_email"
+                />
+              </div>
+              <div class="input-container">
+                <label for="phone_number">Nro. Teléfono</label>
+                <input
+                  type="text"
+                  id="phone_number"
+                  pInputText
+                  formControlName="phone_number"
+                  placeholder="Teléfono"
+                />
+              </div>
+              <div class="input-container">
+                <label for="gender">Sexo</label>
+                <p-select
+                  inputId="gender"
+                  [options]="['F', 'M']"
+                  formControlName="gender"
+                  appendTo="body"
+                  placeholder="Seleccione un sexo"
+                />
+              </div>
+              <div class="input-container">
+                <label for="size">Talla</label>
+                <p-select
+                  inputId="size"
+                  [options]="sizes"
+                  formControlName="uniform_size"
+                  appendTo="body"
+                  placeholder="Seleccione una talla"
+                />
+              </div>
+
+              <div class="input-container">
+                <label for="bank">Banco</label>
+                <p-select
+                  inputId="bank"
+                  [options]="banks.value()"
+                  formControlName="bank"
+                  optionLabel="name"
+                  optionValue="id"
+                  appendTo="body"
+                  filter
+                  placeholder="Seleccione un banco"
+                />
+              </div>
+              <div class="input-container">
+                <label for="account_number">Nro. de cuenta</label>
+                <input
+                  type="text"
+                  id="account_number"
+                  pInputText
+                  formControlName="account_number"
+                  placeholder="Nro. de cuenta"
+                />
+              </div>
+              <div class="input-container">
+                <label for="bank_account_type">Tipo de cuenta</label>
+                <p-select
+                  inputId="bank_account_type"
+                  [options]="['Ahorros', 'Corriente']"
+                  formControlName="bank_account_type"
+                  appendTo="body"
+                  placeholder="Seleccione un tipo de cuenta"
+                />
+              </div>
+              <div class="flex gap-2 items-center">
+                <p-checkbox
+                  formControlName="is_active"
+                  [binary]="true"
+                  inputId="is_active"
+                />
+                <label for="is_active">Activo</label>
+              </div>
+            </div>
+          </p-tabpanel>
+          <p-tabpanel value="1">
+            <div class="flex flex-col md:grid grid-cols-4 md:gap-4">
+              <div class="input-container">
+                <label for="company">Empresa</label>
+                <p-select
+                  [options]="store.companies.entities()"
+                  optionLabel="name"
+                  optionValue="id"
+                  inputId="company"
+                  formControlName="company_id"
+                  placeholder="Seleccione una empresa"
+                  appendTo="body"
+                />
+              </div>
+              <div class="input-container">
+                <label for="position">Cargo</label>
+                <p-select
+                  [options]="store.positions.entities()"
+                  optionLabel="name"
+                  optionValue="id"
+                  inputId="position"
+                  formControlName="position_id"
+                  appendTo="body"
+                  placeholder="Seleccione un cargo"
+                />
+              </div>
+              <div class="input-container">
+                <label for="department">Area</label>
+                <p-select
+                  [options]="store.departments.entities()"
+                  optionLabel="name"
+                  optionValue="id"
+                  inputId="department"
+                  formControlName="department_id"
+                  appendTo="body"
+                  placeholder="Seleccione un area"
+                />
+              </div>
+              <div class="input-container">
+                <label for="branch">Sucursal</label>
+                <p-select
+                  [options]="store.branches.entities()"
+                  optionLabel="name"
+                  optionValue="id"
+                  inputId="branch"
+                  formControlName="branch_id"
+                  placeholder="Seleccione una sucursal"
+                  appendTo="body"
+                />
+              </div>
+              <div class="input-container">
+                <label for="salary">Salario mensual</label>
+                <p-inputNumber
+                  mode="currency"
+                  currency="USD"
+                  formControlName="monthly_salary"
+                  id="salary"
+                  placeholder="Salario mensual"
+                />
+              </div>
+              <div class="input-container">
+                <label for="hourly_salary">Salario por hora</label>
+                <p-inputNumber
+                  mode="currency"
+                  currency="USD"
+                  formControlName="hourly_salary"
+                  id="hourly_salary"
+                  placeholder="Salario por hora"
+                />
+              </div>
+              <div class="input-container">
+                <label for="start_date">Fecha de inicio</label>
+                <p-datepicker
+                  inputId="start_date"
+                  formControlName="start_date"
+                  iconDisplay="input"
+                  [showIcon]="true"
+                  appendTo="body"
+                  placeholder="dd/mm/yyyy"
+                />
+              </div>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
     </form>
+    }
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -300,31 +369,14 @@ import { DashboardStore } from '../stores/dashboard.store';
 export class EmployeeFormComponent implements OnInit {
   public store = inject(DashboardStore);
   public sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
-  public banks = [
-    'Banco General',
-    'Banco Nacional de Panama',
-    'Caja de Ahorros',
-    'Bac/Credomatic',
-    'Banistmo',
-    'Banesco',
-    'Banisi',
-    'Global Bank',
-    'Credicorp Bank',
-    'Multibank',
-    'Metrobank',
-    'Scotiabank',
-    'St. Georges Bank',
-    'Banco Hipotecario Nacional',
-    'Banco Aliado',
-    'Banco Azteca',
-    'Banco Panamá',
-    'Banco Prival',
-    'Banco Pichincha',
-    'Banco Lafise',
-    'Banco Delta',
-    'Banco Ficohsa',
-    'Banco Promerica',
-  ];
+
+  public banks = httpResource<Bank[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/banks`,
+    method: 'GET',
+    params: {
+      select: 'id,name',
+    },
+  }));
   public employee_id = input<string>();
   private injector = inject(Injector);
   private message = inject(MessageService);
@@ -384,6 +436,7 @@ export class EmployeeFormComponent implements OnInit {
     }),
     work_email: new FormControl('', { nonNullable: true }),
     monthly_salary: new FormControl(0, { nonNullable: true }),
+    hourly_salary: new FormControl(0, { nonNullable: true }),
     qr_code: new FormControl('', { nonNullable: true }),
     code_uri: new FormControl('', { nonNullable: true }),
     bank: new FormControl('', { nonNullable: true }),
@@ -394,20 +447,47 @@ export class EmployeeFormComponent implements OnInit {
   });
 
   private confirmationService = inject(ConfirmationService);
+  currentSalary = toSignal(
+    this.form.get('monthly_salary')!.valueChanges.pipe(debounceTime(500)),
+    {
+      initialValue: 0,
+    }
+  );
+
+  hourlySalary = computed(() => this.currentSalary() / (104.28 * 2));
+  currentEmployee = httpResource<Employee[]>(() => {
+    if (!this.employee_id()) {
+      return;
+    }
+    return {
+      url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+      method: 'GET',
+      params: {
+        select:
+          'id,first_name,father_name, middle_name, mother_name, document_id, email, phone_number, address, birth_date, start_date, branch_id, department_id, position_id, gender, uniform_size, is_active, company_id, work_email, monthly_salary, hourly_salary, qr_code, code_uri, bank, account_number, bank_account_type',
+        limit: '1',
+        order: 'father_name',
+        is_active: 'eq.true',
+        id: `eq.${this.employee_id()}`,
+      },
+    };
+  });
 
   ngOnInit() {
-    const employeeId = this.employee_id();
-    if (employeeId) {
-      this.store.employees.selectEntity(employeeId);
-    }
     effect(
       () => {
-        const employee = this.store.employees.selectedEntity();
+        const employee = this.currentEmployee.value()?.[0];
         if (!employee) return;
 
         untracked(() => {
           this.preloadForm(employee);
         });
+      },
+      { injector: this.injector }
+    );
+    effect(
+      () => {
+        this.form.get('hourly_salary')?.patchValue(this.hourlySalary());
       },
       { injector: this.injector }
     );

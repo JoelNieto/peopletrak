@@ -67,6 +67,7 @@ export type Employee = {
   account_number?: string;
   bank_account_type?: 'Ahorros' | 'Corriente';
   full_name?: string;
+  hourly_salary?: number;
 };
 
 export type TimeOffType = {
@@ -146,6 +147,71 @@ export type Bank = {
 export type Payroll = {
   id: string;
   name: string;
+  company_id?: string;
+  company?: Company;
+  deductions?: PayrollDeduction[];
+  created_at?: Date;
+};
+
+export type PayrollDeduction = {
+  id: string;
+  payroll_id: string;
+  name: string;
+  value: number;
+  min_salary: number;
+  calculation_type: 'fixed' | 'percentage';
+  created_at?: Date;
+};
+
+export type PayrollEmployee = {
+  id: string;
+  payroll_id: string;
+  employee_id: string;
+  monthly_salary: number;
+  hourly_salary: number;
+  employee: Employee;
+  created_at?: Date;
+};
+
+export type PayrollPayment = {
+  id: string;
+  payroll_id: string;
+  payroll?: Payroll;
+  start_date: Date;
+  end_date: Date;
+  status: 'PENDING' | 'PAID';
+  created_at?: Date;
+};
+
+export type PayrollPaymentEmployee = {
+  id: string;
+  payroll_id: string;
+  payroll_payment_id: string;
+  employee_id: string;
+  employee?: Partial<Employee>;
+  total_amount: number;
+  debt_amount: number;
+  overtime_amount: number;
+  late_amount: number;
+  absence_amount: number;
+  created_at?: Date;
+};
+
+export type AttendanceSheet = {
+  id?: string;
+  employee_id: string;
+  branch_id: string | null;
+  schedule_id: string | null;
+  date: Date | string;
+  entry_time: Date | null;
+  exit_time: Date | null;
+  lunch_start_time: Date | null;
+  lunch_end_time: Date | null;
+  is_late: boolean;
+  is_sunday: boolean;
+  is_holiday: boolean;
+  worked_hours: number;
+  late_hours: number;
   created_at?: Date;
 };
 
@@ -156,12 +222,20 @@ export enum TimelogType {
   exit = 'Salida',
 }
 
-export type TimeLogs = {
+export enum TimeLogEnum {
+  entry = 'entry',
+  lunch_start = 'lunch_start',
+  lunch_end = 'lunch_end',
+  exit = 'exit',
+}
+
+export type TimeLog = {
   id: string;
   employee_id: string;
+  employee?: Partial<Employee>;
   company_id: string;
   branch_id: string;
-  type: TimelogType;
+  type: TimeLogEnum;
   ip?: string;
   invalid_id?: boolean;
   created_at: Date;

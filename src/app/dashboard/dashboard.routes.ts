@@ -115,6 +115,25 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./payroll.component').then((x) => x.PayrollComponent),
         children: [
           {
+            path: 'payrolls',
+            loadComponent: () =>
+              import('./payrolls.component').then((x) => x.PayrollsComponent),
+          },
+          {
+            path: 'payrolls/:payroll_id',
+            loadComponent: () =>
+              import('./payrolls-details.component').then(
+                (x) => x.PayrollsDetailsComponent
+              ),
+          },
+          {
+            path: 'payrolls/:payroll_id/payments/:payment_id',
+            loadComponent: () =>
+              import('./payroll-payments-details.component').then(
+                (x) => x.PayrollPaymentsDetailsComponent
+              ),
+          },
+          {
             path: 'creditors',
             loadComponent: () =>
               import('./creditors.component').then((x) => x.CreditorsComponent),
@@ -124,6 +143,7 @@ export const DASHBOARD_ROUTES: Routes = [
             loadComponent: () =>
               import('./banks.component').then((x) => x.BanksComponent),
           },
+          { path: '', redirectTo: 'payrolls', pathMatch: 'full' },
         ],
       },
       {

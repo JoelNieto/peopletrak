@@ -77,7 +77,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Nombre completo
                     </dt>
@@ -94,7 +94,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Nro. documento
                     </dt>
@@ -108,7 +108,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Departamento
                     </dt>
@@ -122,7 +122,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Sucursal
                     </dt>
@@ -136,7 +136,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Cargo
                     </dt>
@@ -150,7 +150,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Salario
                     </dt>
@@ -164,7 +164,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Fecha de nacimiento (edad)
                     </dt>
@@ -180,7 +180,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Direccion
                     </dt>
@@ -194,7 +194,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Email/Email laboral
                     </dt>
@@ -208,7 +208,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Nro. Telefono
                     </dt>
@@ -222,7 +222,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Fecha de ingreso
                     </dt>
@@ -237,7 +237,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Talla
                     </dt>
@@ -251,7 +251,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
                   >
                     <dt
-                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-100"
+                      class="text-sm/6 font-medium text-primary-800 dark:text-primary-200"
                     >
                       Cuenta de banco
                     </dt>

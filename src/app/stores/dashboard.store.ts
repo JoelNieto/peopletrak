@@ -15,6 +15,7 @@ import { BranchesStore } from './branches.store';
 import { CompaniesStore } from './companies.store';
 import { DepartmentsStore } from './departments.store';
 import { EmployeesStore } from './employees.store';
+import { PayrollsStore } from './payrolls.store';
 import { PositionsStore } from './positions.store';
 import { SchedulesStore } from './schedules.store';
 
@@ -39,6 +40,7 @@ export const DashboardStore = signalStore(
     schedules: inject(SchedulesStore),
     auth: inject(AuthStore),
     banks: inject(BanksStore),
+    payrolls: inject(PayrollsStore),
   })),
   withComputed(
     ({ employees, branches, companies, selectedCompanyId, auth }) => {

@@ -19,6 +19,7 @@ import { CompaniesStore } from '../stores/companies.store';
 import { DashboardStore } from '../stores/dashboard.store';
 import { DepartmentsStore } from '../stores/departments.store';
 import { EmployeesStore } from '../stores/employees.store';
+import { PayrollsStore } from '../stores/payrolls.store';
 import { PositionsStore } from '../stores/positions.store';
 import { SchedulesStore } from '../stores/schedules.store';
 
@@ -36,6 +37,7 @@ import { SchedulesStore } from '../stores/schedules.store';
     DepartmentsStore,
     SchedulesStore,
     BanksStore,
+    PayrollsStore,
   ],
   imports: [
     RouterOutlet,
@@ -82,7 +84,7 @@ import { SchedulesStore } from '../stores/schedules.store';
                   >
                     <i class="pi pi-building"></i> Administracion</a
                   >
-                  }
+                  } @if(store.isAdmin()) {
                   <a
                     routerLink="/payroll"
                     routerLinkActive="selected"
@@ -90,7 +92,7 @@ import { SchedulesStore } from '../stores/schedules.store';
                   >
                     <i class="pi pi-money-bill"></i> Nomina</a
                   >
-                  @if(store.isScheduleAdmin()) {
+                  } @if(store.isScheduleAdmin()) {
                   <a
                     routerLink="/time-management"
                     routerLinkActive="selected"
