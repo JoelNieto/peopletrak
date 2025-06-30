@@ -104,7 +104,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         </ng-template>
         <ng-template #header>
           <tr>
-            <th style="width:22%" pSortableColumn="short_name">
+            <th style="width:22%" pSortableColumn="short_name" pFrozenColumn>
               Nombre <p-sortIcon field="short_name" />
             </th>
             @if (inactiveValue()) {
@@ -147,7 +147,7 @@ import { EmployeeFormComponent } from './employee-form.component';
             <th></th>
           </tr>
           <tr>
-            <th>
+            <th pFrozenColumn>
               <p-columnFilter
                 type="text"
                 field="short_name"
@@ -310,7 +310,7 @@ import { EmployeeFormComponent } from './employee-form.component';
         </ng-template>
         <ng-template #body let-item let-columns="columns">
           <tr>
-            <td>
+            <td pFrozenColumn>
               <a
                 [routerLink]="item.id"
                 class="text-primary-700 font-semibold hover:underline"

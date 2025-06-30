@@ -201,7 +201,9 @@ export type AttendanceSheet = {
   id?: string;
   employee_id: string;
   branch_id: string | null;
+  branch?: Branch;
   schedule_id: string | null;
+  schedule?: Schedule;
   date: Date | string;
   entry_time: Date | null;
   exit_time: Date | null;
@@ -209,9 +211,16 @@ export type AttendanceSheet = {
   lunch_end_time: Date | null;
   is_late: boolean;
   is_sunday: boolean;
+  worked_hours_payment: number;
+  late_hours_payment: number;
+  holiday_payment: number;
+  sunday_payment: number;
+  absence_hours: number;
+  absence_hours_payment: number;
   is_holiday: boolean;
   worked_hours: number;
   late_hours: number;
+  overtime_hours: number;
   created_at?: Date;
 };
 
@@ -235,6 +244,7 @@ export type TimeLog = {
   employee?: Partial<Employee>;
   company_id: string;
   branch_id: string;
+  branch?: Branch;
   type: TimeLogEnum;
   ip?: string;
   invalid_id?: boolean;
