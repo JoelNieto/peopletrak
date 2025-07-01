@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   OnInit,
@@ -12,8 +13,11 @@ import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MenuModule } from 'primeng/menu';
 
+import { httpResource } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Skeleton } from 'primeng/skeleton';
 import { TabsModule } from 'primeng/tabs';
+import { Employee } from '../models';
 import { AgePipe } from '../pipes/age.pipe';
 import { SeniorityPipe } from '../pipes/seniority.pipe';
 import { EmployeesStore } from '../stores/employees.store';
@@ -34,6 +38,7 @@ import { TimeOffsComponent } from './time-offs.component';
     SeniorityPipe,
     TabsModule,
     EmployeeSchedulesComponent,
+    Skeleton,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `
@@ -53,13 +58,13 @@ import { TimeOffsComponent } from './time-offs.component';
                   <h3
                     class="text-base/7 font-semibold text-primary-800 dark:text-gray-50"
                   >
-                    {{ employee()?.first_name }}
-                    {{ employee()?.father_name }}
+                    {{ currentEmployee()?.first_name }}
+                    {{ currentEmployee()?.father_name }}
                   </h3>
                   <p
                     class="mt-1 max-w-2xl text-sm/6 text-gray-500 dark:text-gray-400"
                   >
-                    {{ employee()?.position?.name }}
+                    {{ currentEmployee()?.position?.name }}
                   </p>
                 </div>
                 <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
@@ -70,7 +75,25 @@ import { TimeOffsComponent } from './time-offs.component';
                   (onClick)="menu.toggle($event)"
                 />
               </div>
-
+              @if(employee.isLoading()) {
+              <div class="flex flex-col gap-4">
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+                <p-skeleton shape="rectangle" height="2rem" />
+              </div>
+              } @else {
               <div class="mt-6 border-t border-gray-100 dark:border-gray-600">
                 <dl class="divide-y divide-gray-100 dark:divide-gray-600">
                   <div
@@ -84,10 +107,10 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.first_name }}
-                      {{ employee()?.middle_name }}
-                      {{ employee()?.father_name }}
-                      {{ employee()?.mother_name }}
+                      {{ currentEmployee()?.first_name }}
+                      {{ currentEmployee()?.middle_name }}
+                      {{ currentEmployee()?.father_name }}
+                      {{ currentEmployee()?.mother_name }}
                     </dd>
                   </div>
                   <div
@@ -101,7 +124,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.document_id }}
+                      {{ currentEmployee()?.document_id }}
                     </dd>
                   </div>
                   <div
@@ -115,7 +138,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.department?.name }}
+                      {{ currentEmployee()?.department?.name }}
                     </dd>
                   </div>
                   <div
@@ -129,7 +152,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.branch?.name }}
+                      {{ currentEmployee()?.branch?.name }}
                     </dd>
                   </div>
                   <div
@@ -143,7 +166,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.position?.name }}
+                      {{ currentEmployee()?.position?.name }}
                     </dd>
                   </div>
                   <div
@@ -157,7 +180,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.monthly_salary | currency : '$' }}
+                      {{ currentEmployee()?.monthly_salary | currency : '$' }}
                     </dd>
                   </div>
                   <div
@@ -171,9 +194,8 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.birth_date | date : 'mediumDate' }} ({{
-                        employee()?.birth_date | age
-                      }})
+                      {{ currentEmployee()?.birth_date | date : 'mediumDate' }}
+                      ({{ currentEmployee()?.birth_date | age }})
                     </dd>
                   </div>
                   <div
@@ -187,7 +209,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.address }}
+                      {{ currentEmployee()?.address }}
                     </dd>
                   </div>
                   <div
@@ -201,7 +223,8 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.email }} / {{ employee()?.work_email }}
+                      {{ currentEmployee()?.email }} /
+                      {{ currentEmployee()?.work_email }}
                     </dd>
                   </div>
                   <div
@@ -215,7 +238,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.phone_number }}
+                      {{ currentEmployee()?.phone_number }}
                     </dd>
                   </div>
                   <div
@@ -229,8 +252,8 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.start_date | date : 'mediumDate' }}
-                      / {{ employee()?.start_date! | seniority }}
+                      {{ currentEmployee()?.start_date | date : 'mediumDate' }}
+                      / {{ currentEmployee()?.start_date! | seniority }}
                     </dd>
                   </div>
                   <div
@@ -244,7 +267,7 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.uniform_size }}
+                      {{ currentEmployee()?.uniform_size }}
                     </dd>
                   </div>
                   <div
@@ -258,23 +281,24 @@ import { TimeOffsComponent } from './time-offs.component';
                     <dd
                       class="mt-1 text-sm/6 text-gray-700 dark:text-gray-400 sm:col-span-2 sm:mt-0"
                     >
-                      {{ employee()?.bank }} -
-                      {{ employee()?.bank_account_type }}:
-                      {{ employee()?.account_number }}
+                      {{ currentEmployee()?.bank }} -
+                      {{ currentEmployee()?.bank_account_type }}:
+                      {{ currentEmployee()?.account_number }}
                     </dd>
                   </div>
                 </dl>
               </div>
+              }
             </div>
           </p-tabpanel>
           <p-tabpanel value="1">
             <pt-employee-schedules [employeeId]="employee_id()" />
           </p-tabpanel>
           <p-tabpanel value="2">
-            <img src="{{ employee()?.qr_code }}" alt="QR Code" />
+            <img src="{{ currentEmployee()?.qr_code }}" alt="QR Code" />
           </p-tabpanel>
           <p-tabpanel value="3">
-            @for(timeoff of employee()?.timeoffs; track $index) {
+            @for(timeoff of currentEmployee()?.timeoffs; track $index) {
             <p-card [header]="timeoff.type?.name">
               {{ timeoff.date_from }}
               {{ timeoff.date_to }}
@@ -301,7 +325,19 @@ export class EmployeeDetailComponent implements OnInit {
   protected readonly state = inject(EmployeesStore);
 
   public employee_id = input.required<string>();
-  public employee = this.state.selectedEntity;
+  public employee = httpResource<Employee[]>(() => ({
+    url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/employees`,
+    method: 'GET',
+    params: {
+      select:
+        'id, department:departments(id, name), branch:branches(id, name), position:positions(id, name), first_name,father_name, middle_name, mother_name,document_id, email, phone_number, address, birth_date, start_date, branch_id, department_id, position_id, gender, uniform_size, is_active, company_id, work_email, monthly_salary, hourly_salary, qr_code, code_uri, bank, account_number, bank_account_type',
+      limit: '1',
+      order: 'father_name',
+      is_active: 'eq.true',
+      id: `eq.${this.employee_id()}`,
+    },
+  }));
+  public currentEmployee = computed(() => this.employee.value()?.[0]);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -346,13 +382,13 @@ export class EmployeeDetailComponent implements OnInit {
     this.ref = this.dialog.open(EmployeeFormComponent, {
       header: 'Datos de empleado',
       width: '90vw',
-      data: { employee: this.employee() },
+      data: { employee: this.currentEmployee() },
     });
   }
 
   terminateEmployee() {
     this.ref = this.dialog.open(TerminationFormComponent, {
-      data: { employee: this.employee() },
+      data: { employee: this.currentEmployee() },
       width: '90vw',
       header: 'Terminacion de empleado',
     });
@@ -361,7 +397,7 @@ export class EmployeeDetailComponent implements OnInit {
   timeOff() {
     this.ref = this.dialog.open(TimeOffsComponent, {
       data: {
-        employee: this.employee(),
+        employee: this.currentEmployee(),
       },
       width: '60vw',
       header: 'Tiempo fuera de empleado',
