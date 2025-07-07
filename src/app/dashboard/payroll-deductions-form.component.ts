@@ -17,12 +17,20 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { v4 } from 'uuid';
 import { markGroupDirty } from '../services/util.service';
 
 @Component({
   selector: 'pt-payroll-deductions-form',
-  imports: [ReactiveFormsModule, InputText, InputNumber, Button, Select],
+  imports: [
+    ReactiveFormsModule,
+    InputText,
+    InputNumber,
+    Button,
+    Select,
+    ToggleSwitch,
+  ],
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="flex flex-col md:grid md:grid-cols-2 gap-4">
@@ -58,6 +66,10 @@ import { markGroupDirty } from '../services/util.service';
             minFractionDigits="2"
             maxFractionDigits="2"
           />
+        </div>
+        <div class="input-container">
+          <label for="income_tax">Impuesto sobre la renta</label>
+          <p-toggleSwitch formControlName="income_tax" />
         </div>
       </div>
       <div class="dialog-actions pt-1">
@@ -105,6 +117,7 @@ export class PayrollDeductionsFormComponent implements OnInit {
       nonNullable: true,
     }),
     min_salary: new FormControl(0, { nonNullable: true }),
+    income_tax: new FormControl(false, { nonNullable: true }),
   });
 
   ngOnInit(): void {

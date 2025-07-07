@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Skeleton } from 'primeng/skeleton';
 import { TabsModule } from 'primeng/tabs';
 import { Payroll } from '../models';
+import { PayrollDebtsComponent } from './payroll-debts.component';
 import { PayrollDeductionsComponent } from './payroll-deductions.component';
 import { PayrollEmployeesComponent } from './payroll-employees.component';
 import { PayrollPaymentsComponent } from './payroll-payments.component';
@@ -15,6 +16,7 @@ import { PayrollPaymentsComponent } from './payroll-payments.component';
     PayrollDeductionsComponent,
     PayrollEmployeesComponent,
     PayrollPaymentsComponent,
+    PayrollDebtsComponent,
   ],
   template: `@if(payroll.isLoading()) {
     <div class="flex flex-col md:grid grid-cols-4 md:gap-4 ">
@@ -45,6 +47,7 @@ import { PayrollPaymentsComponent } from './payroll-payments.component';
           <p-tab value="0">Pagos</p-tab>
           <p-tab value="1">Empleados</p-tab>
           <p-tab value="2">Deducciones</p-tab>
+          <p-tab value="3">Deudas</p-tab>
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel value="0">
@@ -55,6 +58,9 @@ import { PayrollPaymentsComponent } from './payroll-payments.component';
           </p-tabpanel>
           <p-tabpanel value="2">
             <pt-payroll-deductions [payrollId]="payroll_id()" />
+          </p-tabpanel>
+          <p-tabpanel value="3">
+            <pt-payroll-debts [payrollId]="payroll_id()" />
           </p-tabpanel>
         </p-tabpanels>
       </p-tabs>

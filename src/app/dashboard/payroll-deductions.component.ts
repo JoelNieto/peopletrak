@@ -37,6 +37,7 @@ import { PayrollDeductionsFormComponent } from './payroll-deductions-form.compon
         <th>Valor</th>
         <th>Tipo de Calculo</th>
         <th>Salario Minimo</th>
+        <th>Impuesto sobre la renta</th>
         <th></th>
       </tr>
     </ng-template>
@@ -48,6 +49,7 @@ import { PayrollDeductionsFormComponent } from './payroll-deductions-form.compon
           {{ deduction.calculation_type === 'fixed' ? 'Fijo' : 'Porcentaje' }}
         </td>
         <td>{{ deduction.min_salary | currency : '$' }}</td>
+        <td>{{ deduction.income_tax ? 'SI' : 'NO' }}</td>
         <td>
           <p-button
             icon="pi pi-pencil"

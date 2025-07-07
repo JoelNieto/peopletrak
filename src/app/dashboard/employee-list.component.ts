@@ -58,11 +58,10 @@ import { EmployeeFormComponent } from './employee-form.component';
         [value]="this.filtered()"
         [loading]="store.employees.isLoading()"
         [paginator]="true"
-        [rows]="5"
+        [rows]="10"
         [rowsPerPageOptions]="[5, 10, 20]"
         [scrollable]="true"
         dataKey="id"
-        stripedRows
         paginatorDropdownAppendTo="body"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
@@ -453,7 +452,6 @@ export class EmployeeListComponent implements OnInit {
         if (value === undefined || value === null) {
           return false;
         }
-
         return filter.map((x) => x.id).includes(value.id);
       }
     );

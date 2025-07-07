@@ -356,6 +356,22 @@ import { DashboardStore } from '../stores/dashboard.store';
                   placeholder="dd/mm/yyyy"
                 />
               </div>
+              <div class="input-container">
+                <label for="week_hours">Horas semanales</label>
+                <p-inputNumber
+                  formControlName="week_hours"
+                  id="week_hours"
+                  placeholder="Horas semanales"
+                />
+              </div>
+              <div class="input-container">
+                <label for="use_timelog">Marca reloj </label>
+                <p-checkbox
+                  [binary]="true"
+                  formControlName="use_timelog"
+                  inputId="use_timelog"
+                />
+              </div>
             </div>
           </p-tabpanel>
         </p-tabpanels>
@@ -444,6 +460,11 @@ export class EmployeeFormComponent implements OnInit {
     bank_account_type: new FormControl<'Ahorros' | 'Corriente'>('Ahorros', {
       nonNullable: true,
     }),
+    week_hours: new FormControl(0, {
+      nonNullable: true,
+      validators: [Validators.min(40), Validators.max(60)],
+    }),
+    use_timelog: new FormControl(false, { nonNullable: true }),
   });
 
   private confirmationService = inject(ConfirmationService);
@@ -464,7 +485,7 @@ export class EmployeeFormComponent implements OnInit {
       method: 'GET',
       params: {
         select:
-          'id,first_name,father_name, middle_name, mother_name, document_id, email, phone_number, address, birth_date, start_date, branch_id, department_id, position_id, gender, uniform_size, is_active, company_id, work_email, monthly_salary, hourly_salary, qr_code, code_uri, bank, account_number, bank_account_type',
+          'id,first_name,father_name, middle_name, mother_name, document_id, email, phone_number, address, birth_date, start_date, branch_id, department_id, position_id, gender, uniform_size, is_active, company_id, work_email, monthly_salary, hourly_salary, qr_code, code_uri, bank, account_number, bank_account_type, week_hours, use_timelog',
         limit: '1',
         order: 'father_name',
         is_active: 'eq.true',

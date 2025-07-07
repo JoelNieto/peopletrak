@@ -68,6 +68,7 @@ export type Employee = {
   bank_account_type?: 'Ahorros' | 'Corriente';
   full_name?: string;
   hourly_salary?: number;
+  debts?: PayrollDebt[];
 };
 
 export type TimeOffType = {
@@ -159,6 +160,7 @@ export type PayrollDeduction = {
   name: string;
   value: number;
   min_salary: number;
+  income_tax?: boolean;
   calculation_type: 'fixed' | 'percentage';
   created_at?: Date;
 };
@@ -183,23 +185,10 @@ export type PayrollPayment = {
   created_at?: Date;
 };
 
-export type PayrollPaymentEmployee = {
-  id: string;
-  payroll_id: string;
-  payroll_payment_id: string;
-  employee_id: string;
-  employee?: Partial<Employee>;
-  total_amount: number;
-  debt_amount: number;
-  overtime_amount: number;
-  late_amount: number;
-  absence_amount: number;
-  created_at?: Date;
-};
-
 export type AttendanceSheet = {
   id?: string;
   employee_id: string;
+  base_salary: number;
   branch_id: string | null;
   branch?: Branch;
   schedule_id: string | null;
@@ -219,6 +208,15 @@ export type AttendanceSheet = {
   absence_hours_payment: number;
   is_holiday: boolean;
   worked_hours: number;
+  compensatory_hours?: number;
+  compensatory_hours_payment?: number;
+  is_justified: boolean;
+  justification_notes: string;
+  justification_cause?:
+    | 'PERSONAL'
+    | 'INJUSTIFICADA'
+    | 'JUSTIFICADA'
+    | 'COMPENSATORIO';
   late_hours: number;
   overtime_hours: number;
   created_at?: Date;
@@ -264,6 +262,41 @@ export type EmployeeSchedule = {
   approved?: boolean;
   updated_at?: Date;
   approved_at?: Date;
+};
+
+export type PayrollDebt = {
+  id: string;
+  payroll_id: string;
+  payroll?: Payroll;
+  creditor_id: string;
+  creditor?: Creditor;
+  employee_id: string;
+  bank_id: string;
+  account_id: string;
+  description: string;
+  employee?: Partial<Employee>;
+  amount: number;
+  start_date: Date;
+  due_date: Date;
+  balance: number;
+  created_at?: Date;
+};
+
+export type PayrollPaymentEmployee = {
+  id: string;
+  payroll_id: string;
+  employee_id: string;
+  payroll_payment_id: string;
+  employee?: Partial<Employee>;
+  total_amount: number;
+  debt_amount: number;
+  overtime_amount: number;
+  late_amount: number;
+  absence_amount: number;
+  overtime_hours: number;
+  late_hours: number;
+  absence_hours: number;
+  created_at?: Date;
 };
 
 export const colorVariants: Record<string, string> = {

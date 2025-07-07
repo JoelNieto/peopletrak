@@ -133,14 +133,11 @@ import { EmployeesStore } from '../stores/employees.store';
             >
           </td>
           <td>
-            <div class="flex gap-1 items-center">
+            <div class="flex gap-3 items-center">
               <span
                 [ngClass]="{
-                  'text-red-500 font-semibold cursor-pointer': log.delay
+                  'text-red-500 font-semibold': log.delay
                 }"
-                [class.text-red-500]="log.delay"
-                [pTooltip]="log.delay ? 'Retraso de ' + log.delay + ' min' : ''"
-                tooltipPosition="top"
                 >{{ log.entry?.date | date : 'hh:mm a' }}</span
               >
               @if(log.entry) {
@@ -151,6 +148,7 @@ import { EmployeesStore } from '../stores/employees.store';
                 [pTooltip]="log.entry?.branch.name"
                 tooltipPosition="top"
               />}
+              {{ log.delay ? 'Retraso de ' + log.delay + ' min' : '' }}
             </div>
           </td>
           <td>

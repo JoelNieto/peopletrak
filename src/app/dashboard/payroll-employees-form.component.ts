@@ -133,16 +133,15 @@ export class PayrollEmployeesFormComponent implements OnInit {
     const { employee, payrollId } = this.dialogConfig.data;
     if (employee) {
       this.form.patchValue(employee);
+      effect(
+        () => {
+          this.form.get('hourly_salary')?.patchValue(this.hourlySalary());
+        },
+        { injector: this.injector }
+      );
+
       return;
     }
-    this.form.patchValue({ payroll_id: payrollId });
-
-    effect(
-      () => {
-        this.form.get('hourly_salary')?.patchValue(this.hourlySalary());
-      },
-      { injector: this.injector }
-    );
 
     effect(
       () => {
@@ -155,6 +154,7 @@ export class PayrollEmployeesFormComponent implements OnInit {
       },
       { injector: this.injector }
     );
+    this.form.patchValue({ payroll_id: payrollId });
   }
 
   onSubmit() {
