@@ -118,7 +118,7 @@ export function withCustomEntities<T extends { id: EntityId }>({
             `${process.env['ENV_SUPABASE_URL']}/rest/v1/${name}`,
             request,
             { params: { select: query } }
-          )
+          ) 
           .pipe(
             tapResponse({
               next: (item) => {

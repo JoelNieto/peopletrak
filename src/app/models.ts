@@ -213,10 +213,12 @@ export type AttendanceSheet = {
   is_justified: boolean;
   justification_notes: string;
   justification_cause?:
+    | 'NORMAL'
     | 'PERSONAL'
     | 'INJUSTIFICADA'
     | 'JUSTIFICADA'
     | 'COMPENSATORIO';
+  justified_hours?: number;
   late_hours: number;
   overtime_hours: number;
   created_at?: Date;
@@ -283,19 +285,27 @@ export type PayrollDebt = {
 };
 
 export type PayrollPaymentEmployee = {
-  id: string;
+  id?: string;
   payroll_id: string;
   employee_id: string;
   payroll_payment_id: string;
   employee?: Partial<Employee>;
   total_amount: number;
   debt_amount: number;
-  overtime_amount: number;
   late_amount: number;
   absence_amount: number;
-  overtime_hours: number;
-  late_hours: number;
-  absence_hours: number;
+  items?: PayrollPaymentEmployeeItem[];
+  income_amount: number;
+  deduction_amount: number;
+  created_at?: Date;
+};
+
+export type PayrollPaymentEmployeeItem = {
+  id?: string;
+  payment_employee_id: string;
+  type: 'income' | 'deduction' | 'debt';
+  amount: number;
+  description: string;
   created_at?: Date;
 };
 

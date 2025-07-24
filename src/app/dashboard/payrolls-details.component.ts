@@ -38,8 +38,8 @@ import { PayrollPaymentsComponent } from './payroll-payments.component';
     </div>
     } @else {
     <div>
-      <h1 class="text-2xl font-bold mb-3">
-        <span class="font-semibold">Planilla: </span>
+      <h1 class="text-2xl font-bold mb-3  text-gray-700 dark:text-gray-200">
+        <span class="font-medium">Planilla: </span>
         {{ payroll.value()?.[0]?.name }}
       </h1>
       <p-tabs value="0">

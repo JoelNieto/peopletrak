@@ -64,9 +64,9 @@ import { SchedulesStore } from '../stores/schedules.store';
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="flex h-16 items-center justify-between">
             <div class="flex items-center">
-              <div class="shrink-0">
+              <a routerLink="/home" class="shrink-0">
                 <img src="images/blackdog.png" class="h-8" alt="Peopletrak" />
-              </div>
+              </a>
               <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
                   @if(store.isAdmin()) {

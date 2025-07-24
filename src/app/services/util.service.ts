@@ -34,3 +34,13 @@ export const markArrayDirty = (formArray: FormArray) =>
   });
 export const markControlDirty = (formControl: FormControl) =>
   formControl.markAsDirty();
+
+export const roundNumber = (number: number) =>
+  parseFloat(
+    new Intl.NumberFormat('es', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+      .format(number)
+      .replace(',', '.')
+  );

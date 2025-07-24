@@ -1,3 +1,4 @@
+/* eslint-disable no-sparse-arrays */
 import {
   CurrencyPipe,
   DatePipe,
@@ -9,9 +10,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
+  Injector,
   input,
   model,
+  OnInit,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,21 +30,28 @@ import {
   isSunday,
 } from 'date-fns';
 import { toDate } from 'date-fns-tz';
+import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
+import { catchError, forkJoin, switchMap, throwError } from 'rxjs';
+import { utils, writeFile } from 'xlsx';
 import {
   AttendanceSheet,
   EmployeeSchedule,
   Payroll,
   PayrollEmployee,
   PayrollPayment,
+  PayrollPaymentEmployee,
+  PayrollPaymentEmployeeItem,
   Schedule,
   TimeLog,
   TimeLogEnum,
 } from '../models';
+import { roundNumber } from '../services/util.service';
+import { DashboardStore } from '../stores/dashboard.store';
 import { LateCompensatoryFormComponent } from './late-compensatory-form.component';
 
 @Component({
@@ -97,9 +108,18 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
           </div>
         </ng-template>
       </p-select>
-      <p class=" text-gray-500 w-1/4">
-        {{ approvedCount() }} de {{ employees.value()?.length }} aprobados
-      </p>
+      <div class="flex items-center gap-4">
+        <p class=" text-gray-500 text-nowrap">
+          {{ approvedCount() }} de {{ employees.value()?.length }} aprobados
+        </p>
+        <p-button
+          label="Borrador"
+          severity="secondary"
+          icon="pi pi-file"
+          rounded
+          (onClick)="generateDraft()"
+        />
+      </div>
     </div>
     @if (currentAttendanceSheets().length > 0) {
     <p-card>
@@ -217,9 +237,11 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
             <p-button
               label="Aprobar"
               rounded
-              severity="success"
+              [severity]="isApproved() ? 'secondary' : 'success'"
               icon="pi pi-check"
               size="small"
+              [disabled]="isApproved()"
+              [loading]="loading()"
               class="justify-self-end"
               (click)="approvePayment(currentEmployee()!)"
             />
@@ -281,6 +303,7 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
                   severity="success"
                   icon="pi pi-check"
                   size="small"
+                  [disabled]="isApproved()"
                   class="justify-self-end"
                   (click)="
                     setCompensatoryHours(
@@ -303,9 +326,11 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PayrollPaymentsDetailsComponent {
+export class PayrollPaymentsDetailsComponent implements OnInit {
   public payment_id = input.required<string>();
   public currentEmployee = model<string>();
+  public loading = signal(false);
+  private message = inject(MessageService);
   public absenceCauses = [
     { value: 'PERSONAL', label: 'Personal' },
     { value: 'INJUSTIFICADA', label: 'Injustificada' },
@@ -316,6 +341,8 @@ export class PayrollPaymentsDetailsComponent {
 
   private dialogService = inject(DialogService);
   private dialogRef = inject(DynamicDialogRef);
+  private injector = inject(Injector);
+  private dashboardStore = inject(DashboardStore);
 
   public payroll = httpResource<Payroll[]>(() => {
     if (!this.payment.value()?.[0]) {
@@ -330,6 +357,23 @@ export class PayrollPaymentsDetailsComponent {
       },
     };
   });
+
+  public completed = httpResource<PayrollPaymentEmployee[]>(() => {
+    if (!this.payment.value()?.[0]) {
+      return undefined;
+    }
+    return {
+      url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_payment_employees`,
+      method: 'GET',
+      params: {
+        select:
+          '*, items:payroll_payment_employee_items(*), employee:employees(id, first_name, father_name, document_id)',
+        payroll_payment_id: `eq.${this.payment.value()?.[0]?.id}`,
+      },
+    };
+  });
+
+  public isApproved = computed(() => this.approved()[this.currentEmployee()!]);
 
   public employeeDeductions = computed(() => {
     const employee = this.selectedEmployee();
@@ -391,7 +435,7 @@ export class PayrollPaymentsDetailsComponent {
       method: 'GET',
       params: {
         select:
-          '*, employee:employees(id, first_name, father_name, monthly_salary, hourly_salary, week_hours, use_timelog, debts:payroll_debts(*))',
+          '*, employee:employees(id, first_name, father_name, monthly_salary, hourly_salary, week_hours, use_timelog, branch_id, debts:payroll_debts(*))',
         payroll_id: `eq.${this.payment.value()?.[0]?.payroll_id}`,
       },
     };
@@ -408,14 +452,153 @@ export class PayrollPaymentsDetailsComponent {
     () => Object.values(this.approved()).filter((approved) => approved).length
   );
 
+  ngOnInit() {
+    effect(
+      () => {
+        const completed = this.completed.value();
+        if (completed?.length) {
+          completed.forEach((item) => {
+            this.approved.update((approved) => ({
+              ...approved,
+              [item.employee_id]: true,
+            }));
+          });
+        }
+      },
+      { injector: this.injector }
+    );
+  }
+
   approvePayment(id: string) {
-    this.approved.update((approved) => ({
-      ...approved,
-      [id]: true,
-    }));
+    this.loading.set(true);
+    const attendanceSheet = this.sheetRegistry();
+    const sheets$ = this.http.post(
+      `${process.env['ENV_SUPABASE_URL']}/rest/v1/attendance_sheets`,
+      attendanceSheet
+    );
+
+    const summary$ = this.http.post<PayrollPaymentEmployee[]>(
+      `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_payment_employees`,
+      this.employeeSummary(),
+      {
+        params: {
+          select: '*',
+        },
+      }
+    );
+
+    const items: PayrollPaymentEmployeeItem[] = [];
+    items.push({
+      payment_employee_id: '',
+      type: 'income',
+      amount: this.employeeSalaryBase(),
+      description: 'Salario base',
+    });
+
+    items.push({
+      payment_employee_id: '',
+      type: 'deduction',
+      amount: this.summary().sunday_payment,
+      description: 'Recargo domingo',
+    });
+
+    items.push({
+      payment_employee_id: '',
+      type: 'income',
+      amount: this.summary().compensatory_hours_payment,
+      description: 'Horas justificadas',
+    });
+
+    for (const deduction of Object.entries(this.employeeDeductions())) {
+      items.push({
+        payment_employee_id: '',
+        type: 'deduction',
+        amount: deduction[1],
+        description: deduction[0],
+      });
+    }
+
+    for (const debt of this.selectedEmployee()?.employee?.debts ?? []) {
+      items.push({
+        payment_employee_id: '',
+        type: 'debt',
+        amount: debt.amount,
+        description: debt.description,
+      });
+    }
+    items.push({
+      payment_employee_id: '',
+      type: 'deduction',
+      amount: this.summary().late_hours_payment,
+      description: 'Horas tardías',
+    });
+    items.push({
+      payment_employee_id: '',
+      type: 'deduction',
+      amount: this.summary().absence_hours_payment,
+      description: 'Horas ausencia',
+    });
+
+    forkJoin([summary$, sheets$])
+      .pipe(
+        switchMap(([summary]) => {
+          items.map((x) => (x.payment_employee_id = summary[0].id ?? ''));
+          return this.http.post(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_payment_employee_items`,
+            items
+          );
+        }),
+        catchError((error) => {
+          console.error(error);
+          this.message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Ha ocurrido un error al aprobar el pago',
+          });
+          return throwError(() => error);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.message.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Pago aprobado correctamente',
+          });
+          this.approved.update((approved) => ({
+            ...approved,
+            [id]: true,
+          }));
+        },
+        complete: () => {
+          this.loading.set(false);
+        },
+      });
   }
 
   public attendanceSheet = signal<Record<string, AttendanceSheet>>({});
+
+  public sheetRegistry = computed(() =>
+    this.currentAttendanceSheets().map((sheet) => ({
+      employee_id: sheet.employee_id,
+      branch_id: sheet.branch_id,
+      schedule_id: sheet.schedule_id,
+      date: sheet.date,
+      entry_time: sheet.entry_time,
+      exit_time: sheet.exit_time,
+      is_late: sheet.is_late,
+      is_sunday: sheet.is_sunday,
+      is_holiday: sheet.is_holiday,
+      worked_hours: sheet.worked_hours,
+      lunch_start_time: sheet.lunch_start_time,
+      lunch_end_time: sheet.lunch_end_time,
+      late_hours: sheet.late_hours,
+      is_justified: sheet.is_justified,
+      justification_notes: sheet.justification_notes,
+      justification_cause: sheet.justification_cause,
+      justified_hours: sheet.justified_hours,
+    }))
+  );
 
   public timeLogs = httpResource<TimeLog[]>(() => {
     if (!this.payment.value()?.[0]) {
@@ -482,6 +665,9 @@ export class PayrollPaymentsDetailsComponent {
           compensatory_hours_payment:
             acc.compensatory_hours_payment +
             (attendanceSheet.compensatory_hours_payment ?? 0),
+          absence_hours: acc.absence_hours + attendanceSheet.absence_hours,
+          absence_hours_payment:
+            acc.absence_hours_payment + attendanceSheet.absence_hours_payment,
         };
       },
       {
@@ -492,20 +678,24 @@ export class PayrollPaymentsDetailsComponent {
         late_hours: 0,
         compensatory_hours: 0,
         compensatory_hours_payment: 0,
+        absence_hours: 0,
+        absence_hours_payment: 0,
       }
     )
   );
 
-  public totalIncome = computed(
-    () =>
+  public totalIncome = computed(() =>
+    roundNumber(
       this.employeeSalaryBase() +
-      this.summary().sunday_payment +
-      this.summary().compensatory_hours_payment -
-      this.summary().late_hours_payment
+        this.summary().sunday_payment +
+        this.summary().compensatory_hours_payment -
+        this.summary().late_hours_payment
+    )
   );
+
   public totalDeductions = computed(() =>
     Object.values(this.employeeDeductions()).reduce(
-      (acc, deduction) => acc + deduction,
+      (acc, deduction) => roundNumber(acc + deduction),
       0
     )
   );
@@ -521,8 +711,22 @@ export class PayrollPaymentsDetailsComponent {
   employeeSalaryBase = computed(() => {
     const employee = this.selectedEmployee();
     if (!employee) return 0;
-    return employee.hourly_salary * 104.28;
+    return roundNumber(employee.hourly_salary * 104.28);
   });
+
+  public employeeSummary = computed<PayrollPaymentEmployee>(() => ({
+    employee_id: this.selectedEmployee()?.employee?.id ?? '',
+    payroll_id: this.payment.value()?.[0].payroll_id ?? '',
+    payroll_payment_id: this.payment.value()?.[0].id ?? '',
+    total_amount:
+      this.totalIncome() - this.totalDeductions() - this.totalDebt(),
+    debt_amount: this.totalDebt(),
+    late_amount: this.summary().late_hours_payment,
+    absence_amount: this.summary().absence_hours_payment,
+    income_amount: this.totalIncome(),
+    deduction_amount: this.totalDeductions(),
+    overtime_amount: this.summary().sunday_payment,
+  }));
 
   generateAttendanceSheet() {
     const schedules = this.schedules.value() ?? [];
@@ -593,13 +797,16 @@ export class PayrollPaymentsDetailsComponent {
       });
       const is_sunday = isSunday(toDate(day, { timeZone: 'America/Panama' }));
       const hourly_salary = this.selectedEmployee()!.hourly_salary!;
-      const worked_hours_payment =
-        schedule?.day_off || worked_hours === 0 ? 0 : 8 * hourly_salary;
-      const late_hours_payment =
-        late_hours * hourly_salary * (is_sunday ? 1.5 : 1);
+      const worked_hours_payment = roundNumber(
+        schedule?.day_off || worked_hours === 0 ? 0 : 8 * hourly_salary
+      );
+
+      const late_hours_payment = roundNumber(
+        late_hours * hourly_salary * (is_sunday ? 1.5 : 1)
+      );
       const sunday_payment =
         is_sunday && worked_hours > 0 && !schedule?.day_off
-          ? 8 * hourly_salary * 0.5
+          ? roundNumber(8 * hourly_salary * 0.5)
           : 0;
       const absence_hours = 0;
       const absence_hours_payment = 0;
@@ -615,6 +822,7 @@ export class PayrollPaymentsDetailsComponent {
         base_salary: hourly_salary * 8,
         schedule_id: schedule?.id ?? null,
         justification_notes: '',
+        justification_cause: 'NORMAL',
         is_justified: false,
         schedule: schedule,
         date: day,
@@ -632,6 +840,8 @@ export class PayrollPaymentsDetailsComponent {
         absence_hours_payment,
         compensatory_hours: 0,
         compensatory_hours_payment: 0,
+        justified_hours: 0,
+
         is_late: schedule?.day_off
           ? false
           : entryTime &&
@@ -656,6 +866,7 @@ export class PayrollPaymentsDetailsComponent {
       )
       .subscribe(); */
   }
+
   calcTimeDiff = (time1: string, time2: string) => {
     const timeStart = new Date();
     const timeEnd = new Date();
@@ -685,11 +896,13 @@ export class PayrollPaymentsDetailsComponent {
               ...attendanceSheet,
               [id]: {
                 ...attendanceSheet[id],
-                compensatory_hours: res.hours,
+                is_justified: res.cause === 'JUSTIFICADA',
+                justified_hours: res.hours,
                 justification_notes: res.notes,
                 justification_cause: res.cause,
-                compensatory_hours_payment:
-                  res.hours * this.selectedEmployee()!.hourly_salary!,
+                compensatory_hours_payment: roundNumber(
+                  res.hours * this.selectedEmployee()!.hourly_salary!
+                ),
               },
             }));
             console.log(this.attendanceSheet()[id]);
@@ -772,5 +985,137 @@ export class PayrollPaymentsDetailsComponent {
     }
     const lateHours = totalMinutes / 60;
     return lateHours;
+  }
+
+  generateDraft() {
+    this.completed.reload();
+    const wb = utils.book_new();
+    // utils.book_append_sheet(wb, ws, 'Empleados');
+    const ws = utils.aoa_to_sheet([
+      // Title row 1 (will be merged across 10 columns)
+      ['BO Capital', , , , , , , , , , ,], // 10 columns
+      // Title row 2 (subtitle)
+      [`Planilla: ${this.payroll.value()?.[0].name}`, , , , , , , , ,], // 10 columns
+      // Title row 3 (date or other info)
+      [`Fecha: ${this.payment.value()?.[0].start_date}`, , , , , , , , ,], // 10 columns
+      ['Generado por: Odilis Quintero'],
+      ['Fecha de generación: ' + new Date().toISOString()], // empty row for spacing
+      // your actual data
+    ]);
+    const branches = this.dashboardStore.branches.entities();
+    let currentRow = 5;
+    branches.forEach((branch) => {
+      utils.sheet_add_aoa(ws, [[branch.name.toUpperCase()]], {
+        origin: `A${currentRow + 1}`,
+      });
+      currentRow++;
+      const employees = this.employees
+        .value()
+        ?.filter((employee) => employee.employee.branch_id === branch.id);
+      const completed = this.completed
+        .value()
+        ?.filter((completed) =>
+          employees
+            ?.map((employee) => employee.employee.id)
+            .includes(completed.employee_id)
+        );
+      utils.sheet_add_aoa(ws, []);
+      currentRow++;
+      completed?.forEach((item) => {
+        utils.sheet_add_aoa(
+          ws,
+          [
+            [
+              `${item.employee?.first_name} ${item.employee?.father_name} / ${item.employee?.document_id}`,
+            ],
+          ],
+          {
+            origin: `A${currentRow + 1}`,
+          }
+        );
+        currentRow++;
+        utils.sheet_add_aoa(
+          ws,
+          [
+            [
+              ...(item.items
+                ?.filter((x) => x.type === 'income')
+                .map((item) => item.description) ?? []),
+              '',
+              ...(item.items
+                ?.filter((x) => x.type === 'deduction')
+                .map((item) => item.description) ?? []),
+              '',
+              ...(item.items
+                ?.filter((x) => x.type === 'debt')
+                .map((item) => item.description) ?? []),
+              'Total a pagar',
+            ],
+          ],
+          {
+            origin: `A${currentRow + 1}`,
+          }
+        );
+        currentRow++;
+        utils.sheet_add_aoa(
+          ws,
+          [
+            [
+              ...(item.items
+                ?.filter((x) => x.type === 'income')
+                .map((item) => item.amount) ?? []),
+              '',
+              ...(item.items
+                ?.filter((x) => x.type === 'deduction')
+                .map((item) => item.amount) ?? []),
+              '',
+              ...(item.items
+                ?.filter((x) => x.type === 'debt')
+                .map((item) => item.amount) ?? []),
+              item.total_amount,
+            ],
+          ],
+          {
+            origin: `A${currentRow + 1}`,
+          }
+        );
+        currentRow++;
+      });
+      currentRow++;
+      utils.sheet_add_aoa(
+        ws,
+        [
+          [
+            `Total a pagar para ${branch.name.toUpperCase()}:`,
+            completed?.reduce((acc, item) => acc + item.total_amount, 0),
+          ],
+        ],
+        {
+          origin: `A${currentRow + 1}`,
+        }
+      );
+      currentRow++;
+      currentRow++;
+    });
+
+    utils.sheet_add_aoa(
+      ws,
+      [
+        [
+          `Total a pagar para ${this.payment
+            .value()?.[0]
+            .payroll?.name.toUpperCase()}:`,
+          this.completed
+            .value()
+            ?.reduce((acc, item) => acc + item.total_amount, 0),
+        ],
+      ],
+      {
+        origin: `A${currentRow + 1}`,
+      }
+    );
+
+    utils.book_append_sheet(wb, ws, 'Empleados');
+    writeFile(wb, 'BORRADOR.xlsx');
   }
 }
