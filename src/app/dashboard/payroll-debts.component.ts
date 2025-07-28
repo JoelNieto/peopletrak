@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { httpResource } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +8,11 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FilterService } from 'primeng/api';
+import {
+  ConfirmationService,
+  FilterService,
+  MessageService,
+} from 'primeng/api';
 import { Button } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MultiSelect } from 'primeng/multiselect';
@@ -104,6 +108,7 @@ import { PayrollDebtsFormComponent } from './payroll-debts-form.component';
         <th></th>
         <th></th>
         <th></th>
+        <th></th>
       </tr>
     </ng-template>
     <ng-template #body let-item>
@@ -123,7 +128,13 @@ import { PayrollDebtsFormComponent } from './payroll-debts-form.component';
             icon="pi pi-pen-to-square"
             (onClick)="editDebt(item)"
           />
-          <p-button severity="danger" text rounded icon="pi pi-trash" />
+          <p-button
+            severity="danger"
+            text
+            rounded
+            icon="pi pi-trash"
+            (onClick)="deleteDebt(item)"
+          />
         </td>
       </tr>
     </ng-template>
@@ -153,6 +164,9 @@ export class PayrollDebtsComponent implements OnInit {
   private filterService = inject(FilterService);
 
   private dialogService = inject(DialogService);
+  private confirmationService = inject(ConfirmationService);
+  private http = inject(HttpClient);
+  private message = inject(MessageService);
 
   ngOnInit(): void {
     this.filterService.register(
@@ -188,5 +202,41 @@ export class PayrollDebtsComponent implements OnInit {
       .onClose.subscribe(() => {
         this.debts.reload();
       });
+  }
+
+  public deleteDebt(debt: PayrollDebt) {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar esta deuda?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Eliminar',
+        severity: 'danger',
+      },
+      accept: () => {
+        this.http
+          .delete(
+            `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_debts/${debt.id}`
+          )
+          .subscribe({
+            next: () => {
+              this.message.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Deuda eliminada correctamente',
+              });
+              this.debts.reload();
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
+      },
+    });
   }
 }
