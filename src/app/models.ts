@@ -273,7 +273,6 @@ export type PayrollDebt = {
   creditor_id: string;
   creditor?: Creditor;
   employee_id: string;
-  bank_id: string;
   account_id: string;
   description: string;
   employee?: Partial<Employee>;

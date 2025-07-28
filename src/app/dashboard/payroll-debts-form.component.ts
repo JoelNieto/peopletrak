@@ -21,7 +21,6 @@ import { InputText } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { v4 } from 'uuid';
 import { markGroupDirty } from '../services/util.service';
-import { BanksStore } from '../stores/banks.store';
 import { CreditorsStore } from '../stores/creditors.store';
 import { EmployeesStore } from '../stores/employees.store';
 import { PayrollsStore } from '../stores/payrolls.store';
@@ -69,7 +68,7 @@ import { PayrollsStore } from '../stores/payrolls.store';
         />
       </div>
       <div class="input-container">
-        <label for="creditor">Credor</label>
+        <label for="creditor">Acreedor</label>
         <p-select
           id="creditor"
           formControlName="creditor_id"
@@ -78,21 +77,6 @@ import { PayrollsStore } from '../stores/payrolls.store';
           optionLabel="name"
           optionValue="id"
           placeholder="---Seleccione un credor---"
-          filter
-          filterBy="name"
-          appendTo="body"
-        />
-      </div>
-      <div class="input-container">
-        <label for="bank">Banco</label>
-        <p-select
-          id="bank"
-          formControlName="bank_id"
-          fluid
-          [options]="banks.entities()"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="---Seleccione un banco---"
           filter
           filterBy="name"
           appendTo="body"
@@ -175,7 +159,6 @@ export class PayrollDebtsFormComponent implements OnInit {
   public employees = inject(EmployeesStore);
   public creditors = inject(CreditorsStore);
   public store = inject(PayrollsStore);
-  public banks = inject(BanksStore);
   public message = inject(MessageService);
 
   public dialog = inject(DynamicDialogRef);
@@ -186,9 +169,6 @@ export class PayrollDebtsFormComponent implements OnInit {
     employee_id: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
-    }),
-    bank_id: new FormControl('', {
-      nonNullable: true,
     }),
     account_id: new FormControl('', {
       nonNullable: true,
@@ -255,8 +235,22 @@ export class PayrollDebtsFormComponent implements OnInit {
             },
           }
         )
-        .subscribe(() => {
-          this.dialog.close();
+        .subscribe({
+          next: () => {
+            this.message.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Deuda actualizada correctamente',
+            });
+            this.dialog.close();
+          },
+          error: (err) => {
+            this.message.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error.message,
+            });
+          },
         });
       return;
     }
@@ -265,8 +259,22 @@ export class PayrollDebtsFormComponent implements OnInit {
         `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_debts`,
         this.form.value
       )
-      .subscribe(() => {
-        this.dialog.close();
+      .subscribe({
+        next: () => {
+          this.message.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Deuda agregada correctamente',
+          });
+          this.dialog.close();
+        },
+        error: (err) => {
+          this.message.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.error.message,
+          });
+        },
       });
   }
 }

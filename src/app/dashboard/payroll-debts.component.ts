@@ -5,23 +5,31 @@ import {
   Component,
   inject,
   input,
+  OnInit,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FilterService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MultiSelect } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
 import { PayrollDebt } from '../models';
+import { CreditorsStore } from '../stores/creditors.store';
+import { EmployeesStore } from '../stores/employees.store';
 import { PayrollDebtsFormComponent } from './payroll-debts-form.component';
 
 @Component({
   selector: 'pt-payroll-debts',
   providers: [DynamicDialogRef, DialogService],
-  imports: [TableModule, Button, CurrencyPipe],
+  imports: [TableModule, Button, CurrencyPipe, MultiSelect, FormsModule],
   template: `<p-table
     [value]="debts.value() || []"
     paginator
     [rows]="10"
     showCurrentPageReport
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+    paginatorDropdownAppendTo="body"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} deudas"
     ><ng-template #caption>
       <div class="flex justify-end">
         <p-button
@@ -46,6 +54,57 @@ import { PayrollDebtsFormComponent } from './payroll-debts-form.component';
         <th>Descripción</th>
         <th></th>
       </tr>
+      <tr>
+        <th>
+          <p-columnFilter
+            field="employee"
+            matchMode="custom-filter"
+            [showMenu]="false"
+          >
+            <ng-template
+              pTemplate="filter"
+              let-value
+              let-filter="filterCallback"
+            >
+              <p-multiSelect
+                [ngModel]="value"
+                [options]="employees.activeEmployees()"
+                placeholder="TODOS"
+                (onChange)="filter($event.value)"
+                optionLabel="short_name"
+                appendTo="body"
+              />
+            </ng-template>
+          </p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter
+            field="creditor"
+            matchMode="custom-filter"
+            [showMenu]="false"
+          >
+            <ng-template
+              pTemplate="filter"
+              let-value
+              let-filter="filterCallback"
+            >
+              <p-multiSelect
+                [ngModel]="value"
+                [options]="creditors.entities()"
+                placeholder="TODOS"
+                (onChange)="filter($event.value)"
+                optionLabel="name"
+                appendTo="body"
+              />
+            </ng-template>
+          </p-columnFilter>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
     </ng-template>
     <ng-template #body let-item>
       <tr>
@@ -68,11 +127,18 @@ import { PayrollDebtsFormComponent } from './payroll-debts-form.component';
         </td>
       </tr>
     </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="10" class="text-center">No hay deudas</td>
+      </tr>
+    </ng-template>
   </p-table>`,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PayrollDebtsComponent {
+export class PayrollDebtsComponent implements OnInit {
+  public employees = inject(EmployeesStore);
+  public creditors = inject(CreditorsStore);
   public payrollId = input.required<string>();
   public debts = httpResource<PayrollDebt[]>(() => ({
     url: `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_debts`,
@@ -84,7 +150,25 @@ export class PayrollDebtsComponent {
     },
   }));
 
+  private filterService = inject(FilterService);
+
   private dialogService = inject(DialogService);
+
+  ngOnInit(): void {
+    this.filterService.register(
+      'custom-filter',
+      (value: { id: any } | null | undefined, filter: any[]) => {
+        if (filter === undefined || filter === null || !filter.length) {
+          return true;
+        }
+
+        if (value === undefined || value === null) {
+          return false;
+        }
+        return filter.map((x) => x.id).includes(value.id);
+      }
+    );
+  }
 
   public editDebt(debt?: PayrollDebt) {
     this.dialogService
