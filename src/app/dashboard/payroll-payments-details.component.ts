@@ -191,7 +191,7 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
           >
             Otros descuentos
           </div>
-          @for (debt of selectedEmployee()?.employee?.debts; track debt.id) {
+          @for (debt of currentDebts(); track debt.id) {
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">
               {{ debt.description }}
@@ -338,6 +338,12 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
   ];
   selectedSheets!: AttendanceSheet[];
   private http = inject(HttpClient);
+  public currentDebts = computed(
+    () =>
+      this.selectedEmployee()?.employee?.debts?.filter(
+        (debt) => debt.payroll_id === this.payment.value()?.[0]?.payroll_id
+      ) ?? []
+  );
 
   private dialogService = inject(DialogService);
   private dialogRef = inject(DynamicDialogRef);
@@ -701,11 +707,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
   );
 
   totalDebt = computed(
-    () =>
-      this.selectedEmployee()?.employee?.debts?.reduce(
-        (acc, debt) => acc + debt.amount,
-        0
-      ) ?? 0
+    () => this.currentDebts()?.reduce((acc, debt) => acc + debt.amount, 0) ?? 0
   );
 
   employeeSalaryBase = computed(() => {
