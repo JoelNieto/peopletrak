@@ -395,7 +395,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
         if (deduction.calculation_type === 'fixed') {
           amount = deduction.value;
         } else {
-          amount = (employee.monthly_salary / 2) * (deduction.value / 100);
+          amount = this.totalIncome() * (deduction.value / 100);
         }
         items[deduction.name] = amount;
       }
@@ -409,7 +409,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
     if (!deductions.length || !employee) return 0;
     const incomeTax = deductions.find((deduction) => deduction.income_tax);
     if (!incomeTax) return 0;
-    const income = employee.monthly_salary;
+    const income = this.totalIncome();
     const annualIncome = income * 13;
     let taxAmount = 0;
     if (annualIncome < 11000) return 0;
@@ -870,6 +870,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
   }
 
   calcTimeDiff = (time1: string, time2: string) => {
+    if (!time2) return 0;
     const timeStart = new Date();
     const timeEnd = new Date();
     const valueStart = time1.split(':');
