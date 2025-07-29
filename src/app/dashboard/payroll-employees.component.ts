@@ -73,9 +73,15 @@ import { PayrollEmployeesFormComponent } from './payroll-employees-form.componen
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th>Nombre</th>
-          <th>Salario Mensual</th>
-          <th>Salario por Hora</th>
+          <th pSortableColumn="employee.first_name" pSortIcon>
+            Nombre <p-sortIcon field="employee.first_name" />
+          </th>
+          <th pSortableColumn="monthly_salary" pSortIcon>
+            Salario Mensual <p-sortIcon field="monthly_salary" />
+          </th>
+          <th pSortableColumn="hourly_salary" pSortIcon>
+            Salario por Hora <p-sortIcon field="hourly_salary" />
+          </th>
           <th></th>
         </tr>
       </ng-template>

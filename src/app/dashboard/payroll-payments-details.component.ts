@@ -135,20 +135,26 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Salario base</div>
-            <div class="cursor-pointer" (click)="editItem('salary_base')">
+            <div
+              class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
+              (click)="editItem('salary_base')"
+            >
               {{ employeeSalaryBase() | currency : '$' }}
             </div>
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Recargo domingo</div>
-            <div class="cursor-pointer" (click)="editItem('sunday_payment')">
+            <div
+              class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
+              (click)="editItem('sunday_payment')"
+            >
               {{ summary().sunday_payment | currency : '$' }}
             </div>
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Tardanzas</div>
             <div
-              class="cursor-pointer"
+              class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
               (click)="editItem('late_hours_payment')"
             >
               {{ summary().late_hours_payment | currency : '$' }}
@@ -157,7 +163,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Justificado</div>
             <div
-              class="cursor-pointer"
+              class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
               (click)="editItem('compensatory_hours_payment')"
             >
               {{ summary().compensatory_hours_payment | currency : '$' }}
