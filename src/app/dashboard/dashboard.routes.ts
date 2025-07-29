@@ -134,6 +134,13 @@ export const DASHBOARD_ROUTES: Routes = [
               ),
           },
           {
+            path: 'payrolls/:payroll_id/payments/:payment_id/draft',
+            loadComponent: () =>
+              import('./payroll-summary.component').then(
+                (x) => x.PayrollSummaryComponent
+              ),
+          },
+          {
             path: 'creditors',
             loadComponent: () =>
               import('./creditors.component').then((x) => x.CreditorsComponent),

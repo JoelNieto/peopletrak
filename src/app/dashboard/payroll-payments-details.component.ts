@@ -20,6 +20,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   addDays,
   differenceInMinutes,
@@ -68,6 +69,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
     CurrencyPipe,
     Card,
     KeyValuePipe,
+    RouterLink,
   ],
   providers: [DynamicDialogRef, DialogService],
   template: `<div class="flex flex-col gap-4">
@@ -119,7 +121,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
           severity="secondary"
           icon="pi pi-file"
           rounded
-          (onClick)="generateDraft()"
+          routerLink="draft"
         />
       </div>
     </div>
@@ -664,7 +666,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
       });
     }
 
-    for (const debt of this.selectedEmployee()?.employee?.debts ?? []) {
+    for (const debt of this.currentDebts() ?? []) {
       items.push({
         payment_employee_id: '',
         type: 'debt',
