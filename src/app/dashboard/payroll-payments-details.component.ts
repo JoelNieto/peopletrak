@@ -137,7 +137,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
             <div class="text-gray-800 dark:text-gray-200">Salario base</div>
             <div
               class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
-              (click)="editItem('salary_base')"
+              (click)="!isApproved() ? editItem('salary_base') : null"
             >
               {{ employeeSalaryBase() | currency : '$' }}
             </div>
@@ -146,7 +146,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
             <div class="text-gray-800 dark:text-gray-200">Recargo domingo</div>
             <div
               class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
-              (click)="editItem('sunday_payment')"
+              (click)="!isApproved() ? editItem('sunday_payment') : null"
             >
               {{ summary().sunday_payment | currency : '$' }}
             </div>
@@ -155,7 +155,7 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
             <div class="text-gray-800 dark:text-gray-200">Tardanzas</div>
             <div
               class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
-              (click)="editItem('late_hours_payment')"
+              (click)="!isApproved() ? editItem('late_hours_payment') : null"
             >
               {{ summary().late_hours_payment | currency : '$' }}
             </div>
@@ -164,11 +164,32 @@ import { PaymentItemFormComponent } from './payment-item-form.component';
             <div class="text-gray-800 dark:text-gray-200">Justificado</div>
             <div
               class="cursor-pointer hover:text-blue-500 hover:underline hover:underline-offset-2"
-              (click)="editItem('compensatory_hours_payment')"
+              (click)="
+                !isApproved() ? editItem('compensatory_hours_payment') : null
+              "
             >
               {{ summary().compensatory_hours_payment | currency : '$' }}
             </div>
           </div>
+          @for (otherIncome of otherIncome(); track $index) {
+          <div class="flex justify-between items-center gap-2 text-sm">
+            <div class="text-gray-800 dark:text-gray-200">
+              {{ otherIncome.description }}
+            </div>
+            <div>{{ otherIncome.amount | currency : '$' }}</div>
+          </div>
+          } @if (!isApproved()) {
+          <div class="flex justify-end">
+            <p-button
+              severity="success"
+              icon="pi pi-plus"
+              rounded
+              text
+              size="small"
+              (onClick)="!isApproved() ? editItem('new_income') : null"
+            />
+          </div>
+          }
           <div
             class="flex justify-between items-center gap-2 text-sm border-t border-gray-200 pt-2"
           >
@@ -369,6 +390,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
   private dialogRef = inject(DynamicDialogRef);
   private injector = inject(Injector);
   private dashboardStore = inject(DashboardStore);
+  public otherIncome = signal<PayrollPaymentEmployeeItem[]>([]);
 
   public payroll = httpResource<Payroll[]>(() => {
     if (!this.payment.value()?.[0]) {
@@ -534,6 +556,18 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
           payment_employee_id: '',
         };
         break;
+      case 'other_income':
+        label = 'otros ingresos';
+        break;
+      case 'new_income':
+        label = 'nuevo ingreso';
+        item = {
+          type: 'income',
+          amount: 0,
+          description: 'Nuevo ingreso',
+          payment_employee_id: '',
+        };
+        break;
     }
 
     this.dialogService
@@ -569,6 +603,12 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
                 ...summary,
                 compensatory_hours_payment: item.amount,
               }));
+              break;
+            case 'other_income':
+              this.otherIncome.update((otherIncome) => [...otherIncome, item]);
+              break;
+            case 'new_income':
+              this.otherIncome.update((otherIncome) => [...otherIncome, item]);
               break;
           }
         },
@@ -630,6 +670,15 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
         type: 'debt',
         amount: debt.amount,
         description: debt.description,
+      });
+    }
+
+    for (const income of this.otherIncome()) {
+      items.push({
+        payment_employee_id: '',
+        type: 'income',
+        amount: income.amount,
+        description: income.description,
       });
     }
     items.push({
@@ -774,6 +823,10 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
           absence_hours: acc.absence_hours + attendanceSheet.absence_hours,
           absence_hours_payment:
             acc.absence_hours_payment + attendanceSheet.absence_hours_payment,
+          other_income: this.otherIncome().reduce(
+            (acc, otherIncome) => acc + otherIncome.amount,
+            0
+          ),
         };
       },
       {
@@ -786,6 +839,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
         compensatory_hours_payment: 0,
         absence_hours: 0,
         absence_hours_payment: 0,
+        other_income: 0,
       }
     )
   );
@@ -795,7 +849,8 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
       this.employeeSalaryBase() +
         this.summary().sunday_payment +
         this.summary().compensatory_hours_payment -
-        this.summary().late_hours_payment
+        this.summary().late_hours_payment +
+        this.summary().other_income
     )
   );
 
@@ -844,6 +899,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
     const employeeTimelog: Record<string, AttendanceSheet> = {};
 
     if (!this.selectedEmployee()?.employee?.id) return;
+    this.otherIncome.set([]);
     for (const day of days) {
       const employeeTimeLogs = timeLogs.filter(
         (timeLog) =>
