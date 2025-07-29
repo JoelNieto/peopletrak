@@ -205,6 +205,7 @@ export class PayrollDebtsComponent implements OnInit {
   }
 
   public deleteDebt(debt: PayrollDebt) {
+    console.log({ debt });
     this.confirmationService.confirm({
       message: '¿Estás seguro de eliminar esta deuda?',
       header: 'Confirmación',
@@ -220,9 +221,11 @@ export class PayrollDebtsComponent implements OnInit {
       },
       accept: () => {
         this.http
-          .delete(
-            `${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_debts/${debt.id}`
-          )
+          .delete(`${process.env['ENV_SUPABASE_URL']}/rest/v1/payroll_debts`, {
+            params: {
+              id: `eq.${debt.id}`,
+            },
+          })
           .subscribe({
             next: () => {
               this.message.add({

@@ -37,7 +37,7 @@ import { PayrollsFormComponent } from './payrolls-form.component';
         <tr>
           <td>{{ payroll.name }}</td>
           <td>{{ payroll.company.name }}</td>
-          <td>{{ payroll.created_at | date }}</td>
+          <td>{{ payroll.created_at | date : 'short' }}</td>
           <td class="flex gap-2">
             <p-button
               label="Detalles"

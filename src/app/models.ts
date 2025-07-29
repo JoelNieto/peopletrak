@@ -177,6 +177,7 @@ export type PayrollEmployee = {
 
 export type PayrollPayment = {
   id: string;
+  title: string;
   payroll_id: string;
   payroll?: Payroll;
   start_date: Date;

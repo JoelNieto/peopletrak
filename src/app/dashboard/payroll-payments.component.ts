@@ -8,23 +8,43 @@ import {
 import { RouterLink } from '@angular/router';
 import { Button } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { PayrollPayment } from '../models';
 import { PayrollPaymentsFormComponent } from './payroll-payments-form.component';
 
 @Component({
   selector: 'pt-payroll-payments',
-  imports: [TableModule, Button, RouterLink],
+  imports: [TableModule, Button, RouterLink, IconField, InputIcon, InputText],
   providers: [DynamicDialogRef, DialogService],
   template: `
     <p-table
+      #dt1
       [value]="payments.value() ?? []"
       [loading]="payments.isLoading()"
       [paginator]="true"
       [rows]="10"
+      showCurrentPageReport
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      paginatorDropdownAppendTo="body"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pagos"
+      [globalFilterFields]="['title']"
     >
       <ng-template #caption>
-        <div class="flex justify-end">
+        <div class="flex justify-between">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              (input)="dt1.filterGlobal($event.target.value, 'contains')"
+              placeholder="Buscar"
+            />
+          </p-iconfield>
           <p-button
             label="Procesar pago"
             icon="pi pi-plus-circle"
@@ -36,17 +56,31 @@ import { PayrollPaymentsFormComponent } from './payroll-payments-form.component'
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th>Fecha Inicio</th>
-          <th>Fecha Fin</th>
-          <th>Estado</th>
+          <th pSortableColumn="title">
+            Titulo
+            <p-sortIcon field="title" />
+          </th>
+          <th pSortableColumn="start_date">
+            Fecha Inicio
+            <p-sortIcon field="start_date" />
+          </th>
+          <th pSortableColumn="end_date">
+            Fecha Fin
+            <p-sortIcon field="end_date" />
+          </th>
+          <th pSortableColumn="status">
+            Estado
+            <p-sortIcon field="status" />
+          </th>
           <th></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-payment>
         <tr>
-          <td>{{ payment.start_date }}</td>
-          <td>{{ payment.end_date }}</td>
-          <td>{{ payment.status }}</td>
+          <td pSortableColumn="title">{{ payment.title }}</td>
+          <td pSortableColumn="start_date">{{ payment.start_date }}</td>
+          <td pSortableColumn="end_date">{{ payment.end_date }}</td>
+          <td pSortableColumn="status">{{ payment.status }}</td>
           <td>
             <p-button
               label="Ver"

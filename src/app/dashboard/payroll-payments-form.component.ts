@@ -15,14 +15,25 @@ import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputText } from 'primeng/inputtext';
 import { markGroupDirty } from '../services/util.service';
 
 @Component({
   selector: 'pt-payroll-payments-form',
-  imports: [ReactiveFormsModule, DatePicker, Button],
+  imports: [ReactiveFormsModule, DatePicker, Button, InputText],
   template: `
     <form [formGroup]="form" (ngSubmit)="saveChanges()">
       <div class="flex flex-col md:grid grid-cols-2 md:gap-4">
+        <div class="input-container">
+          <label for="title">Titulo</label>
+          <input
+            pInputText
+            id="title"
+            name="title"
+            formControlName="title"
+            placeholder="Titulo"
+          />
+        </div>
         <div class="input-container">
           <label for="start_date">Fecha Inicio</label>
           <p-datepicker
@@ -52,14 +63,14 @@ import { markGroupDirty } from '../services/util.service';
           severity="secondary"
           outlined
           rounded
-          icon="pi pi-refresh"
+          icon="pi pi-times"
           (click)="modalRef.close()"
         />
         <p-button
           label="Guardar"
           type="submit"
           form="employee-form"
-          icon="pi pi-save"
+          icon="pi pi-check"
           rounded
         />
       </div>
@@ -70,6 +81,10 @@ import { markGroupDirty } from '../services/util.service';
 })
 export class PayrollPaymentsFormComponent implements OnInit {
   form = new FormGroup({
+    title: new FormControl('', {
+      validators: [Validators.required],
+      nonNullable: true,
+    }),
     start_date: new FormControl(new Date(), {
       validators: [Validators.required],
       nonNullable: true,

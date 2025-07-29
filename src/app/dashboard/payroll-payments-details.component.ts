@@ -14,6 +14,7 @@ import {
   inject,
   Injector,
   input,
+  linkedSignal,
   model,
   OnInit,
   signal,
@@ -53,6 +54,7 @@ import {
 import { roundNumber } from '../services/util.service';
 import { DashboardStore } from '../stores/dashboard.store';
 import { LateCompensatoryFormComponent } from './late-compensatory-form.component';
+import { PaymentItemFormComponent } from './payment-item-form.component';
 
 @Component({
   selector: 'pt-payroll-payments-details',
@@ -133,19 +135,31 @@ import { LateCompensatoryFormComponent } from './late-compensatory-form.componen
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Salario base</div>
-            <div>{{ employeeSalaryBase() | currency : '$' }}</div>
+            <div class="cursor-pointer" (click)="editItem('salary_base')">
+              {{ employeeSalaryBase() | currency : '$' }}
+            </div>
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Recargo domingo</div>
-            <div>{{ summary().sunday_payment | currency : '$' }}</div>
+            <div class="cursor-pointer" (click)="editItem('sunday_payment')">
+              {{ summary().sunday_payment | currency : '$' }}
+            </div>
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Tardanzas</div>
-            <div>{{ summary().late_hours_payment | currency : '$' }}</div>
+            <div
+              class="cursor-pointer"
+              (click)="editItem('late_hours_payment')"
+            >
+              {{ summary().late_hours_payment | currency : '$' }}
+            </div>
           </div>
           <div class="flex justify-between items-center gap-2 text-sm">
             <div class="text-gray-800 dark:text-gray-200">Justificado</div>
-            <div>
+            <div
+              class="cursor-pointer"
+              (click)="editItem('compensatory_hours_payment')"
+            >
               {{ summary().compensatory_hours_payment | currency : '$' }}
             </div>
           </div>
@@ -411,7 +425,6 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
     if (!incomeTax) return 0;
     const income = this.totalIncome();
     const annualIncome = income * 13 * 2;
-    console.log({ annualIncome });
     let taxAmount = 0;
     if (annualIncome < 11000) return 0;
     if (annualIncome > 50000) {
@@ -474,6 +487,86 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
       },
       { injector: this.injector }
     );
+  }
+
+  editItem(concept: string, item?: PayrollPaymentEmployeeItem) {
+    let label = '';
+    switch (concept) {
+      case 'salary_base':
+        label = 'salario base';
+        item = {
+          type: 'income',
+          amount: this.employeeSalaryBase(),
+          description: 'Salario base',
+          payment_employee_id: '',
+        };
+        break;
+      case 'sunday_payment':
+        label = 'recargo domingo';
+        item = {
+          type: 'income',
+          amount: this.summary().sunday_payment,
+          description: 'Recargo domingo',
+          payment_employee_id: '',
+        };
+        break;
+      case 'late_hours_payment':
+        label = 'horas tardías';
+        item = {
+          type: 'deduction',
+          amount: this.summary().late_hours_payment,
+          description: 'Horas tardías',
+          payment_employee_id: '',
+        };
+        break;
+      case 'compensatory_hours_payment':
+        label = 'horas justificadas';
+        item = {
+          type: 'income',
+          amount: this.summary().compensatory_hours_payment,
+          description: 'Horas justificadas',
+          payment_employee_id: '',
+        };
+        break;
+    }
+
+    this.dialogService
+      .open(PaymentItemFormComponent, {
+        modal: true,
+        width: '36rem',
+        header: `Editar ${label}`,
+        data: {
+          item,
+        },
+      })
+      .onClose.subscribe({
+        next: (item) => {
+          if (!item) return;
+          switch (concept) {
+            case 'salary_base':
+              this.employeeSalaryBase.set(item.amount);
+              break;
+            case 'sunday_payment':
+              this.summary.update((summary) => ({
+                ...summary,
+                sunday_payment: item.amount,
+              }));
+              break;
+            case 'late_hours_payment':
+              this.summary.update((summary) => ({
+                ...summary,
+                late_hours_payment: item.amount,
+              }));
+              break;
+            case 'compensatory_hours_payment':
+              this.summary.update((summary) => ({
+                ...summary,
+                compensatory_hours_payment: item.amount,
+              }));
+              break;
+          }
+        },
+      });
   }
 
   approvePayment(id: string) {
@@ -656,7 +749,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
     )
   );
 
-  public summary = computed(() =>
+  public summary = linkedSignal(() =>
     this.currentAttendanceSheets().reduce(
       (acc, attendanceSheet) => {
         return {
@@ -711,7 +804,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
     () => this.currentDebts()?.reduce((acc, debt) => acc + debt.amount, 0) ?? 0
   );
 
-  employeeSalaryBase = computed(() => {
+  employeeSalaryBase = linkedSignal(() => {
     const employee = this.selectedEmployee();
     if (!employee) return 0;
     return roundNumber(employee.hourly_salary * 104.28);
