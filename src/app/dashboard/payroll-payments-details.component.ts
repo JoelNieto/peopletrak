@@ -645,7 +645,7 @@ export class PayrollPaymentsDetailsComponent implements OnInit {
 
     items.push({
       payment_employee_id: '',
-      type: 'deduction',
+      type: 'income',
       amount: this.summary().sunday_payment,
       description: 'Recargo domingo',
     });
